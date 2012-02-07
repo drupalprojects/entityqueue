@@ -108,7 +108,7 @@ class EntityQueueUIController extends EntityDefaultUIController {
     $header = array(t('Label'));
     $header[] = t('Type');
     $header[] = t('Items');
-    $header[] = array('data' => t('Operations'), 'colspan' => 6);
+    $header[] = t('Operations');
 
     $render = array(
       '#theme' => 'table',
@@ -123,7 +123,7 @@ class EntityQueueUIController extends EntityDefaultUIController {
    * Overrides EntityDefaultUIController::overviewTableRow().
    */
   protected function overviewTableRow($conditions, $name, $entity, $additional_cols = array()) {
-    $entity_uri = entity_uri($this->entityType, $entity);
+    drupal_add_css(drupal_get_path('module', 'entityqueue') . '/css/entityqueue.admin.css');
 
     $row[] = array('data' => array(
       '#theme' => 'entityqueue_overview_item',
@@ -152,37 +152,36 @@ class EntityQueueUIController extends EntityDefaultUIController {
     }
 
     // Add operations depending on the status.
+    $operations = array();
     if (entity_has_status($this->entityType, $entity, ENTITY_FIXED)) {
-      $row[] = array('data' => l(t('clone'), $this->path . '/manage/' . $name . '/clone'), 'colspan' => 6);
+      $operations[] = array('title' => t('clone'), 'href' => $this->path . '/manage/' . $name . '/clone');
     }
     else {
       if (!$entity->hasChildren()) {
-        $row[] = l(t('edit items'), $this->path . '/manage/' . $name);
-        $row[] = '';
+        $operations[] = array('title' => t('edit items'), 'href' => $this->path . '/manage/' . $name);
       }
       else {
-        $row[] = '';
-        $row[] = l(t('view subqueues'), $this->path . '/manage/' . $name . '/view');
+        $operations[] = array('title' => t('view subqueues'), 'href' => $this->path . '/manage/' . $name . '/view');
       }
 
       if ($entity->isEditable()) {
-        $row[] = l(t('configure'), $this->path . '/manage/' . $name . '/configure');
-        $row[] = l(t('clone'), $this->path . '/manage/' . $name . '/clone');
+        $operations[] = array('title' => t('configure'), 'href' => $this->path . '/manage/' . $name . '/configure');
+        $operations[] = array('title' => t('clone'), 'href' => $this->path . '/manage/' . $name . '/clone');
+
         if (empty($this->entityInfo['exportable']) || !entity_has_status($this->entityType, $entity, ENTITY_IN_CODE)) {
-          $row[] = l(t('delete'), $this->path . '/manage/' . $name . '/delete', array('query' => drupal_get_destination()));
+          $operations[] = array('title' => t('delete'), 'href' => $this->path . '/manage/' . $name . '/delete', array('query' => drupal_get_destination()));
         }
         elseif (entity_has_status($this->entityType, $entity, ENTITY_OVERRIDDEN)) {
-          $row[] = l(t('revert'), $this->path . '/manage/' . $name . '/revert', array('query' => drupal_get_destination()));
+          $operations[] = array('title' => t('revert'), 'href' => $this->path . '/manage/' . $name . '/revert', array('query' => drupal_get_destination()));
         }
-        else {
-          $row[] = '';
-        }
-        $row[] = l(t('export'), $this->path . '/manage/' . $name . '/export');
-      }
-      else {
-        $row[] = array('data'=> '', 'colspan' => 5);
+
+        $operations[] = array('title' => t('export'), 'href' => $this->path . '/manage/' . $name . '/export');
       }
     }
+    $row[] = array(
+      'data' => theme('links__ctools_dropbutton', array('links' => $operations, 'attributes' => array('class' => array('links', 'inline')))),
+      'class' => array('operations'),
+    );
 
     return $row;
   }

@@ -1,0 +1,15 @@
+
+/**
+ * @file
+ * Basic styling for the Entityqueue module.
+ */
+
+#entityqueue-overview-form td.operations {
+  background-color: inherit;
+  padding-top: 18px;
+  vertical-align: top;
+}
+
+#entityqueue-overview-form td.operations .ctools-dropbutton {
+  position: absolute;
+}
