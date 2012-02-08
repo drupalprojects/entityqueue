@@ -352,6 +352,44 @@ function entityqueue_entityqueue_default_queues() {
 function entityqueue_form_alter(&$form, &$form_state, $form_id) { }
 
 /**
+ * Implements hook_block_view_alter().
+ */
+function entityqueue_block_view_alter(&$data, $block) {
+  // Add contextual links for blocks provided by Views that have a Entityqueue
+  // relationship.
+  $content = &$data['content'];
+  if ($block->module == 'views' && is_array($content) && !empty($content['#contextual_links']['views_ui'])) {
+    $view_name = $content['#views_contextual_links_info']['views_ui']['view_name'];
+    $view_display_id = $content['#views_contextual_links_info']['views_ui']['view_display_id'];
+
+    // Get the view object from views contextual info or initialize it manually.
+    if (!empty($content['#views_contextual_links_info']['views_ui']['view'])) {
+      $view = $content['#views_contextual_links_info']['views_ui']['view'];
+    }
+    else {
+      $view = views_get_view($view_name);
+    }
+    $view->init_display();
+
+    // Get view display relationships.
+    $relationships = $view->display[$view_display_id]->handler->get_option('relationships');
+    if (!empty($relationships['entityqueue_relationship'])) {
+      $referenced_queues = array_keys(array_filter($relationships['entityqueue_relationship']['queues']));
+
+      // Contextual links can handle only one set of links coming from a module,
+      // so we'll have to settle for the first referenced queue.
+      $queue = entityqueue_load(reset($referenced_queues));
+
+      $link = array('entityqueue' => array('admin/structure/entityqueue/manage', array($queue->name)));
+      $content['#contextual_links'] = array_merge($link, $content['#contextual_links']);
+      $content['#entityqueue_contextual_links_info'] = array(
+        'queue' => $queue,
+      );
+    }
+  }
+}
+
+/**
  * Implements hook_views_api().
  */
 function entityqueue_views_api() {

@@ -45,10 +45,14 @@ class EntityQueueUIController extends EntityDefaultUIController {
       'file path' => drupal_get_path('module', $this->entityInfo['module']),
     );
 
+    // Add a better title and context to the queue edit page.
+    $items[$this->path . '/manage/' . $wildcard . '/edit']['title'] = 'Edit queue items';
+    $items[$this->path . '/manage/' . $wildcard . '/edit']['context'] = MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE;
+
     // Configure form, a special form for editing the properties of a queue.
     // Fields are handled in the regular edit form.
     $items[$this->path . '/manage/' . $wildcard . '/configure'] = array(
-      'title' => 'Configure',
+      'title' => 'Configure queue',
       'page callback' => 'entity_ui_get_form',
       'page arguments' => array($this->entityType, $id_count + 1, 'configure'),
       'load arguments' => array($this->entityType),
@@ -56,6 +60,9 @@ class EntityQueueUIController extends EntityDefaultUIController {
       'access arguments' => array('edit', $this->entityType),
       'file' => $this->entityInfo['admin ui']['file'],
       'file path' => drupal_get_path('module', $this->entityInfo['module']),
+      'type' => MENU_LOCAL_TASK,
+      'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+      'weight' => 1,
     );
 
     return $items;
