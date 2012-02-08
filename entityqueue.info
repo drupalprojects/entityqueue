@@ -12,3 +12,6 @@ dependencies[] = entityreference
 ; Entity API controllers.
 files[] = includes/entityqueue.controller.inc
 files[] = includes/entityqueue.admin.inc
+
+; Views Handlers
+files[] = includes/views/entityqueue_handler_relationship_entityqueue.inc

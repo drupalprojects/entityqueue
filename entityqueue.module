@@ -352,6 +352,16 @@ function entityqueue_entityqueue_default_queues() {
 function entityqueue_form_alter(&$form, &$form_state, $form_id) { }
 
 /**
+ * Implements hook_views_api().
+ */
+function entityqueue_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'entityqueue') . '/includes/views',
+  );
+}
+
+/**
  * Implements hook_theme().
  */
 function entityqueue_theme() {
