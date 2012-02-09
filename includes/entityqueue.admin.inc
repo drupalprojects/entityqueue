@@ -310,6 +310,11 @@ function entityqueue_form($form, &$form_state, $queue, $op = 'edit') {
     '#value' => $user->uid,
   );
 
+  $form['subqueue'] = array(
+    '#type' => 'value',
+    '#value' => TRUE,
+  );
+
   $types = entityqueue_type_get_name();
   $form['type'] = array(
     '#title' => t('Type'),
