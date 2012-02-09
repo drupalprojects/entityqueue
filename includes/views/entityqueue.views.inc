@@ -14,6 +14,12 @@ function entityqueue_views_data_alter(&$data) {
   foreach (entityqueue_type_get_name() as $type => $name) {
     $field = field_info_field('entityqueue_target_' . $type);
 
+    // @todo: Temporary workaround until entityqueue_target_* fields are created
+    // for an entity type when it's providing module is installed.
+    if (!$field) {
+      continue;
+    }
+
     foreach ($field['bundles'] as $entity_type => $bundles) {
       $target_entity_info = entity_get_info($field['settings']['target_type']);
       if (isset($target_entity_info['base table'])) {

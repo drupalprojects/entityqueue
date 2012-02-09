@@ -98,8 +98,22 @@ function entityqueue_entity_info() {
     ),
   );
 
+  // Support the Entity cache module.
+//  if (module_exists('entitycache')) {
+//    $return['entityqueue']['field cache'] = FALSE;
+//    $return['entityqueue']['entity cache'] = TRUE;
+//  }
+
+  return $return;
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function entityqueue_entity_info_alter(&$entity_info) {
+  // Add every entity type as a entityqueue bundle.
   foreach (entityqueue_type_get_name() as $type => $name) {
-    $return['entityqueue']['bundles'][$type] = array(
+    $entity_info['entityqueue']['bundles'][$type] = array(
       'label' => $name,
       'admin' => array(
         'path' => 'admin/structure/entityqueue/types/manage/%',
@@ -109,14 +123,6 @@ function entityqueue_entity_info() {
       ),
     );
   }
-
-  // Support the Entity cache module.
-//  if (module_exists('entitycache')) {
-//    $return['entityqueue']['field cache'] = FALSE;
-//    $return['entityqueue']['entity cache'] = TRUE;
-//  }
-
-  return $return;
 }
 
 /**
