@@ -12,6 +12,7 @@ class entityqueue_handler_relationship_entityqueue extends views_handler_relatio
 
     $options['limit']['default'] = FALSE;
     $options['queues']['default'] = array();
+
     return $options;
   }
 
@@ -29,8 +30,9 @@ class entityqueue_handler_relationship_entityqueue extends views_handler_relatio
     );
 
     $options = array();
+    $views_data = views_fetch_data($this->table);
     // @todo: Add a helper function for this.
-    $queues = entityqueue_load_multiple(array(), array('type' => $this->view->base_table, 'subqueue' => TRUE));
+    $queues = entityqueue_load_multiple(array(), array('type' => $views_data['table']['entity type'], 'subqueue' => TRUE));
     foreach ($queues as $name => $queue) {
       $options[$name] = $queue->label;
     }
@@ -101,11 +103,12 @@ class entityqueue_handler_relationship_entityqueue extends views_handler_relatio
     // Add an extra condition to limit results based on the queue selection.
     if (!empty($this->options['limit'])) {
       $queues = array_keys(array_filter($this->options['queues']));
-
-      $second['extra'] = array(array(
-        'field' => 'name',
-        'value' => $queues,
-      ));
+      if (!empty($queues)) {
+        $second['extra'] = array(array(
+          'field' => 'name',
+          'value' => $queues,
+        ));
+      }
     }
 
     if (!empty($this->definition['join_handler']) && class_exists($this->definition['join_handler'])) {
