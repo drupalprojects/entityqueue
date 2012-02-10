@@ -135,7 +135,7 @@ function entityqueue_schema() {
 function entityqueue_install() {
   // Add an entityreference field to queue bundles.
   foreach (entityqueue_type_get_name() as $type => $name) {
-    _entityqueue_create_entityreference_field("entityqueue_target_{$type}", 'entityqueue', $type, t('Queue items'), 0);
+    _entityqueue_create_entityreference_field(_entityqueue_get_target_field_name($type), 'entityqueue', $type, t('Queue items'), 0);
   }
 }
 
@@ -144,10 +144,10 @@ function entityqueue_install() {
  */
 function entityqueue_uninstall() {
   module_load_include('module', 'entityqueue');
-  // Delete all entityqueue_target_{$entity_type} fields.
+  // Delete all entityqueue target fields.
   foreach (entityqueue_type_get_name() as $type => $name) {
-    field_delete_field("entityqueue_target_{$type}");
-    field_purge_batch(11);
+    field_delete_field(_entityqueue_get_target_field_name($type));
+    field_purge_batch(50);
   }
 
   // @todo: Remove our variables.

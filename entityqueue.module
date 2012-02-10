@@ -424,3 +424,23 @@ function entityqueue_theme() {
     ),
   );
 }
+
+/**
+ * Helper function for getting the name of a entityqueue target field.
+ *
+ * @param string $entity_type
+ *   A Drupal entity type.
+ *
+ * @return string
+ *   The name of the enttityqueue target field for the given entity type.
+ */
+function _entityqueue_get_target_field_name($entity_type) {
+  if (drupal_strlen($entity_type) <= 29) {
+    return 'eq_' . $entity_type;
+  }
+  else {
+    // Field names cannot be longer than 32 characters, so have to use a hashing
+    // trick in order to get a human-readable field name for long entity types.
+    return 'eq_' . substr($entity_type, 0, 20) . '_' . substr(md5($entity_type), 0, 8);
+  }
+}

@@ -149,7 +149,7 @@ class EntityQueueUIController extends EntityDefaultUIController {
     $row[] = $types[$entity->type];
 
     // Add a column for the number of items in the queue or the number of subqueues.
-    $items = field_get_items($this->entityType, $entity, 'entityqueue_target_' . $entity->type);
+    $items = field_get_items($this->entityType, $entity, _entityqueue_get_target_field_name($entity->type));
     if (!$entity->hasChildren()) {
       $row[] = format_plural((!empty($items) ? count($items) : 0), '1 item', '@count items');
     }
