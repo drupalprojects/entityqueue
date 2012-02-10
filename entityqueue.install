@@ -11,28 +11,11 @@
 function entityqueue_schema() {
   $schema['entityqueue'] = array(
     'description' => 'Stores global information for each queue.',
-//    'export' => array(
-//      'key' => 'name',
-//      'key name' => 'Name',
-//      'primary key' => 'queue_id',
-//      'identifier' => 'queue',
-//      'default hook' => 'entityqueue_default_queues',
-//      'export type string' => 'ctools_type',
-//      'load callback' => 'entityqueue_load_by_name',
-//      'save callback' => 'entityqueue_save',
-//      'api' => array(
-//        'owner' => 'entityqueue',
-//        'api' => 'default_entityqueue_entityqueue',  // Base name for api include files.
-//        'minimum_version' => 1,
-//        'current_version' => 1,
-//      ),
-//    ),
     'fields' => array(
       'queue_id' => array(
         'type' => 'serial',
         'not null' => TRUE,
         'description' => 'Primary Key: Unique queue ID.',
-//        'no export' => TRUE,
       ),
       'name' => array(
         'type' => 'varchar',
@@ -144,13 +127,57 @@ function entityqueue_install() {
  */
 function entityqueue_uninstall() {
   module_load_include('module', 'entityqueue');
+
   // Delete all entityqueue target fields.
+  // @todo: Field deletion is quite broken in Drupal atm, this should be
+  // revisited when http://drupal.org/node/1264756 is fixed.
   foreach (entityqueue_type_get_name() as $type => $name) {
     field_delete_field(_entityqueue_get_target_field_name($type));
-    field_purge_batch(50);
   }
+  // The 'entityqueue' entity type is not available at this point, but it's
+  // field has to be removed as well.
+  field_delete_field(_entityqueue_get_target_field_name('entityqueue'));
+  field_purge_batch(1000);
 
   // @todo: Remove our variables.
+}
+
+/**
+ * Helper function for adding or removing entityreference fields when modules
+ * are installed/uninstalled,
+ */
+function _entityqueue_refresh_entityreference_fields() {
+  ctools_include('fields');
+  $existing_entityqueue_fields = array();
+  foreach (ctools_fields_get_fields_by_type('entityreference') as $field_name => $field) {
+    // We don't have a better way of getting entityreference fields created by
+    // entityqueue, so we'll just have to check for the 'eq_' prefix.
+    if (substr($field_name, 0, 3) == 'eq_') {
+      $existing_entityqueue_fields[$field['bundles']['entityqueue'][0]] = $field_name;
+    }
+  }
+
+  $required_entityqueue_fields = array();
+  foreach (entityqueue_type_get_name() as $type => $name) {
+    $required_entityqueue_fields[$type] = _entityqueue_get_target_field_name($type);
+  }
+
+  // Determine fields that have to be created or deleted.
+  $new_fields = array_diff($required_entityqueue_fields, $existing_entityqueue_fields);
+  $delete_fields = array_diff($existing_entityqueue_fields, $required_entityqueue_fields);
+
+  if (!empty($new_fields)) {
+    foreach ($new_fields as $type => $field_name) {
+      _entityqueue_create_entityreference_field($field_name, 'entityqueue', $type, t('Queue items'), 0);
+    }
+  }
+
+  if (!empty($delete_fields)) {
+    foreach ($delete_fields as $field_name) {
+      field_delete_field($field_name);
+    }
+    field_purge_batch(1000);
+  }
 }
 
 /**
@@ -192,7 +219,8 @@ function _entityqueue_create_entityreference_field($field_name, $entity_type, $b
       'locked' => TRUE,
       'settings' => array(
         'target_type' => $bundle,
-//        'handler' => 'entityqueueHandler_base',
+        'handler' => 'base',
+        'handler_settings' => array(),
       ),
     );
     field_create_field($field);

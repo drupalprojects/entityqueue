@@ -53,6 +53,33 @@ function entityqueue_menu() {
 }
 
 /**
+ * Implements hook_modules_installed().
+ */
+function entityqueue_modules_installed($modules) {
+  // Check each new installed module to see if they provide a new entity type,
+  // and if they do, refresh entityqueue target fields.
+  $refresh_fields = FALSE;
+  foreach ($modules as $module) {
+    if (module_hook($module, 'entity_info')) {
+      $refresh_fields = TRUE;
+    }
+  }
+
+  if ($refresh_fields) {
+    module_load_install('entityqueue');
+    _entityqueue_refresh_entityreference_fields();
+  }
+}
+
+/**
+ * Implements hook_modules_uninstalled().
+ */
+function entityqueue_modules_uninstalled($modules) {
+  module_load_install('entityqueue');
+  _entityqueue_refresh_entityreference_fields();
+}
+
+/**
  * Implements hook_entity_info().
  */
 function entityqueue_entity_info() {
@@ -155,7 +182,6 @@ function entityqueue_access($op, $type = NULL, $account = NULL) {
   return TRUE;
 }
 
-
 /**
  * Returns an initialized queue object.
  *
@@ -231,8 +257,6 @@ function entityqueue_load_multiple($names = array(), $conditions = array(), $res
  * Returns an array of queue types (bundles), keyed by name.
  */
 function entityqueue_type_get_name() {
-  // @todo: Implement code that handles installing/uninstalling modules that
-  // provide entity types.
   $queue_types = array();
   foreach (entity_get_info() as $type => $info) {
     $queue_types[$type] = $info['label'];
