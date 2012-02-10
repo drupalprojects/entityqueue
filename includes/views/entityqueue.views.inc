@@ -13,6 +13,7 @@
 function entityqueue_views_data_alter(&$data) {
   foreach (entityqueue_type_get_name() as $type => $name) {
     $field = field_info_field(_entityqueue_get_target_field_name($type));
+    $field_table = _field_sql_storage_tablename($field);
 
     // @todo: Temporary workaround until entityqueue target fields are created
     // for an entity type when it's providing module is installed.
@@ -28,7 +29,7 @@ function entityqueue_views_data_alter(&$data) {
         $data[$target_entity_info['base table']]['entityqueue_relationship']['relationship'] = array(
           'handler' => 'entityqueue_handler_relationship_entityqueue',
           'field_name' => $field['field_name'],
-          'field table' => _field_sql_storage_tablename($field),
+          'field table' => $field_table,
           'field field' => $field['field_name'] . '_target_id',
           'base' => $entity_info['base table'],
           'base field' => $entity_info['entity keys']['id'],
@@ -39,5 +40,9 @@ function entityqueue_views_data_alter(&$data) {
         );
       }
     }
+
+    // Remove data that was automatically added by Views for our entity target
+    // fields.
+    unset($data[$field_table]);
   }
 }
