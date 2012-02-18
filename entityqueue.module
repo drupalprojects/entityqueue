@@ -269,12 +269,7 @@ function entityqueue_type_get_name() {
  * Main class for queue entities.
  */
 class EntityQueue extends Entity {
-  public $name;
-  public $type = 'node';
-  public $label;
-  public $subqueue_label = '';
-  public $module = 'entityqueue';
-  
+
   public function __construct($values = array()) {
     if (!isset($values['type'])) {
       $values['type'] = $this->type;

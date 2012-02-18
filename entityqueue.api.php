@@ -27,8 +27,6 @@ function hook_entityqueue_default_queues() {
       "label" : "Featured articles",
       "subqueue_label" : "Featured articles",
       "parent_name" : null,
-      "min_size" : "0",
-      "max_size" : "5",
       "uid" : "1",
       "rdf_mapping" : []
     }');

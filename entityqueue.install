@@ -55,22 +55,9 @@ function entityqueue_schema() {
       'subqueue_label' => array(
         'type' => 'varchar',
         'length' => 255,
-        'not null' => TRUE,
+        'not null' => FALSE,
+        'default' => NULL,
         'description' => 'The human-readable name of subqueues.',
-      ),
-      'min_size' => array(
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-        'description' => 'The minimum number of entities this queue will hold.',
-      ),
-      'max_size' => array(
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-        'description' => 'The maximum number of entities this queue will hold.',
       ),
       'status' => array(
         'type' => 'int',
@@ -90,7 +77,14 @@ function entityqueue_schema() {
         'unsigned' => TRUE,
         'not null' => FALSE,
         'default' => NULL,
-        'description' => "The {users}.uid who created this queue.",
+        'description' => 'The {users}.uid who created this queue.',
+      ),
+      'data' => array(
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => TRUE,
+        'serialize' => TRUE,
+        'description' => 'Serialized data containing the queue properties that do not warrant a dedicated column.',
       ),
     ),
     'primary key' => array('queue_id'),
@@ -181,8 +175,7 @@ function _entityqueue_refresh_entityreference_fields() {
 }
 
 /**
- * Creates a required, locked instance of a entityreference field on the
- * specified bundle.
+ * Creates a locked instance of a entityreference field on the specified bundle.
  *
  * @param $field_name
  *   The name of the field; if it already exists, a new instance of the existing
@@ -219,7 +212,7 @@ function _entityqueue_create_entityreference_field($field_name, $entity_type, $b
       'locked' => TRUE,
       'settings' => array(
         'target_type' => $bundle,
-        'handler' => 'base',
+        'handler' => 'entityqueue',
         'handler_settings' => array(),
       ),
     );
@@ -246,7 +239,7 @@ function _entityqueue_create_entityreference_field($field_name, $entity_type, $b
         ),
       ),
 
-      'display' => array(),
+      'display' => $display,
     );
     field_create_instance($instance);
   }

@@ -280,6 +280,7 @@ function entityqueue_form($form, &$form_state, $queue, $op = 'edit') {
     '#title' => t('Label'),
     '#type' => 'textfield',
     '#default_value' => $queue->label,
+    '#required' => TRUE,
   );
 
   // Machine-readable queue name.
@@ -315,12 +316,53 @@ function entityqueue_form($form, &$form_state, $queue, $op = 'edit') {
     '#value' => TRUE,
   );
 
+  $queue_type = isset($form_state['values']['type']) ? $form_state['values']['type'] : $queue->type;
   $types = entityqueue_type_get_name();
   $form['type'] = array(
     '#title' => t('Type'),
     '#type' => 'select',
     '#options' => $types,
-    '#default_value' => $queue->type,
+    '#default_value' => $queue_type,
+    '#required' => TRUE,
+    '#disabled' => !empty($queue->is_new) ? FALSE : TRUE,
+    '#size' => 1,
+    '#ajax' => array(
+      'callback' => 'entityqueue_type_callback',
+      'wrapper' => 'entityqueue-target-bundles',
+    ),
+  );
+
+  $form['data']['#tree'] = TRUE;
+
+  $entity_info = entity_get_info($queue_type);
+  $bundles = array();
+  foreach ($entity_info['bundles'] as $bundle_name => $bundle_info) {
+    $bundles[$bundle_name] = $bundle_info['label'];
+  }
+
+  $form['data']['target_bundles'] = array(
+    '#type' => 'checkboxes',
+    '#title' => $queue_type == 'node' ? t('Content types') : t('Bundles'),
+    '#prefix' => '<div id="entityqueue-target-bundles">',
+    '#suffix' => '</div>',
+    '#options' => $bundles,
+    '#default_value' => !empty($queue->data['target_bundles']) ? $queue->data['target_bundles'] : array(),
+    '#multiple' => TRUE,
+    '#description' => t('The bundles of the entity type that can be referenced. Optional, leave empty for all bundles.')
+  );
+
+  $form['data']['min_size'] = array(
+    '#title' => t('Minimum size'),
+    '#type' => 'textfield',
+    '#size' => 3,
+    '#default_value' => !empty($queue->data['min_size'])? $queue->data['min_size'] : 0,
+  );
+
+  $form['data']['max_size'] = array(
+    '#title' => t('Maximum size'),
+    '#type' => 'textfield',
+    '#size' => 3,
+    '#default_value' => !empty($queue->data['max_size'])? $queue->data['max_size'] : 0,
   );
 
   $form['actions'] = array('#type' => 'actions');
@@ -336,10 +378,24 @@ function entityqueue_form($form, &$form_state, $queue, $op = 'edit') {
 }
 
 /**
+ * Selects just the target bundles dropdown to be returned for re-rendering.
+ *
+ * @return renderable array (the second dropdown)
+ */
+function entityqueue_type_callback($form, $form_state) {
+  return $form['data']['target_bundles'];
+}
+
+/**
  * Form API submit callback for the queue form.
  */
 function entityqueue_form_submit(&$form, &$form_state) {
   if ($form_state['values']['op'] != t('Cancel')) {
+    // Clean-up the target_bundle values a bit.
+    if (isset($form_state['values']['data'])) {
+      $form_state['values']['data']['target_bundles'] = array_filter($form_state['values']['data']['target_bundles']);
+    }
+
     $queue = entity_ui_form_submit_build_entity($form, $form_state);
     $queue->save();
   }
