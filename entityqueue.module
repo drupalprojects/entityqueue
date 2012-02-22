@@ -183,16 +183,16 @@ function entityqueue_access($op, $type = NULL, $account = NULL) {
 }
 
 /**
- * Returns an initialized queue object.
+ * Constructs a new EntityQueue object, without saving it to the database.
  *
- * @param $type
- *   The machine-readable type of the queue.
+ * @param array $values
+ *   An array of values to set, keyed by property name.
  *
- * @return
- *   A queue object with all default fields initialized.
+ * @return EntityQueue
+ *   A new EntityQueue object.
  */
-function entityqueue_create($type = 'node') {
-  return entity_get_controller('entityqueue')->create(array('type' => $type));
+function entityqueue_create($values = array()) {
+  return entity_get_controller('entityqueue')->create($values);
 }
 
 /**
