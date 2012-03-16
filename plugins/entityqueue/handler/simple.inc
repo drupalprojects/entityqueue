@@ -2,6 +2,6 @@
 
 $plugin = array(
   'title' => t('Simple queue'),
-  'class' => 'EntityQueue_Behavior_Simple',
+  'class' => 'EntityQueueHandler_Simple',
   'weight' => -100,
 );

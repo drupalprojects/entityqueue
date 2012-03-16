@@ -11,8 +11,8 @@
  * @see entityreference_field_views_data_views_data_alter()
  */
 function entityqueue_views_data_alter(&$data) {
-  foreach (entityqueue_type_get_name() as $type => $name) {
-    $field = field_info_field(_entityqueue_get_target_field_name($type));
+  foreach (entityqueue_queue_load_multiple() as $queue) {
+    $field = field_info_field(_entityqueue_get_target_field_name($queue->target_type));
     $field_table = _field_sql_storage_tablename($field);
 
     foreach ($field['bundles'] as $entity_type => $bundles) {

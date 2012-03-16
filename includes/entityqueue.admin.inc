@@ -467,22 +467,17 @@ function theme_entityqueue_overview_item($variables) {
 function theme_entityqueue_status($variables) {
   $status = $variables['status'];
   $html = $variables['html'];
-  if (($status & ENTITY_FIXED) == ENTITY_FIXED) {
-    $label = t('Fixed');
-    $help = t('The configuration is fixed and cannot be changed.');
-    return $html ? "<span class='entityqueue-status-fixed' title='$help'>" . $label . "</span>" : $label;
-  }
-  elseif (($status & ENTITY_OVERRIDDEN) == ENTITY_OVERRIDDEN) {
+  if (($status & (EXPORT_IN_CODE | EXPORT_IN_DATABASE)) == (EXPORT_IN_CODE | EXPORT_IN_DATABASE)) {
     $label = t('Database overriding code');
     $help = t('This configuration is provided by a module, but has been changed.');
     return $html ? "<span class='entityqueue-status-overridden' title='$help'>" . $label . "</span>" : $label;
   }
-  elseif ($status & ENTITY_IN_CODE) {
+  elseif ($status & EXPORT_IN_CODE) {
     $label = t('In code');
     $help = t('A module provides this configuration.');
     return $html ? "<span class='entityqueue-status-default' title='$help'>" . $label . "</span>" : $label;
   }
-  elseif ($status & ENTITY_CUSTOM) {
+  elseif ($status & EXPORT_IN_DATABASE) {
     $label = t('In database');
     $help = t('A custom configuration by a user.');
     return $html ? "<span class='entityqueue-status-custom' title='$help'>" . $label . "</span>" : $label;

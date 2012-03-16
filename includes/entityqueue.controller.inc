@@ -9,7 +9,7 @@
  * The controller class for queues contains methods for the queue CRUD
  * operations.
  */
-class EntityQueueEntityController extends EntityAPIControllerExportable {
+class EntitySubqueueEntityController extends EntityAPIControllerExportable {
 
   /**
    * Create a default queue.
