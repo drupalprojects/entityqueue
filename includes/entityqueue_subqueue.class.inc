@@ -6,11 +6,7 @@
 class EntitySubqueue extends Entity {
 
   public function __construct($values = array()) {
-    if (!isset($values['type'])) {
-      $values['type'] = $this->type;
-    }
-
-    parent::__construct($values, 'entitysubqueue');
+    parent::__construct($values, 'entityqueue_subqueue');
   }
 
   /**

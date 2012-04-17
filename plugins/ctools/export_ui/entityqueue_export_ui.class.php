@@ -42,9 +42,7 @@ class entityqueue_export_ui extends ctools_export_ui {
     );
 
     $target_type = entityqueue_get_handler($queue)->getTargetTypeLabel();
-
-    $handlers = ctools_get_plugins('entityqueue', 'handler');
-    $handler = !empty($handlers[$queue->handler]) ? $handlers[$queue->handler]['title'] : '<em>' . t('Broken/missing handler') . '</em>';
+    $handler = entityqueue_get_handler($queue)->getHandlerLabel();
 
     $ops = theme('links__ctools_dropbutton', array('links' => $operations, 'attributes' => array('class' => array('links', 'inline'))));
 

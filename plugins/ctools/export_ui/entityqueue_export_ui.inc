@@ -22,8 +22,8 @@ $plugin = array(
 
   'form' => array(
     'settings' => 'entityqueue_export_ui_form',
-//    'validate' => 'example_ctools_export_ui_form_validate',
-//    'submit' => 'example_ctools_export_ui_form_submit',
+    'validate' => 'entityqueue_export_ui_form_validate',
+//    'submit' => 'entityqueue_export_ui_form_submit',
   ),
 
   'handler' => array(
@@ -57,14 +57,14 @@ function entityqueue_export_ui_form(&$form, &$form_state) {
 
   // Get valid target entity types.
   $entity_info = entity_get_info();
-  unset($entity_info['entitysubqueue']);
+  unset($entity_info['entityqueue_subqueue']);
 
   $entity_types = array();
   foreach ($entity_info as $entity_type => $info) {
     $entity_types[$entity_type] = $info['label'];
   }
   $form['target_type'] = array(
-    '#title' => t('Type'),
+    '#title' => t('Entity type'),
     '#type' => 'select',
     '#options' => $entity_types,
     '#default_value' => $queue->target_type,
@@ -119,4 +119,14 @@ function entityqueue_export_ui_form(&$form, &$form_state) {
  */
 function entityqueue_export_ui_target_type_callback($form, $form_state) {
   return $form['settings']['target_bundles'];
+}
+
+/**
+ * Validate submission of the preset edit form.
+ */
+function entityqueue_export_ui_form_validate(&$form, &$form_state) {
+  // Clean-up target_bundles values a bit.
+  if (isset($form_state['values']['settings'])) {
+    $form_state['values']['settings']['target_bundles'] = array_filter($form_state['values']['settings']['target_bundles']);
+  }
 }

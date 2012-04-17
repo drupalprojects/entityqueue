@@ -117,21 +117,33 @@ function entityqueue_queue_create($values = array()) {
  *
  * @param EntityQueue $queue
  *   EntityQueue object with queue properties. See entityqueue_queue_create().
- * @param array $write_record_keys
- *   Array containing the primary key of the relation ('relation_type'), if
- *   updating a relation, or an empty array if creating a new relation.
  * @param bool $rebuild_menu
  *   Boolean indicating whether the the database tables used by various menu
  *   functions should be rebuilt. Setting this to FALSE is useful if multiple
  *   queues are being created programmatically. Defaults to TRUE.
+ *
+ * @return int|bool
+ *   If the queue insert or update failed, returns FALSE. If it succeeded,
+ *   returns SAVED_NEW or SAVED_UPDATED, depending on the operation performed.
  */
-function entityqueue_queue_save(EntityQueue $queue, $write_record_keys = array(), $rebuild_menu = TRUE) {
+function entityqueue_queue_save(EntityQueue $queue, $rebuild_menu = TRUE) {
   // Make sure all keys are populated.
   $queue = entityqueue_queue_create($queue);
 
+  if ($queue->export_type & EXPORT_IN_DATABASE) {
+    // Existing queue.
+    $write_record_keys = array('name');
+  }
+  else {
+    // New queue.
+    $write_record_keys = array();
+    $queue->export_type = EXPORT_IN_DATABASE;
+  }
+
   $transaction = db_transaction();
   try {
-    drupal_write_record('entityqueue_queue', $queue, $write_record_keys);
+    $return = drupal_write_record('entityqueue_queue', $queue, $write_record_keys);
+    _entityqueue_queue_ensure_instance($queue);
   }
   catch (Exception $e) {
     $transaction->rollback();
@@ -139,10 +151,11 @@ function entityqueue_queue_save(EntityQueue $queue, $write_record_keys = array()
     throw $e;
   }
 
-  _entityqueue_queue_ensure_instance($queue);
   if ($rebuild_menu) {
     menu_rebuild();
   }
+
+  return $return;
 }
 
 /**
@@ -175,9 +188,9 @@ function entityqueue_queue_load_multiple($names = array()) {
   $queues = !empty($names) ? ctools_export_load_object('entityqueue_queue', 'names', $names) : ctools_export_crud_load_all('entityqueue_queue');
 
   static $recurse = FALSE;
-  if (!$recurse) {
+  if (!$recurse && !drupal_static('entityqueue_install')) {
     $recurse = TRUE;
-    foreach ($queues as $queue) {
+    foreach ($queues as $name => $queue) {
       if (!empty($queue->in_code_only)) {
         _entityqueue_queue_ensure_instance($queue);
       }
@@ -218,7 +231,7 @@ function entityqueue_queue_delete($queue) {
  */
 function entityqueue_entity_info() {
   $return = array(
-    'entitysubqueue' => array(
+    'entityqueue_subqueue' => array(
       'label' => t('Subqueue'),
       'plural label' => t('Subqueues'),
       'entity class' => 'EntitySubqueue',
@@ -237,7 +250,7 @@ function entityqueue_entity_info() {
       ),
       'bundles' => array(),
       'bundle keys' => array(
-        'bundle' => 'type',
+        'bundle' => 'name',
       ),
       'view modes' => array(
         'full' => array(
@@ -254,6 +267,17 @@ function entityqueue_entity_info() {
 //      ),
     ),
   );
+  foreach (entityqueue_queue_load_multiple() as $name => $queue) {
+    $return['entityqueue_subqueue']['bundles'][$name] = array(
+      'label' => $queue->label,
+      'admin' => array(
+        'path' => 'admin/structure/entityqueue/list/%',
+        'real path' => 'admin/structure/entityqueue/list/' . $name,
+        'bundle argument' => 4,
+        'access arguments' => array('administer entityqueue'),
+      ),
+    );
+  }
 
   // Support the Entity cache module.
 //  if (module_exists('entitycache')) {
@@ -262,24 +286,6 @@ function entityqueue_entity_info() {
 //  }
 
   return $return;
-}
-
-/**
- * Implements hook_entity_info_alter().
- */
-function entityqueue_entity_info_alter(&$entity_info) {
-  // Add every entity type as a entityqueue bundle.
-//  foreach (entityqueue_type_get_name() as $type => $name) {
-//    $entity_info['entityqueue']['bundles'][$type] = array(
-//      'label' => $name,
-//      'admin' => array(
-//        'path' => 'admin/structure/entityqueue/types/manage/%',
-//        'real path' => 'admin/structure/entityqueue/types/manage/' . $type,
-//        'bundle argument' => 5,
-//        'access arguments' => array('administer queue types'),
-//      ),
-//    );
-//  }
 }
 
 /**
@@ -322,7 +328,7 @@ function entityqueue_subqueue_access($op, $type = NULL, $account = NULL) {
  *   A new EntitySubqueue object.
  */
 function entityqueue_subqueue_create($values = array()) {
-  return entity_get_controller('entitysubqueue')->create($values);
+  return entity_get_controller('entityqueue_subqueue')->create($values);
 }
 
 /**
@@ -335,7 +341,7 @@ function entityqueue_subqueue_create($values = array()) {
  *   SAVED_NEW or SAVED_UPDATED depending on the operation performed.
  */
 function entityqueue_subqueue_save(EntitySubqueue $subqueue) {
-  return entity_get_controller('entitysubqueue')->save($subqueue);
+  return entity_get_controller('entityqueue_subqueue')->save($subqueue);
 }
 
 /**
@@ -355,8 +361,6 @@ function entityqueue_subqueue_load($name) {
 /**
  * Loads multiple queues by name or ID or based on a set of matching conditions.
  *
- * @see entity_load()
- *
  * @param array $names
  *   An array of queue names.
  * @param array $conditions
@@ -372,7 +376,7 @@ function entityqueue_subqueue_load($name) {
  * @todo: Add support for $reset in entity_load_multiple_by_name().
  */
 function entityqueue_subqueue_load_multiple($names = array(), $conditions = array(), $reset = FALSE) {
-  $queues = entity_load_multiple_by_name('entitysubqueue', (!empty($names) ? $names : FALSE), $conditions);
+  $queues = entity_load_multiple_by_name('entityqueue_subqueue', (!empty($names) ? $names : FALSE), $conditions);
   return !empty($queues) ? $queues : array();
 }
 
@@ -497,28 +501,30 @@ function _entityqueue_get_target_field_name($entity_type) {
 function _entityqueue_queue_ensure_instance(EntityQueue $queue) {
   $field_name = _entityqueue_get_target_field_name($queue->target_type);
   if (!field_info_instance('entityqueue_subqueue', $field_name, $queue->name)) {
-    _entityqueue_create_entityreference_field($field_name, 'entityqueue_subqueue', $queue->name, t('Queue items'), 0);
+    _entityqueue_create_entityreference_field($queue, $field_name, 'entityqueue_subqueue', $queue->name, t('Queue items'), 0);
   }
 }
 
 /**
  * Creates a locked instance of a entityreference field on the specified bundle.
  *
- * @param $field_name
+ * @param EntityQueue $queue
+ *   An EntityQueue object.
+ * @param string $field_name
  *   The name of the field; if it already exists, a new instance of the existing
  *   field will be created.
- * @param $entity_type
+ * @param string $entity_type
  *   The type of entity the field instance will be attached to.
- * @param $bundle
+ * @param string $bundle
  *   The bundle name of the entity the field instance will be attached to.
- * @param $label
+ * @param string $label
  *   The label of the field instance.
- * @param $weight
+ * @param int $weight
  *   The default weight of the field instance widget and display.
- * @param $display
+ * @param array $display
  *   An array of default display data used for the entity's current view modes.
  */
-function _entityqueue_create_entityreference_field($field_name, $entity_type, $bundle, $label, $weight = 0, $display = array()) {
+function _entityqueue_create_entityreference_field($queue, $field_name, $entity_type, $bundle, $label, $weight = 0, $display = array()) {
   // If a field type we know should exist isn't found, clear the Field cache.
   if (!field_info_field_types('entityreference')) {
     field_cache_clear();
@@ -538,7 +544,7 @@ function _entityqueue_create_entityreference_field($field_name, $entity_type, $b
       'translatable' => FALSE,
       'locked' => TRUE,
       'settings' => array(
-        'target_type' => $bundle,
+        'target_type' => $queue->target_type,
         'handler' => 'entityqueue',
         'handler_settings' => array(),
       ),
