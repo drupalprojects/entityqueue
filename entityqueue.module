@@ -36,11 +36,25 @@ function entityqueue_behavior_plugin_process(&$plugin, $info) {
  * Implements hook_permission().
  */
 function entityqueue_permission() {
-  return array(
+  $permissions = array(
     'administer queue types' => array(
       'title' => t('Administer queue types'),
     ),
+    'administer all queues' => array(
+      'title' => t('Administer all queues'),
+    ),
   );
+
+  $entities = entityqueue_load_multiple(array(), array('parent_name' => NULL));
+  foreach ($entities as $name => $entity) {
+    $permissions["edit $name queue"] = array(
+      'title' => t('Edit %queue queue items', array('%queue' => entity_label('entityqueue', $entity))),
+    );
+    $permissions["configure $name queue"] = array(
+      'title' => t('Configure %queue queue', array('%queue' => entity_label('entityqueue', $entity))),
+    );
+  }
+  return $permissions;
 }
 
 /**
@@ -178,8 +192,19 @@ function entityqueue_entity_property_info() {
 /**
  * Access callback for the entity API.
  */
-function entityqueue_access($op, $type = NULL, $account = NULL) {
-  return TRUE;
+function entityqueue_access($op, $entity = NULL, $account = NULL, $entity_type = NULL) {
+  if (user_access('administer all queues', $account) || $op == 'view') {
+    return TRUE;
+  }
+  if (!isset($entity)) {
+    return FALSE;
+  }
+
+  if ($op == 'create' || $op == 'update') {
+    $op = 'edit';
+  }
+
+  return user_access("$op $entity->name queue", $account);
 }
 
 /**

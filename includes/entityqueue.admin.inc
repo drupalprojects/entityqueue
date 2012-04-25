@@ -39,8 +39,8 @@ class EntityQueueUIController extends EntityDefaultUIController {
       'page callback' => 'drupal_get_form',
       'page arguments' => array($this->entityType . '_overview_form', $this->entityType, $id_count + 1),
       'load arguments' => array($this->entityType),
-      'access callback' => 'entityqueue_access',
-      'access arguments' => array('view', $this->entityType),
+      'access callback' => 'entity_access',
+      'access arguments' => array('edit', $this->entityType, $id_count + 1),
       'file' => $this->entityInfo['admin ui']['file'],
       'file path' => drupal_get_path('module', $this->entityInfo['module']),
     );
@@ -56,8 +56,8 @@ class EntityQueueUIController extends EntityDefaultUIController {
       'page callback' => 'entity_ui_get_form',
       'page arguments' => array($this->entityType, $id_count + 1, 'configure'),
       'load arguments' => array($this->entityType),
-      'access callback' => 'entityqueue_access',
-      'access arguments' => array('edit', $this->entityType),
+      'access callback' => 'entity_access',
+      'access arguments' => array('configure', $this->entityType, $id_count + 1),
       'file' => $this->entityInfo['admin ui']['file'],
       'file path' => drupal_get_path('module', $this->entityInfo['module']),
       'type' => MENU_LOCAL_TASK,
@@ -109,7 +109,14 @@ class EntityQueueUIController extends EntityDefaultUIController {
 
     $rows = array();
     foreach ($entities as $entity) {
-      $rows[] = $this->overviewTableRow($conditions, entity_id($this->entityType, $entity), $entity);
+      if (entity_access('edit', 'entityqueue', $entity)) {
+        $rows[] = $this->overviewTableRow($conditions, entity_id($this->entityType, $entity), $entity);
+      }
+    }
+    // If there aren't existing entityqueues and the user doesn't have the
+    // permission to add new ones, return.
+    if (empty($rows) && !entity_access('create', 'entityqueue')) {
+      drupal_access_denied();
     }
     // Assemble the right table header.
     $header = array(t('Label'));
