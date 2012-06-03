@@ -221,6 +221,20 @@ function entityqueue_queue_load_multiple($names = array()) {
 }
 
 /**
+ * Loads multiple queues with a specific target type.
+ *
+ * @param string $target_type
+ *   An entity type (e.g. 'node', 'comment', 'user').
+ *
+ * @return array
+ *   An array of EntityQueue objects, keyed by queue name.
+ */
+function entityqueue_queue_load_by_target_type($target_type) {
+  ctools_include('export');
+  return ctools_export_load_object('entityqueue_queue', 'conditions', array('target_type' => $target_type));
+}
+
+/**
  * Deletes a queue.
  *
  * @param EntityQueue|string $queue
@@ -386,8 +400,8 @@ function entityqueue_subqueue_load($name) {
  *   Whether to reset the internal queue loading cache.
  *
  * @return array
- *   An array of EntitySubqueue objects, indexed by name. When no results are
- *   found, an empty array is returned.
+ *   An array of EntitySubqueue objects, keyed by subuque_id. When no results
+ *   are found, an empty array is returned.
  */
 function entityqueue_subqueue_load_multiple($names = FALSE, $conditions = array(), $reset = FALSE) {
   if (!empty($names) && !is_numeric(reset($names))) {
@@ -400,41 +414,57 @@ function entityqueue_subqueue_load_multiple($names = FALSE, $conditions = array(
 }
 
 /**
+ * Loads multiple subqueues with a specific target type.
+ *
+ * @param string $target_type
+ *   An entity type (e.g. 'node', 'comment', 'user').
+ *
+ * @return array
+ *   An array of EntitySubqueue objects, keyed by subqueue_id.
+ */
+function entityqueue_subqueue_load_by_target_type($target_type) {
+  $queues = entityqueue_queue_load_by_target_type($target_type);
+  return entity_load('entityqueue_subqueue', FALSE, array('queue' => array_keys($queues)));
+}
+
+/**
  * Implements hook_block_view_alter().
  */
 function entityqueue_block_view_alter(&$data, $block) {
   // Add contextual links for blocks provided by Views that have a Entityqueue
   // relationship.
-//  $content = &$data['content'];
-//  if ($block->module == 'views' && is_array($content) && !empty($content['#contextual_links']['views_ui'])) {
-//    $view_name = $content['#views_contextual_links_info']['views_ui']['view_name'];
-//    $view_display_id = $content['#views_contextual_links_info']['views_ui']['view_display_id'];
-//
-//    // Get the view object from views contextual info or initialize it manually.
-//    if (!empty($content['#views_contextual_links_info']['views_ui']['view'])) {
-//      $view = $content['#views_contextual_links_info']['views_ui']['view'];
-//    }
-//    else {
-//      $view = views_get_view($view_name);
-//    }
-//    $view->init_display();
-//
-//    // Get view display relationships.
-//    $relationships = $view->display[$view_display_id]->handler->get_option('relationships');
-//    if (!empty($relationships['entityqueue_relationship'])) {
-//      $referenced_queues = array_keys(array_filter($relationships['entityqueue_relationship']['queues']));
-//
-//      // Contextual links can handle only one set of links coming from a module,
-//      // so we'll have to settle for the first referenced queue.
-//      $queue = entityqueue_load(reset($referenced_queues));
-//
-//      $link = array('entityqueue' => array('admin/structure/entityqueue/manage', array($queue->name)));
-//      $content['#contextual_links'] = array_merge($link, $content['#contextual_links']);
-//      $content['#entityqueue_contextual_links_info'] = array(
-//        'queue' => $queue,
-//      );
-//    }
-//  }
+  $content = &$data['content'];
+  if ($block->module == 'views' && is_array($content) && !empty($content['#contextual_links']['views_ui'])) {
+    $view_name = $content['#views_contextual_links_info']['views_ui']['view_name'];
+    $view_display_id = $content['#views_contextual_links_info']['views_ui']['view_display_id'];
+
+    // Get the view object from views contextual info or initialize it manually.
+    if (!empty($content['#views_contextual_links_info']['views_ui']['view'])) {
+      $view = $content['#views_contextual_links_info']['views_ui']['view'];
+    }
+    else {
+      $view = views_get_view($view_name);
+    }
+    $view->init_display();
+
+    // Get view display relationships.
+    $relationships = $view->display[$view_display_id]->handler->get_option('relationships');
+    foreach ($relationships as $relationship) {
+      if ($relationship['field'] == 'entityqueue_relationship') {
+        $referenced_subqueues = array_keys(array_filter($relationship['queues']));
+
+        // Contextual links can handle only one set of links coming from a module,
+        // so we'll have to settle for the first referenced queue.
+        $subqueue = entityqueue_subqueue_load(reset($referenced_subqueues));
+
+        $link = array('entityqueue' => array('admin/structure/entityqueue/list', array($subqueue->queue, 'subqueues', $subqueue->name, 'edit')));
+        $content['#contextual_links'] = array_merge($link, $content['#contextual_links']);
+        $content['#entityqueue_contextual_links_info'] = array(
+          'subqueue' => $subqueue,
+        );
+      }
+    }
+  }
 }
 
 /**
@@ -466,26 +496,30 @@ function entityqueue_theme() {
 /**
  * Returns all queues or subqueues in a way which can be used on form options.
  *
- * @param string $objects
- *   A string representing what needs to be loaded, queues or subqueues.
- *   Defaults to 'subqueues';
+ * @param array $objects
+ *   (optional) An array of fully loaded objects to display.
+ * @param string $object_type
+ *   (optional) A string representing what needs to be loaded, queues or
+ *   subqueues. Defaults to 'subqueue';
  *
  * @return array
  *   An array of EntityQueue or EntitySubqueue objects, keyed by name.
  */
-function entityqueue_get_options($objects = 'subqueues') {
-  switch ($objects) {
-    case 'subqueues':
-      $items = entityqueue_subqueue_load_multiple();
-      break;
-    case 'queues':
-    default:
-      $items = entityqueue_queue_load_multiple();
-      break;
+function entityqueue_get_options($objects = array(), $object_type = 'subqueue') {
+  if (empty($objects)) {
+    switch ($object_type) {
+      case 'subqueue':
+        $objects = entityqueue_subqueue_load_multiple();
+        break;
+      case 'queue':
+      default:
+      $objects = entityqueue_queue_load_multiple();
+        break;
+    }
   }
   $options = array();
-  foreach ($items as $name => $item) {
-    $options[$name] = $item->label;
+  foreach ($objects as $object) {
+    $options[$object->name] = $object->label;
   }
 
   return $options;

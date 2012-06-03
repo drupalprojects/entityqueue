@@ -31,6 +31,15 @@ $plugin = array(
         'access callback' => TRUE,
         'type' => MENU_CALLBACK,
       ),
+      'edit subqueue callback' => array(
+        'path' => 'list/%ctools_export_ui/subqueues/%entityqueue_subqueue',
+        'page callback' => 'ctools_export_ui_switcher_page',
+        'page arguments' => array('entityqueue_export_ui', 'subqueue_edit', 4, 6),
+        'load arguments' => array('entityqueue_export_ui'),
+        // @todo Implement access mechanism.
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+      ),
       'edit subqueue' => array(
         'path' => 'list/%ctools_export_ui/subqueues/%entityqueue_subqueue/edit',
         'title' => 'Edit subqueue',
@@ -39,7 +48,8 @@ $plugin = array(
         'load arguments' => array('entityqueue_export_ui'),
         // @todo Implement access mechanism.
         'access callback' => TRUE,
-        'type' => MENU_CALLBACK,
+        'type' => MENU_DEFAULT_LOCAL_TASK,
+        'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
       ),
     ),
   ),
