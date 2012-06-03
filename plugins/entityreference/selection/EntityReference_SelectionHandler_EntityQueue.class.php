@@ -8,7 +8,7 @@ class EntityReference_SelectionHandler_EntityQueue extends EntityReference_Selec
   /**
    * Overrides EntityReference_SelectionHandler_Generic::getInstance().
    */
-  public static function getInstance($field, $instance) {
+  public static function getInstance($field, $instance = NULL, $entity_type = NULL, $entity = NULL) {
     return new EntityReference_SelectionHandler_EntityQueue($field, $instance);
   }
 
