@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Specialized Entityqueue handler.
+ * Defines a Entityreference selection handler for Entityqueue.
  */
 class EntityReference_SelectionHandler_EntityQueue extends EntityReference_SelectionHandler_Generic {
 

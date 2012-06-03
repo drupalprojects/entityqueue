@@ -192,7 +192,8 @@ class entityqueue_export_ui extends ctools_export_ui {
 
     if ($handlers[$queue->handler]['queue type'] == 'single') {
       $subitems = format_plural($queue->subitems, '1 item', '@count items');
-    } else {
+    }
+    else {
       $subitems = format_plural($queue->subitems, '1 subqueue', '@count subqueues');
     }
 
@@ -229,9 +230,26 @@ class entityqueue_export_ui extends ctools_export_ui {
 }
 
 /**
+ * Add all appropriate includes to forms so that caching the form
+ * still loads the files that we need.
+ */
+function _entityqueue_export_ui_add_form_files($form, &$form_state) {
+  ctools_form_include($form_state, 'export');
+  ctools_form_include($form_state, 'export-ui');
+
+  // Also make sure the plugin .inc and .class.php files are loaded.
+  form_load_include($form_state, 'inc', 'entityqueue', '/plugins/ctools/export_ui/entityqueue_export_ui');
+  form_load_include($form_state, 'php', 'entityqueue', '/plugins/ctools/export_ui/entityqueue_export_ui.class');
+}
+
+/**
  * Form callback; Displays the subqueue edit form.
  */
 function entityqueue_subqueue_edit_form($form, &$form_state, EntityQueue $queue, EntitySubqueue $subqueue) {
+  // When called using #ajax via ajax_form_callback(), 'export' may
+  // not be included so include it here.
+  _entityqueue_export_ui_add_form_files($form, $form_state);
+
   $form = array();
   $form_state['entityqueue_queue'] = $queue;
   $form_state['entityqueue_subqueue'] = $subqueue;
@@ -258,14 +276,14 @@ function entityqueue_subqueue_edit_form($form, &$form_state, EntityQueue $queue,
 }
 
 /**
- * Validation callback.
+ * Validation callback for the subqueue edit form.
  */
 function entityqueue_subqueue_edit_form_validate($form, &$form_state) {
   entity_form_field_validate('entityqueue_subqueue', $form, $form_state);
 }
 
 /**
- * Submit callback.
+ * Submit callback for the subqueue edit form.
  */
 function entityqueue_subqueue_edit_form_submit($form, &$form_state) {
   $queue = $form_state['entityqueue_queue'];
@@ -280,8 +298,8 @@ function entityqueue_subqueue_edit_form_submit($form, &$form_state) {
   $handlers = ctools_get_plugins('entityqueue', 'handler');
   if ($handlers[$queue->handler]['queue type'] == 'single') {
     $form_state['redirect'] = $plugin_base_path;
-  } else {
+  }
+  else {
     $form_state['redirect'] = $plugin_base_path . '/list/' . $queue->name . '/subqueues';
   }
 }
-
