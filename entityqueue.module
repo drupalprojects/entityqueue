@@ -556,8 +556,15 @@ function _entityqueue_get_target_field_name($entity_type) {
  */
 function _entityqueue_queue_ensure_instance(EntityQueue $queue) {
   $field_name = _entityqueue_get_target_field_name($queue->target_type);
+  $handler_settings = array(
+    'behaviors' => array(
+      'entityqueue' => array(
+        'status' => 1,
+      ),
+    ),
+  );
   if (!field_info_instance('entityqueue_subqueue', $field_name, $queue->name)) {
-    _entityqueue_create_entityreference_field($queue, $field_name, 'entityqueue_subqueue', $queue->name, t('Queue items'), 0);
+    _entityqueue_create_entityreference_field($queue, $field_name, 'entityqueue_subqueue', $queue->name, t('Queue items'), 0, array(), $handler_settings);
   }
 }
 
@@ -579,8 +586,10 @@ function _entityqueue_queue_ensure_instance(EntityQueue $queue) {
  *   The default weight of the field instance widget and display.
  * @param array $display
  *   An array of default display data used for the entity's current view modes.
+ * @param array $handler_settings
+ *   An array of Entityrefence field handler settings.
  */
-function _entityqueue_create_entityreference_field($queue, $field_name, $entity_type, $bundle, $label, $weight = 0, $display = array()) {
+function _entityqueue_create_entityreference_field($queue, $field_name, $entity_type, $bundle, $label, $weight = 0, $display = array(), $handler_settings = array()) {
   // If a field type we know should exist isn't found, clear the Field cache.
   if (!field_info_field_types('entityreference')) {
     field_cache_clear();
@@ -602,7 +611,7 @@ function _entityqueue_create_entityreference_field($queue, $field_name, $entity_
       'settings' => array(
         'target_type' => $queue->target_type,
         'handler' => 'entityqueue',
-        'handler_settings' => array(),
+        'handler_settings' => $handler_settings,
       ),
     );
     field_create_field($field);
