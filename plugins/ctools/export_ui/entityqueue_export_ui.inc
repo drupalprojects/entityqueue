@@ -9,10 +9,46 @@ $plugin = array(
   'schema' => 'entityqueue_queue',
   'access' => 'administer entityqueue',
 
+  // Add our custom operations.
+  'allowed operations' => array(
+    'subqueues' => array('title' => t('View subqueues')),
+    'edit subqueue' => array('title' => t('Edit items')),
+  ),
+
   'menu' => array(
     'menu item' => 'entityqueue',
     'menu title' => 'Entityqueues',
     'menu description' => 'Manage entity queues.',
+    // Add entityqueue specific menu callbacks.
+    'items' => array(
+      'subqueues' => array(
+        'path' => 'list/%ctools_export_ui/subqueues',
+        'title' => 'Subqueues',
+        'page callback' => 'ctools_export_ui_switcher_page',
+        'page arguments' => array('entityqueue_export_ui', 'subqueues', 4),
+        'load arguments' => array('entityqueue_export_ui'),
+        // @todo Implement access mechanism.
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+      ),
+      'edit subqueue' => array(
+        'path' => 'list/%ctools_export_ui/subqueues/%entityqueue_subqueue/edit',
+        'title' => 'Edit subqueue',
+        'page callback' => 'ctools_export_ui_switcher_page',
+        'page arguments' => array('entityqueue_export_ui', 'subqueue_edit', 4, 6),
+        'load arguments' => array('entityqueue_export_ui'),
+        // @todo Implement access mechanism.
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+      ),
+    ),
+  ),
+
+  // Add our custom page titles.
+  'strings' => array(
+    'title' => array(
+      'subqueues' => t('Subqueues of %title'),
+    ),
   ),
 
   'title singular' => t('queue'),
@@ -23,7 +59,6 @@ $plugin = array(
   'form' => array(
     'settings' => 'entityqueue_export_ui_form',
     'validate' => 'entityqueue_export_ui_form_validate',
-//    'submit' => 'entityqueue_export_ui_form_submit',
   ),
 
   'handler' => array(
@@ -50,9 +85,9 @@ function entityqueue_export_ui_form(&$form, &$form_state) {
     '#title' => t('Handler'),
     '#type' => 'select',
     '#options' => $handlers,
-    '#default_value' => $queue->handler,
+    '#default_value' => !$queue->is_new ? $queue->handler : 'simple',
     '#required' => TRUE,
-    '#disabled' => !empty($queue->name) ? TRUE : FALSE,
+    '#disabled' => $queue->is_new ? FALSE : TRUE,
   );
 
   // Get valid target entity types.

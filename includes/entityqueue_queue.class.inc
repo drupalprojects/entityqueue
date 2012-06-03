@@ -41,6 +41,11 @@ class EntityQueue {
   public $export_type = EXPORT_IN_CODE;
 
   /**
+   * @var bool $is_new
+   */
+  public $is_new = FALSE;
+
+  /**
    * Constructs a new EntityQueue object, without saving it to the database.
    *
    * @param array $values

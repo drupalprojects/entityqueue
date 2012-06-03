@@ -13,12 +13,11 @@ dependencies[] = entityreference
 files[] = includes/entityqueue_queue.class.inc
 files[] = includes/entityqueue_subqueue.class.inc
 
-; Handler plugin interface and abstract implementation.
-files[] = plugins/entityqueue/handler/abstract.inc
+; Handler plugin interface and base implementation.
+files[] = plugins/entityqueue/handler/base.inc
 
-; Entity API controllers.
+; Entity API controller.
 files[] = includes/entityqueue.controller.inc
-files[] = includes/entityqueue.admin.inc
 
-; Views Handlers
+; Views handlers.
 files[] = includes/views/entityqueue_handler_relationship_entityqueue.inc

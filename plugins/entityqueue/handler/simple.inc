@@ -2,6 +2,8 @@
 
 $plugin = array(
   'title' => t('Simple queue'),
-  'class' => 'EntityQueueHandler_Simple',
+  'class' => 'SimpleEntityQueueHandler',
+  // This plugin has only one subqueue per queue.
+  'queue type' => 'single',
   'weight' => -100,
 );

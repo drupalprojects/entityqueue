@@ -34,12 +34,52 @@ interface EntityQueueHandlerInterface {
    * Returns the label of a given subqueue.
    */
   public function getSubqueueLabel(EntitySubqueue $subqueue);
+
+  /**
+   * Act on creating a queue.
+   */
+  public function create();
+
+  /**
+   * Act on loading a queue.
+   */
+  public function load();
+
+  /**
+   * Act on loading a queue that is defined only in code.
+   */
+  public function loadFromCode();
+
+  /**
+   * Act before a queue is saved.
+   */
+  public function preSave();
+
+  /**
+   * Act after a new queue is saved.
+   */
+  public function insert();
+
+  /**
+   * Act after a queue is updated.
+   */
+  public function update();
+
+  /**
+   * Act before deleting a queue.
+   */
+  public function preDelete();
+
+  /**
+   * Act after deleting a queue.
+   */
+  public function postDelete();
 }
 
 /**
  * An abstract implementation of EntityQueueHandlerInterface.
  */
-abstract class EntityQueueHandler_Abstract implements EntityQueueHandlerInterface {
+abstract class EntityQueueHandlerBase implements EntityQueueHandlerInterface {
 
   /**
    * @var array
@@ -61,14 +101,14 @@ abstract class EntityQueueHandler_Abstract implements EntityQueueHandlerInterfac
     // Check if the entity type does exist and has a base table.
     $entity_info = entity_get_info($entity_type);
     if (empty($entity_info['base table'])) {
-      return EntityQueueHandler_Broken::getInstance($queue);
+      return BrokenEntityQueueHandler::getInstance($queue);
     }
 
     // Check if the queue handler exists.
     ctools_include('plugins');
     $plugin = ctools_get_plugins('entityqueue', 'handler', $queue->handler);
     if (empty($plugin)) {
-      return EntityQueueHandler_Broken::getInstance($queue);
+      return BrokenEntityQueueHandler::getInstance($queue);
     }
 
     return new $plugin['class']($queue);
@@ -98,22 +138,38 @@ abstract class EntityQueueHandler_Abstract implements EntityQueueHandlerInterfac
   }
 
   public function getSubqueueLabel(EntitySubqueue $subqueue) {}
+
+  public function create() {}
+
+  public function load() {}
+
+  public function loadFromCode() {}
+
+  public function preSave() {}
+
+  public function insert() {}
+
+  public function update() {}
+
+  public function preDelete() {}
+
+  public function postDelete() {}
 }
 
 /**
  * A NULL implementation of EntityQueueHandlerInterface.
  */
-class EntityQueueHandler_Broken extends EntityQueueHandler_Abstract {
+class BrokenEntityQueueHandler extends EntityQueueHandlerBase {
 
   /**
-   * Overrides EntityQueueHandler_Abstract::getInstance().
+   * Overrides EntityQueueHandlerBase::getInstance().
    */
   public static function getInstance(EntityQueue $queue) {
-    return new EntityQueueHandler_Broken($queue);
+    return new BrokenEntityQueueHandler($queue);
   }
 
   /**
-   * Overrides EntityQueueHandler_Abstract::settingsForm().
+   * Overrides EntityQueueHandlerBase::settingsForm().
    */
   public function settingsForm() {
     $form['handler'] = array(
@@ -123,14 +179,14 @@ class EntityQueueHandler_Broken extends EntityQueueHandler_Abstract {
   }
 
   /**
-   * Overrides EntityQueueHandler_Abstract::getTargetTypeLabel().
+   * Overrides EntityQueueHandlerBase::getTargetTypeLabel().
    */
   public function getHandlerLabel() {
     return '<em>' . t('Broken/missing handler') . '</em>';
   }
 
   /**
-   * Overrides EntityQueueHandler_Abstract::getSubqueueLabel().
+   * Overrides EntityQueueHandlerBase::getSubqueueLabel().
    */
   public function getSubqueueLabel(EntitySubqueue $subqueue) {
     return '';
