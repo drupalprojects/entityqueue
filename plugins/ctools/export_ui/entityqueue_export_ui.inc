@@ -114,21 +114,29 @@ function entityqueue_export_ui_form(&$form, &$form_state) {
     '#options' => $entity_types,
     '#default_value' => $queue->target_type,
     '#required' => TRUE,
-    '#disabled' => !empty($queue->name) ? TRUE : FALSE,
+    '#disabled' => $queue->is_new ? FALSE : TRUE,
     '#ajax' => array(
       'callback' => 'entityqueue_export_ui_target_type_callback',
       'wrapper' => 'entityqueue-target-bundles',
     ),
   );
 
-  $form['settings']['#tree'] = TRUE;
+  $form['settings'] = array(
+    '#type' => 'vertical_tabs',
+    '#tree' => TRUE,
+  );
 
   $target_type = !empty($form_state['values']['target_type']) ? $form_state['values']['target_type'] : $queue->target_type;
   $bundles = array();
   foreach ($entity_info[$target_type]['bundles'] as $bundle_name => $bundle_info) {
     $bundles[$bundle_name] = $bundle_info['label'];
   }
-  $form['settings']['target_bundles'] = array(
+  $form['settings']['entityreference_field'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Entityreference field settings'),
+    '#collapsible' => TRUE,
+  );
+  $form['settings']['entityreference_field']['target_bundles'] = array(
     '#type' => 'checkboxes',
     '#title' => $target_type == 'node' ? t('Content types') : t('Bundles'),
     '#prefix' => '<div id="entityqueue-target-bundles">',
@@ -139,17 +147,22 @@ function entityqueue_export_ui_form(&$form, &$form_state) {
     '#description' => t('The bundles of the entity type that can be referenced. Optional, leave empty for all bundles.')
   );
 
-  $form['settings']['min_size'] = array(
+  $form['settings']['properties'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Queue properties'),
+    '#collapsible' => TRUE,
+  );
+  $form['settings']['properties']['min_size'] = array(
     '#type' => 'textfield',
     '#size' => 3,
-    '#default_value' => $queue->settings['min_size'],
+    '#default_value' => isset($queue->settings['min_size']) ? $queue->settings['min_size'] : 0,
     '#prefix' => '<div class="container-inline form-item">',
     '#field_prefix' => t('Restrict this queue to a minimum of'),
   );
-  $form['settings']['max_size'] = array(
+  $form['settings']['properties']['max_size'] = array(
     '#type' => 'textfield',
     '#size' => 3,
-    '#default_value' => $queue->settings['max_size'],
+    '#default_value' => isset($queue->settings['max_size']) ? $queue->settings['max_size'] : 0,
     '#field_prefix' => t('and a maximum of'),
     '#field_suffix' => t('items.'),
     '#suffix' => '</div>',
@@ -163,13 +176,23 @@ function entityqueue_export_ui_form(&$form, &$form_state) {
  *  A renderable array representing the target bundles dropdown.
  */
 function entityqueue_export_ui_target_type_callback($form, $form_state) {
-  return $form['settings']['target_bundles'];
+  return $form['settings']['entityreference_field']['target_bundles'];
 }
 
 /**
- * Validate submission of the preset edit form.
+ * Validate callback for the preset edit form.
  */
 function entityqueue_export_ui_form_validate(&$form, &$form_state) {
+  // Move the queue settings values up a level.
+  $queue_settings = element_children($form['settings']);
+  foreach ($queue_settings as $form_element) {
+    if (isset($form_state['values']['settings'][$form_element]) && is_array($form_state['values']['settings'][$form_element])) {
+      $form_state['values']['settings'] += (array) $form_state['values']['settings'][$form_element];
+      unset($form_state['values']['settings'][$form_element]);
+    }
+  }
+  unset($form_state['values']['settings']['settings__active_tab']);
+
   // Clean-up target_bundles values a bit.
   if (isset($form_state['values']['settings'])) {
     $form_state['values']['settings']['target_bundles'] = array_filter($form_state['values']['settings']['target_bundles']);
