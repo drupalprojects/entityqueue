@@ -15,7 +15,8 @@ class EntityReferenceBehavior_EntityQueue extends EntityReference_BehaviorHandle
       $min_size = $queue->settings['min_size'];
       $max_size = $queue->settings['max_size'];
 
-      $eq_items = array_filter($items, function($value) { return (!empty($value['target_id'])) ? TRUE : FALSE; });
+      $empty_target_id = create_function('$value', 'return (!empty($value["target_id"])) ? TRUE : FALSE;');
+      $eq_items = array_filter($items, $empty_target_id);
 
       if (count($eq_items) < $min_size) {
         $errors[$field['field_name']][$langcode][0][] = array(
