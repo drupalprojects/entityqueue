@@ -87,16 +87,16 @@ interface EntityQueueHandlerInterface {
 abstract class EntityQueueHandlerBase implements EntityQueueHandlerInterface {
 
   /**
-   * @var array
-   *
    * The handler plugin definition.
+   *
+   * @var array
    */
   protected $plugin;
 
   /**
-   * @var EntityQueue
-   *
    * The EntityQueue object.
+   *
+   * @var EntityQueue
    */
   protected $queue;
 
@@ -127,9 +127,13 @@ abstract class EntityQueueHandlerBase implements EntityQueueHandlerInterface {
     $this->plugin = $plugin;
   }
 
-  public function settingsForm() {}
+  public function settingsForm() {
+    return array();
+  }
 
-  public function subqueueForm(EntitySubqueue $subqueue, &$form_state) {}
+  public function subqueueForm(EntitySubqueue $subqueue, &$form_state) {
+    return array();
+  }
 
   public function getTargetTypeLabel() {
     $entity_info = entity_get_info($this->queue->target_type);
@@ -169,14 +173,14 @@ abstract class EntityQueueHandlerBase implements EntityQueueHandlerInterface {
 class BrokenEntityQueueHandler extends EntityQueueHandlerBase {
 
   /**
-   * Overrides EntityQueueHandlerBase::getInstance().
+   * {@inheritdoc}
    */
   public static function getInstance(EntityQueue $queue) {
     return new BrokenEntityQueueHandler($queue);
   }
 
   /**
-   * Overrides EntityQueueHandlerBase::settingsForm().
+   * {@inheritdoc}
    */
   public function settingsForm() {
     $form['handler'] = array(
@@ -193,16 +197,17 @@ class BrokenEntityQueueHandler extends EntityQueueHandlerBase {
   }
 
   /**
-   * Overrides EntityQueueHandlerBase::getTargetTypeLabel().
+   * {@inheritdoc}
    */
   public function getHandlerLabel() {
     return '<em>' . t('Broken/missing handler') . '</em>';
   }
 
   /**
-   * Overrides EntityQueueHandlerBase::getSubqueueLabel().
+   * {@inheritdoc}
    */
   public function getSubqueueLabel(EntitySubqueue $subqueue) {
     return '';
   }
+
 }

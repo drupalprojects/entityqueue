@@ -6,35 +6,21 @@
 class SimpleEntityQueueHandler extends EntityQueueHandlerBase {
 
   /**
-   * Overrides EntityQueueHandlerBase::settingsForm().
-   */
-  public function settingsForm() {
-    return array();
-  }
-
-  /**
-   * Overrides EntityQueueHandlerBase::subqueueForm().
-   */
-  public function subqueueForm(EntitySubqueue $subqueue, &$form_state) {
-    return array();
-  }
-
-  /**
-   * Overrides EntityQueueHandlerBase::getSubqueueLabel().
+   * {@inheritdoc}
    */
   public function getSubqueueLabel(EntitySubqueue $subqueue) {
     return $this->queue->label;
   }
 
   /**
-   * Overrides EntityQueueHandlerBase::loadFromCode().
+   * {@inheritdoc}
    */
   public function loadFromCode() {
     $this->ensureSubqueue();
   }
 
   /**
-   * Overrides EntityQueueHandlerBase::insert().
+   * {@inheritdoc}
    */
   public function insert() {
     $this->ensureSubqueue();
@@ -64,4 +50,5 @@ class SimpleEntityQueueHandler extends EntityQueueHandlerBase {
       entityqueue_subqueue_save($subqueue);
     }
   }
+
 }
