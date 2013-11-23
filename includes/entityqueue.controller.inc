@@ -24,6 +24,7 @@ class EntitySubqueueEntityController extends EntityAPIController {
       'queue' => NULL,
       'name' => NULL,
       'label' => '',
+      'language' => language_default()->language,
       'module' => '',
       'uid' => '',
       'data' => array(),

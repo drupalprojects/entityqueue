@@ -16,6 +16,11 @@ class EntityQueue {
   public $label = '';
 
   /**
+   * @var string $language
+   */
+  public $langauge = '';
+
+  /**
    * @var string $handler
    */
   public $handler = '';

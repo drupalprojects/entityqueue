@@ -46,6 +46,13 @@ function entityqueue_schema() {
         'default' => '',
         'description' => 'The human-readable name of this queue.',
       ),
+      'language' => array(
+        'description' => 'The {languages}.language of this queue.',
+        'type' => 'varchar',
+        'length' => 12,
+        'not null' => TRUE,
+        'default' => '',
+      ),
       'handler' => array(
         'type' => 'varchar',
         'length' => 255,
@@ -99,6 +106,13 @@ function entityqueue_schema() {
         'not null' => TRUE,
         'default' => '',
         'description' => 'The human-readable name of this subqueue.',
+      ),
+      'language' => array(
+        'description' => 'The {languages}.language of this subqueue.',
+        'type' => 'varchar',
+        'length' => 12,
+        'not null' => TRUE,
+        'default' => '',
       ),
       'module' => array(
         'type' => 'varchar',
@@ -189,4 +203,42 @@ function entityqueue_uninstall() {
   }
 
   // @todo: Remove our variables.
+}
+
+/**
+ * Add "language" column to all entityqueue tables.
+ */
+function entityqueue_update_7000() {
+  // Update the existing entities, with the default language.
+  $langcode = language_default()->language;
+
+  // Add column to main queue table and update existing queues.
+  $column = array(
+    'description' => 'The {languages}.language of this queue.',
+    'type' => 'varchar',
+    'length' => 12,
+    'not null' => TRUE,
+    'default' => '',
+  );
+  db_add_field('entityqueue_queue', 'language', $column);
+  db_update('entityqueue_queue')
+    ->fields(array(
+      'language' => $langcode,
+    ))
+    ->execute();
+
+  // Add column to subqueue table and update existing subqueues.
+  $column = array(
+    'description' => 'The {languages}.language of this subqueue.',
+    'type' => 'varchar',
+    'length' => 12,
+    'not null' => TRUE,
+    'default' => '',
+  );
+  db_add_field('entityqueue_subqueue', 'language', $column);
+  db_update('entityqueue_subqueue')
+    ->fields(array(
+      'language' => $langcode,
+    ))
+    ->execute();
 }

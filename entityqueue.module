@@ -109,8 +109,11 @@ function entityqueue_menu() {
  */
 function entityqueue_queue_create($values = array()) {
   $values = (array) $values;
-  // Add is_new property if it is not set.
-  $values += array('is_new' => TRUE);
+  // Add default properties if they are not set.
+  $values += array(
+    'is_new' => TRUE,
+    'language' => language_default()->language,
+  );
 
   $queue = new EntityQueue($values);
 
