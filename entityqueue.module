@@ -455,7 +455,7 @@ function entityqueue_subqueue_load_by_target_type($target_type) {
  * Implements hook_block_view_alter().
  */
 function entityqueue_block_view_alter(&$data, $block) {
-  if ($data == NULL || !is_array($data['content'])) {
+  if ($data == NULL || !isset($data['content']) || !is_array($data['content'])) {
     return;
   }
   // Add contextual links for blocks provided by Views that have a Entityqueue
