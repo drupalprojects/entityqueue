@@ -18,7 +18,7 @@ function entityqueue_ctools_plugin_directory($module, $plugin) {
  *
  * @return string
  */
-function entityqueue_entityqueue_default_hook_name() {
+function entityqueue_ctools_plugin_api_hook_name() {
   return 'entityqueue_api';
 }
 
