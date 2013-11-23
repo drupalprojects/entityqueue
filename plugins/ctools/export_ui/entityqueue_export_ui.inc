@@ -31,6 +31,16 @@ $plugin = array(
         'access callback' => TRUE,
         'type' => MENU_CALLBACK,
       ),
+      'add subqueue' => array(
+        'path' => 'list/%ctools_export_ui/subqueues/add',
+        'title' => 'Add subqueue',
+        'page callback' => 'ctools_export_ui_switcher_page',
+        'page arguments' => array('entityqueue_export_ui', 'subqueue_add', 4),
+        'load arguments' => array('entityqueue_export_ui'),
+        // @todo Implement access mechanism.
+        'access callback' => TRUE,
+        'type' => MENU_LOCAL_ACTION,
+      ),
       'edit subqueue callback' => array(
         'path' => 'list/%ctools_export_ui/subqueues/%entityqueue_subqueue',
         'page callback' => 'ctools_export_ui_switcher_page',

@@ -94,6 +94,21 @@ class entityqueue_export_ui extends ctools_export_ui {
   }
 
   /**
+   * Page callback; Displays the subqueue add form.
+   */
+  public function subqueue_add_page($js, $input, EntityQueue $queue) {
+    drupal_set_title(t('Add subqueue to %queue', array('%queue' => $queue->label)), PASS_THROUGH);
+    ctools_include('plugins');
+    $plugins = ctools_get_plugins('entityqueue', 'handler');
+    $subqueue = entityqueue_subqueue_create(array(
+      'queue' => $queue->name,
+      'module' => $plugins[$queue->handler]['module'],
+    ));
+
+    return drupal_get_form('entityqueue_subqueue_edit_form', $queue, $subqueue);
+  }
+
+  /**
    * Page callback; Displays the subqueue edit form.
    */
   public function subqueue_edit_page($js, $input, EntityQueue $queue, EntitySubqueue $subqueue) {
@@ -250,7 +265,8 @@ function entityqueue_subqueue_edit_form($form, &$form_state, EntityQueue $queue,
   // not be included so include it here.
   _entityqueue_export_ui_add_form_files($form, $form_state);
 
-  $form = array();
+  $handler = entityqueue_get_handler($queue);
+  $form = $handler->subqueueForm($subqueue, $form_state);
   $form_state['entityqueue_queue'] = $queue;
   $form_state['entityqueue_subqueue'] = $subqueue;
 

@@ -21,6 +21,11 @@ interface EntityQueueHandlerInterface {
   public function settingsForm();
 
   /**
+   * Generates an add/edit subqueue form for this handler.
+   */
+  public function subqueueForm(EntitySubqueue $subqueue, &$form_state);
+
+  /**
    * Returns the entity type label of a queue target type.
    */
   public function getTargetTypeLabel();
@@ -124,6 +129,8 @@ abstract class EntityQueueHandlerBase implements EntityQueueHandlerInterface {
 
   public function settingsForm() {}
 
+  public function subqueueForm(EntitySubqueue $subqueue, &$form_state) {}
+
   public function getTargetTypeLabel() {
     $entity_info = entity_get_info($this->queue->target_type);
     if (!empty($entity_info['base table'])) {
@@ -172,6 +179,13 @@ class BrokenEntityQueueHandler extends EntityQueueHandlerBase {
    * Overrides EntityQueueHandlerBase::settingsForm().
    */
   public function settingsForm() {
+    $form['handler'] = array(
+      '#markup' => t('The selected handler is broken.'),
+    );
+    return $form;
+  }
+
+  public function subqueueForm(EntitySubqueue $subqueue, &$form_state) {
     $form['handler'] = array(
       '#markup' => t('The selected handler is broken.'),
     );

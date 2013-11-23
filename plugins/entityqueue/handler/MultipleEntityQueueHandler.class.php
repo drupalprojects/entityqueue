@@ -1,9 +1,9 @@
 <?php
 
 /**
- * A simple queue implementation.
+ * A multiple subqueue queue implementation.
  */
-class SimpleEntityQueueHandler extends EntityQueueHandlerBase {
+class MultipleEntityQueueHandler extends EntityQueueHandlerBase {
 
   /**
    * Overrides EntityQueueHandlerBase::settingsForm().
@@ -16,7 +16,29 @@ class SimpleEntityQueueHandler extends EntityQueueHandlerBase {
    * Overrides EntityQueueHandlerBase::subqueueForm().
    */
   public function subqueueForm(EntitySubqueue $subqueue, &$form_state) {
-    return array();
+
+    $values = isset($form_state['values']) ? $form_state['values'] : (array) $subqueue;
+
+    $form = array();
+    $form['label'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Subqueue label'),
+      '#required' => TRUE,
+      '#default_value' => isset($values['label']) ? $values['label'] : '',
+    );
+
+    $form['name'] = array(
+      '#type' => 'machine_name',
+      '#title' => t('Subqueue name'),
+      '#required' => TRUE,
+      '#default_value' => isset($values['name']) ? $values['name'] : '',
+      '#machine_name' => array(
+        'exists' => 'entityqueue_subqueue_load',
+        'source' => array('label'),
+      ),
+      '#disabled' => (isset($subqueue->subqueue_id)),
+    );
+    return $form;
   }
 
   /**
