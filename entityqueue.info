@@ -9,9 +9,15 @@ dependencies[] = ctools
 dependencies[] = entity
 dependencies[] = entityreference
 
-; Entity API controllers.
-files[] = includes/entityqueue.controller.inc
-files[] = includes/entityqueue.admin.inc
+; EntityQueue and EntitySubqueue classes.
+files[] = includes/entityqueue_queue.class.inc
+files[] = includes/entityqueue_subqueue.class.inc
 
-; Views Handlers
+; Handler plugin interface and base implementation.
+files[] = plugins/entityqueue/handler/base.inc
+
+; Entity API controller.
+files[] = includes/entityqueue.controller.inc
+
+; Views handlers.
 files[] = includes/views/entityqueue_handler_relationship_entityqueue.inc

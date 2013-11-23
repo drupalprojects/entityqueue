@@ -29,20 +29,14 @@ class entityqueue_handler_relationship_entityqueue extends views_handler_relatio
       '#default_value' => $this->options['limit'],
     );
 
-    $options = array();
     $views_data = views_fetch_data($this->table);
-    // @todo: Add a helper function for this.
-    $queues = entityqueue_load_multiple(array(), array('type' => $views_data['table']['entity type'], 'subqueue' => TRUE));
-    foreach ($queues as $name => $queue) {
-      $options[$name] = $queue->label;
-    }
-
+    $subqueues = entityqueue_subqueue_load_by_target_type($views_data['table']['entity type']);
     $form['queues'] = array(
       '#prefix' => '<div><div id="edit-options-queues">',
       '#suffix' => '</div></div>',
       '#type' => 'checkboxes',
       '#title' => t('Queues'),
-      '#options' => $options,
+      '#options' => entityqueue_get_options($subqueues),
       '#default_value' => $this->options['queues'],
       '#process' => array('form_process_checkboxes', 'ctools_dependent_process'),
       '#dependency' => array('edit-options-limit' => array(TRUE)),

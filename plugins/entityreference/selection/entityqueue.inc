@@ -3,7 +3,7 @@
 /**
  * @file
  * Ctools plugin that provides a special Entity reference selection for
- * Enityqueue.
+ * Entityqueue.
  */
 
 $plugin = array(

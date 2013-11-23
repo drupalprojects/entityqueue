@@ -1,32 +1,45 @@
 <?php
 
 /**
- * Specialized Entityqueue handler.
+ * @file
+ * Definition of EntityReference_SelectionHandler_EntityQueue.
+ */
+
+/**
+ * Defines a Entityreference selection handler for Entityqueue.
  */
 class EntityReference_SelectionHandler_EntityQueue extends EntityReference_SelectionHandler_Generic {
 
   /**
    * Overrides EntityReference_SelectionHandler_Generic::getInstance().
    */
-  public static function getInstance($field, $instance) {
-    return new EntityReference_SelectionHandler_EntityQueue($field, $instance);
+  public static function getInstance($field, $instance = NULL, $entity_type = NULL, $entity = NULL) {
+    return new EntityReference_SelectionHandler_EntityQueue($field, $instance, $entity_type, $entity);
+  }
+
+  /**
+   * Constructs the EntityQueue selection handler.
+   */
+  protected function __construct($field, $instance = NULL, $entity_type = NULL, $entity = NULL) {
+    parent::__construct($field, $instance, $entity_type, $entity);
+
+    $this->queue = entityqueue_queue_load($entity->queue);
+
+    // Override the entityreference settings with our own.
+    $this->field['settings']['handler_settings']['target_bundles'] = NULL;
   }
 
   /**
    * Overrides EntityReference_SelectionHandler_Generic::buildEntityFieldQuery().
    */
   public function buildEntityFieldQuery($match = NULL, $match_operator = 'CONTAINS') {
-    $handler = EntityReference_SelectionHandler_Generic::getInstance($this->field, $this->instance);
+    $handler = EntityReference_SelectionHandler_Generic::getInstance($this->field, $this->instance, $this->entity_type, $this->entity);
     $query = $handler->buildEntityFieldQuery($match, $match_operator);
 
-    return $query;
-  }
+    if (!empty($this->queue->settings['target_bundles'])) {
+      $query->entityCondition('bundle', $this->queue->settings['target_bundles'], 'IN');
+    }
 
-  /**
-   * Overrides EntityReference_SelectionHandler_Generic::entityFieldQueryAlter().
-   */
-  public function entityFieldQueryAlter(SelectQueryInterface $query) {
-    $handler = EntityReference_SelectionHandler_Generic::getInstance($this->field, $this->instance);
-    $handler->entityFieldQueryAlter($query);
+    return $query;
   }
 }
