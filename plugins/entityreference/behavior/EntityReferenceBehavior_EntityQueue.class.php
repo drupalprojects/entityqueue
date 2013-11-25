@@ -24,7 +24,7 @@ class EntityReferenceBehavior_EntityQueue extends EntityReference_BehaviorHandle
           'message' => t("The minimum number of items in this queue is @min_size.", array('@min_size' => $min_size)),
         );
       }
-      elseif (count($eq_items) > $max_size) {
+      elseif (count($eq_items) > $max_size && $max_size > 0) {
         $errors[$field['field_name']][$langcode][count($items) - 1][] = array(
           'error' => 'entityqueue_max_size',
           'message' => t("The maxinum number of items in this queue is @max_size.", array('@max_size' => $max_size)),
