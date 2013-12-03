@@ -34,10 +34,16 @@ function entityqueue_views_data_alter(&$data) {
             'field field' => $field['field_name'] . '_target_id',
             'base' => $entity_info['base table'],
             'base field' => $entity_info['entity keys']['id'],
-            'label' => t('Queue'),
+            'label' => t('@target Queue', array(
+              '@target' => $target_entity_info['label'],
+            )),
             'group' => t('Entityqueue'),
-            'title' => t('Queue'),
-            'help' => t('Create a relationship to a entityqeuue.'),
+            'title' => t('@target Queue', array(
+              '@target' => $target_entity_info['label'],
+            )),
+            'help' => t('Create a relationship from @target to an entityqueue.', array(
+              '@target' => $target_entity_info['label'],
+            )),
           );
         }
       }
