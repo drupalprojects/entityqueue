@@ -27,7 +27,9 @@ function entityqueue_views_data_alter(&$data) {
         if (isset($target_entity_info['base table'])) {
           $entity_info = entity_get_info($entity_type);
 
-          $data[$target_entity_info['base table']]['entityqueue_relationship']['relationship'] = array(
+          $target_base_table = $target_entity_info['base table'];
+          $relationship =& $data[$target_base_table]['entityqueue_relationship'];
+          $relationship['relationship'] = array(
             'handler' => 'entityqueue_handler_relationship_entityqueue',
             'field_name' => $field['field_name'],
             'field table' => $field_table,
@@ -45,6 +47,27 @@ function entityqueue_views_data_alter(&$data) {
               '@target' => $target_entity_info['label'],
             )),
           );
+
+          if (isset($data[$field_table]['table']['join']['entityqueue_subqueue']['extra'])) {
+            $relationship['relationship']['join_extra'] = $data[$field_table]['table']['join']['entityqueue_subqueue']['extra'];
+          }
+
+          $relationship['sort'] = array(
+            'handler' => 'entityqueue_handler_sort_position',
+            'group' => t('Entityqueue'),
+            'title' => t('@target Queue Position', array(
+              '@target' => $target_entity_info['label'],
+            )),
+            'label' => t('@target Queue Position', array(
+              '@target' => $target_entity_info['label'],
+            )),
+            'help' => t('Position of item in the @target queue.', array(
+              '@target' => $target_entity_info['label'],
+            )),
+            'field table' => $field_table,
+            'field_name' => $field_name,
+            'real field' => 'delta',
+          );
         }
       }
 
@@ -53,4 +76,24 @@ function entityqueue_views_data_alter(&$data) {
       unset($data[$field_table]);
     }
   }
+
+  $data['entityqueue_subqueue']['queue'] = array(
+    'title' => t('Queue Name'),
+    'label' => t('Queue Name'),
+    'group' => t('Entityqueue'),
+    'help' => t('The entityqueue machine name.'),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+  );
+
+  $data['entityqueue_subqueue']['name'] = array(
+    'title' => t('Subqueue Name'),
+    'label' => t('Subqueue Name'),
+    'group' => t('Entityqueue'),
+    'help' => t('The subqueue machine name.'),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+  );
 }

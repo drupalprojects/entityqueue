@@ -65,8 +65,28 @@ class entityqueue_handler_relationship_entityqueue extends views_handler_relatio
       $first['type'] = 'INNER';
     }
 
+    // Add an extra condition to limit results based on the queue selection.
+    if (!empty($this->options['limit'])) {
+      $queues = array_keys(array_filter($this->options['queues']));
+      if (!empty($queues)) {
+        $queue_names = db_select('entityqueue_subqueue', 'esq')
+          ->fields('esq', array('queue'))
+          ->distinct()
+          ->condition('esq.name', $queues, 'IN')
+          ->execute()
+          ->fetchCol();
+        $first['extra'] = array(array(
+          'field' => 'bundle',
+          'value' => $queue_names,
+        ));
+      }
+    }
+
     if (!empty($this->definition['join_extra'])) {
-      $first['extra'] = $this->definition['join_extra'];
+      if (!isset($first['extra'])) {
+        $first['extra'] = array();
+      }
+      $first['extra'] += $this->definition['join_extra'];
     }
 
     if (!empty($this->definition['join_handler']) && class_exists($this->definition['join_handler'])) {

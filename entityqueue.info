@@ -21,3 +21,4 @@ files[] = includes/entityqueue.controller.inc
 
 ; Views handlers.
 files[] = includes/views/entityqueue_handler_relationship_entityqueue.inc
+files[] = includes/views/entityqueue_handler_sort_position.inc
