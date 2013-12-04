@@ -574,11 +574,15 @@ function entityqueue_theme() {
   return array(
     'entityqueue_overview_item' => array(
       'variables' => array('label' => NULL, 'name' => FALSE, 'status' => FALSE),
-      'file' => 'includes/entityqueue.theme.inc'
+      'file' => 'includes/entityqueue.theme.inc',
     ),
     'entityqueue_status' => array(
       'variables' => array('status' => NULL, 'html' => TRUE),
-      'file' => 'includes/entityqueue.theme.inc'
+      'file' => 'includes/entityqueue.theme.inc',
+    ),
+    'entityqueue_dragtable' => array(
+      'render element' => 'form',
+      'file' => 'includes/entityqueue.theme.inc',
     ),
   );
 }
@@ -715,17 +719,283 @@ function _entityqueue_create_entityreference_field($queue, $field_name, $entity_
       'settings' => array(),
 
       'widget' => array(
-        'type' => 'entityreference_autocomplete',
+        'type' => 'entityqueue_dragtable',
         'weight' => $weight,
-        'settings' => array(
-          'match_operator' => 'CONTAINS',
-          'size' => 60,
-          'path' => '',
-        ),
+        'settings' => array(),
       ),
 
       'display' => $display,
     );
     field_create_instance($instance);
   }
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function entityqueue_field_widget_info() {
+  return array(
+    'entityqueue_dragtable' => array(
+      'label' => t('Draggable table'),
+      'field types' => array('entityreference'),
+      'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'size' => 60,
+      ),
+      'behaviors' => array(
+        'multiple values' => FIELD_BEHAVIOR_CUSTOM,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_settings_form().
+ */
+function entityqueue_field_widget_settings_form($field, $instance) {
+  $widget = $instance['widget'];
+  $settings = $widget['settings'] + field_info_widget_settings($widget['type']);
+
+  $form = array();
+
+  if ($widget['type'] == 'entityqueue_dragtable') {
+    $target_type = $field['settings']['target_type'];
+    $info = entity_get_info($target_type);
+    $target_label = isset($info['plural label']) ? $info['plural label'] : $info['label'];
+    $form['match_operator'] = array(
+      '#type' => 'select',
+      '#title' => t('Autocomplete matching'),
+      '#default_value' => $settings['match_operator'],
+      '#options' => array(
+        'STARTS_WITH' => t('Starts with'),
+        'CONTAINS' => t('Contains'),
+      ),
+      '#description' => t('Select the method used to collect autocomplete suggestions. Note that <em>Contains</em> can cause performance issues on sites with thousands of @entities.', array(
+        '@entities' => $target_label,
+      )),
+    );
+    $form['size'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Size of textfield'),
+      '#default_value' => $settings['size'],
+      '#element_validate' => array('_element_validate_integer_positive'),
+      '#required' => TRUE,
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function entityqueue_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  if ($instance['widget']['type'] == 'entityqueue_dragtable') {
+    $subform = array();
+    $entity_type = $element['#entity_type'];
+    $field_name = $element['#field_name'];
+    $target_type = $field['settings']['target_type']; // The referenced entity_type
+    $entity = isset($element['#entity']) ? $element['#entity'] : FALSE;
+    // Abort early if we don't have a reference to the parent entity.
+    if (!$entity) {
+      return $element;
+    }
+
+    list($entity_id) = entity_extract_ids($entity_type, $entity);
+    $value_key = key($field['columns']);
+    $subform['#value_key'] = $value_key;
+    // We don't use drupal_html_id() here because our ajax callback needs
+    // to be able to know what the table id is. We should never have
+    // the same form field multiple times on a page anyway.
+    $table_id = drupal_clean_css_identifier('entityqueue-dragtable-' . $field_name);
+    $table_classes = array(
+      'entityqueue-dragtable',
+      'entityqueue-dragtable-field-' . $field_name,
+      'entityqueue-dragtable-entity-type-' . $entity_type,
+    );
+    drupal_add_tabledrag($table_id, 'order', 'sibling', 'item-weight');
+    $subform['items'] = array(
+      '#theme' => 'entityqueue_dragtable',
+      '#attributes' => array(
+        'id' => $table_id,
+        'class' => $table_classes,
+      ),
+    );
+    $rows = array();
+    $values = isset($form_state['values'][$field_name][$langcode]) ? $form_state['values'][$field_name][$langcode] : $items;
+    if (!empty($values)) {
+      $entity_ids = array();
+      foreach ($values as $key => $item) {
+        $entity_ids[] = $item[$value_key];
+      }
+      $entities = entity_load($target_type, $entity_ids);
+    }
+    $count = count($values);
+
+    // When ajax element is clicked, don't lose the destination.
+    if (current_path() == 'system/ajax') {
+      if (isset($form_state['destination'])) {
+        $destination = $form_state['destination'];
+      }
+    }
+    else  {
+      $destination = drupal_get_destination();
+      $form_state['destination'] = $destination;
+    }
+
+    $j = 0; // Keeps track of existing items index
+    foreach ($values as $key => $item) {
+      $target_id = $item[$value_key];
+      $actions = array();
+
+      if (isset($entities[$target_id])) {
+        $label = entity_label($target_type, $entities[$target_id]);
+        $uri = entity_uri($target_type, $entities[$target_id]);
+        $label = l($label, $uri['path']);
+      }
+      else {
+        $label = t('Missing @type', array('@type' => $target_type));
+      }
+
+      $actions[] = array(
+        '#type' => 'button',
+        '#value' => t('Remove'),
+        '#name' => $field_name . '_remove_' . $key,
+        '#ajax' => array(
+          'callback' => 'entityqueue_field_widget_ajax_callback',
+          'wrapper' => $table_id,
+        ),
+      );
+
+      $subform['items'][$key] = array(
+        'label' => array(
+          '#type' => 'markup',
+          '#markup' => $label,
+        ),
+        $value_key => array(
+          '#type' => 'value',
+          '#value' => $target_id,
+        ),
+        'actions' => array(
+          '#type' => 'container',
+          $actions,
+        ),
+        'weight' => array(
+          '#type' => 'weight',
+          '#delta' => $count,
+          '#default_value' => $key,
+          '#title' => '',
+          '#attributes' => array('class' => array('item-weight')),
+        ),
+      );
+    }
+    // This is stolen from entityreference_field_widget_form() and trimmed down
+    // for our purposes.
+    $autocomplete_path = 'entityreference/autocomplete/single/';
+    $autocomplete_path .= $field_name . '/' . $entity_type . '/' . $instance['bundle'] . '/';
+    $id = 'NULL';
+    if ($entity_id) {
+      $id = $entity_id;
+    }
+    $autocomplete_path .= $id;
+    $subform['add'] = array(
+      '#type' => 'container',
+      '#attributes' => array('class' => array('container-inline')),
+      '#weight' => 10,
+      'entity' => array(
+        '#type' => 'textfield',
+        '#maxlength' => 1024,
+        '#default_value' => '',
+        '#autocomplete_path' => $autocomplete_path,
+        '#size' => $instance['widget']['settings']['size'],
+        '#element_validate' => array('_entityreference_autocomplete_validate'),
+        '#attributes' => array(
+          'id' => $table_id . '-add',
+        ),
+      ),
+      'submit' => array(
+        '#type' => 'submit',
+        '#value' => t('Add item'),
+        '#ajax' => array(
+          'callback' => 'entityqueue_field_widget_ajax_callback',
+          'wrapper' => $table_id,
+        ),
+      ),
+    );
+
+    $subform['#element_validate'] = array('entityqueue_widget_dragtable_element_validate');
+
+    return $subform;
+  }
+}
+
+/**
+ * Element validate callback.
+ * @see entityqueue_field_widget_form()
+ */
+function entityqueue_widget_dragtable_element_validate($element, &$form_state) {
+  $items = array();
+  $value_key = $element['#value_key'];
+  $field_name = $element['#field_name'];
+  $lang = $element['#language'];
+  if (isset($form_state['values'][$field_name][$lang]['items'])) {
+    $existing_values = $form_state['values'][$field_name][$lang]['items'];
+  }
+  else {
+    $existing_values = array();
+  }
+  // If the trigger was a remove button.
+  $triggering_element = $form_state['triggering_element'];
+  $offset = drupal_strlen($field_name) + 8;
+  if (drupal_substr($triggering_element['#name'], 0, $offset) == $field_name . '_remove_') {
+    $remove_key = drupal_substr($triggering_element['#name'], $offset);
+    unset($existing_values[$remove_key]);
+  }
+  $values = array();
+  $weights = array();
+  foreach ($existing_values as $key => $row) {
+    $values[] = $row[$value_key];
+    $weights[] = $row['weight'];
+  }
+  array_multisort($weights, SORT_ASC, $existing_values);
+  foreach ($existing_values as $key => $row) {
+    $items[] = array(
+      $value_key => $row[$value_key],
+    );
+  }
+  $new_value = $form_state['values'][$field_name][$lang]['add'];
+  if (!empty($new_value['entity'])) {
+    $items[] = array(
+      $value_key => $new_value['entity'],
+    );
+  }
+  form_set_value($element, $items, $form_state);
+  // Rebuild form if ajax callback button was clicked.
+  if (current_path() == 'system/ajax') {
+    $form_state['rebuild'] = TRUE;
+  }
+}
+
+/**
+ * Ajax form callback.
+ */
+function entityqueue_field_widget_ajax_callback($form, $form_state) {
+  $field_name = $form_state['triggering_element']['#parents'][0];
+  $lang = $form[$field_name]['#language'];
+  $form_state['rebuild'] = TRUE;
+  $table_id = '#' . drupal_clean_css_identifier('entityqueue-dragtable-' . $field_name);
+  $markup = drupal_render($form[$field_name][$lang]['items']);
+  $commands[] = ajax_command_replace($table_id, $markup);
+  $input_id = $table_id . '-add';
+  $commands[] = ajax_command_invoke($input_id, 'val', array(''));
+  $warning = array(
+    '#prefix' => '<div class="tabledrag-changed-warning messages warning"><span class="warning tabledrag-changed">*</span>',
+    '#suffix' => '</div>',
+    '#markup' => t('Changes will not be saved until the form is submitted.'),
+  );
+  $commands[] = ajax_command_before($table_id, drupal_render($warning));
+  return array(
+    '#type' => 'ajax',
+    '#commands' => $commands,
+  );
 }
