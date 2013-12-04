@@ -184,6 +184,18 @@ function entityqueue_export_ui_form(&$form, &$form_state) {
     '#field_suffix' => t('items.'),
     '#suffix' => '</div>',
   );
+  $form['settings']['properties']['act_as_queue'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Act as queue'),
+    '#default_value' => isset($queue->settings['act_as_queue']) ? 1 : 0,
+    '#return_value' => 1,
+    '#description' => t('When enabled, adding more then the maximum number of items will remove extra items from the top of the queue.'),
+    '#states' => array(
+      'invisible' => array(
+        ':input[name="settings[properties][max_size]"]' => array('value' => 0),
+      ),
+    ),
+  );
 }
 
 /**
