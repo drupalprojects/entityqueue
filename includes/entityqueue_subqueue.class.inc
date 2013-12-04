@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Defines the class for entity subqueues.
+ */
+
+/**
  * Main class for subqueue entities.
  */
 class EntitySubqueue extends Entity {

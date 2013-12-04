@@ -189,10 +189,10 @@ function entityqueue_uninstall() {
 
   // Build an array of entityreference field names created by entityqueue.
   $eq_fields = array();
-  foreach ($db_queues as $queue){
+  foreach ($db_queues as $queue) {
     $eq_fields[] = _entityqueue_get_target_field_name($queue->target_type);
   }
-  foreach ($default_queues as $queue){
+  foreach ($default_queues as $queue) {
     $eq_fields[] = _entityqueue_get_target_field_name($queue->target_type);
   }
   $eq_fields = array_unique($eq_fields);

@@ -237,7 +237,7 @@ class entityqueue_export_ui extends ctools_export_ui {
         array('data' => $subitems, 'class' => array('entityqueue-ui-items')),
         array('data' => $ops, 'class' => array('entityqueue-ui-operations', 'ctools-export-ui-operations')),
       ),
-      'title' => t('Machine name: ') . check_plain($queue->name),
+      'title' => t('Machine name: @name', array('@name' => $queue->name)),
       'class' => array(!empty($queue->disabled) ? 'ctools-export-ui-disabled' : 'ctools-export-ui-enabled'),
     );
   }

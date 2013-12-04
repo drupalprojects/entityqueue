@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Contains Entityqueue handler for simple queues with multiple subqueues.
+ */
+
+/**
  * A multiple subqueue queue implementation.
  */
 class MultipleEntityQueueHandler extends SimpleEntityQueueHandler {

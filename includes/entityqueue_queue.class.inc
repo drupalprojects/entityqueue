@@ -1,7 +1,12 @@
 <?php
 
 /**
+ * @file
  * Defines the base class for entity queues.
+ */
+
+/**
+ * Base class for entity queues.
  */
 class EntityQueue {
 

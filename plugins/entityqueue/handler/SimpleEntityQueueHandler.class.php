@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Contains Entityqueue handler for simple queues.
+ */
+
+/**
  * A simple queue implementation.
  */
 class SimpleEntityQueueHandler extends EntityQueueHandlerBase {

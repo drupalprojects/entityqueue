@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Contains Entityqueue handler interface and base class.
+ */
+
+/**
  * Abstraction of the handling logic of a queue.
  */
 interface EntityQueueHandlerInterface {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Sort handler for entityqueue position.

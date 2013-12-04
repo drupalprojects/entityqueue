@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Entityqueue handler for simple queues.
+ */
+
 $plugin = array(
   'title' => t('Simple queue'),
   'class' => 'SimpleEntityQueueHandler',
