@@ -62,4 +62,14 @@ class EntityQueue {
       $this->$key = $value;
     }
   }
+
+  /**
+   * Returns the label of this queue.
+   *
+   * @return string
+   */
+  public function label() {
+    return $this->label;
+  }
+
 }

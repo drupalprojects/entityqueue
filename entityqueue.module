@@ -68,20 +68,35 @@ function entityqueue_permission() {
   $permissions = array(
     'administer entityqueue' => array(
       'title' => t('Administer entityqueue'),
-      'description' => t('Access the entityqueue administration pages.'),
+      'description' => t('Administer entityqueue configuration and create, update and delete all queues.'),
+      'restrict access' => TRUE,
     ),
-    'administer all queues' => array(
-      'title' => t('Administer all queues'),
+    'manipulate entityqueues' => array(
+      'title' => t('Manipulate queues'),
+      'description' => t('Access the entityqueues list.')
+    ),
+    'manipulate all entityqueues' => array(
+      'title' => t('Manipulate all queues'),
+      'description' => t('Access to update all queues.'),
     ),
   );
 
-  $entities = entityqueue_load_multiple(array(), array('parent_name' => NULL));
-  foreach ($entities as $name => $entity) {
-    $permissions["edit $name queue"] = array(
-      'title' => t('Edit %queue queue items', array('%queue' => entity_label('entityqueue', $entity))),
-    );
-    $permissions["configure $name queue"] = array(
-      'title' => t('Configure %queue queue', array('%queue' => entity_label('entityqueue', $entity))),
+  $queues = entityqueue_queue_load_multiple();
+  $handlers = ctools_get_plugins('entityqueue', 'handler');
+  foreach ($queues as $name => $queue) {
+    if ($handlers[$queue->handler]['queue type'] == 'multiple') {
+      $permissions["create $name entityqueue"] = array(
+        'title' => t('Add %queue subqueues', array('%queue' => $queue->label())),
+        'description' => t('Access to create new subqueue to the %queue queue.', array('%queue' => $queue->label())),
+      );
+      $permissions["delete $name entityqueue"] = array(
+        'title' => t('Delete %queue subqueues', array('%queue' => $queue->label())),
+        'description' => t('Access to delete subqueues of the %queue queue.', array('%queue' => $queue->label())),
+      );
+    }
+    $permissions["update $name entityqueue"] = array(
+      'title' => t('Manipulate %queue queue', array('%queue' => $queue->label())),
+      'description' => t('Access to update the %queue queue.', array('%queue' => $queue->label())),
     );
   }
   return $permissions;
@@ -202,7 +217,7 @@ function entityqueue_queue_load($name) {
  *   An array of machine names of the queues to be loaded. If $names is empty,
  *   load all queues.
  *
- * @return array
+ * @return EntityQueue[]
  *   An array of EntityQueue objects, keyed by queue name.
  */
 function entityqueue_queue_load_multiple($names = array()) {
@@ -299,6 +314,7 @@ function entityqueue_entity_info() {
       'load hook' => 'entityqueue_subqueue_load',
       'uri callback' => 'entityqueue_subqueue_uri',
       'label callback' => 'entityqueue_subqueue_label',
+      'access callback' => 'entityqueue_access',
       'fieldable' => TRUE,
       'entity keys' => array(
         'id' => 'subqueue_id',
@@ -316,7 +332,6 @@ function entityqueue_entity_info() {
         ),
       ),
       'metadata controller class' => '',
-      'access callback' => 'entityqueue_access',
     ),
   );
 
@@ -324,10 +339,11 @@ function entityqueue_entity_info() {
     $return['entityqueue_subqueue']['bundles'][$name] = array(
       'label' => $queue->label,
       'admin' => array(
-        'path' => 'admin/structure/entityqueue/list/%',
+        'path' => 'admin/structure/entityqueue/list/%entityqueue_queue',
         'real path' => 'admin/structure/entityqueue/list/' . $name,
         'bundle argument' => 4,
-        'access arguments' => array('administer entityqueue'),
+        'access callback' => 'entityqueue_queue_access',
+        'access arguments' => array('view', 4),
       ),
     );
   }
@@ -356,20 +372,67 @@ function entityqueue_entity_info() {
 
 /**
  * Access callback for the entity API.
+ * @see entity_access()
+ *
+ * @param $op
+ *   The operation being performed. One of 'view', 'update', 'create' or
+ *   'delete'.
+ * @param $entity
+ *   Optionally an entity to check access for. If no entity is given, it will be
+ *   determined whether access is allowed for all entities of the given type.
+ * @param $account
+ *   The user to check for. Leave it to NULL to check for the global user.
+ * @param $entity_type
+ *   The entity type of the entity to check for.
+ *
+ * @return bool
+ *   TRUE if the user has permission for $op, FALSE otherwise.
  */
 function entityqueue_access($op, $entity = NULL, $account = NULL, $entity_type = NULL) {
-  if (user_access('administer all queues', $account) || $op == 'view') {
+  if (empty($account)) {
+    global $user;
+    $account = $user;
+  }
+
+  $administer = user_access('administer entityqueue', $account);
+  if ($administer || user_access('manipulate all entityqueues', $account)) {
     return TRUE;
   }
-  if (!isset($entity)) {
+
+  if ($op == 'view' && user_access('manipulate entityqueues', $account)) {
+    return TRUE;
+  }
+
+  if (!(isset($entity) && is_object($entity))) {
     return FALSE;
   }
 
-  if ($op == 'create' || $op == 'update') {
-    $op = 'edit';
+  if (!isset($entity->queue)) {
+    watchdog('entityqueue', 'Missing queue property of entity object in entityqueue_access().', NULL, WATCHDOG_DEBUG);
+    return FALSE;
   }
 
-  return user_access("$op $entity->name queue", $account);
+  // For view, if they don't have the 'manipulate entityqueues' permission,
+  // check all other operations.
+  if ($op == 'view') {
+    foreach (array('update', 'create', 'delete') as $subop) {
+      if (user_access("$subop {$entity->queue} entityqueue", $account)) {
+        return TRUE;
+      }
+    }
+  }
+
+  return user_access("$op {$entity->queue} entityqueue", $account);
+}
+
+/**
+ * Menu access callback.
+ */
+function entityqueue_queue_access($op, EntityQueue $queue) {
+  $stub = (object) array(
+    'queue' => $queue->name,
+  );
+  return entity_access($op, 'entityqueue_subqueue', $stub);
 }
 
 /**

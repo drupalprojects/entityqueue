@@ -4,10 +4,11 @@
  * @file
  * Plugin definition for CTools Export UI integration.
  */
-
 $plugin = array(
   'schema' => 'entityqueue_queue',
-  'access' => 'administer entityqueue',
+  'access' => 'manipulate entityqueues',
+  'create access' => 'administer entityqueue',
+  'delete access' => 'administer entityqueue',
 
   // Add our custom operations.
   'allowed operations' => array(
@@ -27,8 +28,8 @@ $plugin = array(
         'page callback' => 'ctools_export_ui_switcher_page',
         'page arguments' => array('entityqueue_export_ui', 'subqueues', 4),
         'load arguments' => array('entityqueue_export_ui'),
-        // @todo Implement access mechanism.
-        'access callback' => TRUE,
+        'access callback' => 'entityqueue_queue_access',
+        'access arguments' => array('view', 4),
         'type' => MENU_CALLBACK,
       ),
       'add subqueue' => array(
@@ -37,8 +38,8 @@ $plugin = array(
         'page callback' => 'ctools_export_ui_switcher_page',
         'page arguments' => array('entityqueue_export_ui', 'subqueue_add', 4),
         'load arguments' => array('entityqueue_export_ui'),
-        // @todo Implement access mechanism.
-        'access callback' => TRUE,
+        'access callback' => 'entityqueue_queue_access',
+        'access arguments' => array('create', 4),
         'type' => MENU_LOCAL_ACTION,
       ),
       'edit subqueue callback' => array(
@@ -46,8 +47,8 @@ $plugin = array(
         'page callback' => 'ctools_export_ui_switcher_page',
         'page arguments' => array('entityqueue_export_ui', 'subqueue_edit', 4, 6),
         'load arguments' => array('entityqueue_export_ui'),
-        // @todo Implement access mechanism.
-        'access callback' => TRUE,
+        'access callback' => 'entityqueue_queue_access',
+        'access arguments' => array('update', 4),
         'type' => MENU_CALLBACK,
       ),
       'edit subqueue' => array(
@@ -56,8 +57,8 @@ $plugin = array(
         'page callback' => 'ctools_export_ui_switcher_page',
         'page arguments' => array('entityqueue_export_ui', 'subqueue_edit', 4, 6),
         'load arguments' => array('entityqueue_export_ui'),
-        // @todo Implement access mechanism.
-        'access callback' => TRUE,
+        'access callback' => 'entityqueue_queue_access',
+        'access arguments' => array('update', 4),
         'type' => MENU_DEFAULT_LOCAL_TASK,
         'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
       ),
@@ -91,6 +92,12 @@ $plugin = array(
  * Form to edit the settings of a queue.
  */
 function entityqueue_export_ui_form(&$form, &$form_state) {
+  global $user;
+  if (!user_access('administer entityqueue', $user)) {
+    drupal_access_denied();
+    drupal_exit();
+  }
+
   ctools_include('plugins');
   $queue = &$form_state['item'];
 

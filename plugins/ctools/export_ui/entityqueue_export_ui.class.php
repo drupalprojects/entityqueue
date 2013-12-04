@@ -59,8 +59,11 @@ class entityqueue_export_ui extends ctools_export_ui {
 
     $rows = array();
     foreach ($subqueues as $subqueue) {
-      $edit_op = str_replace('%entityqueue_subqueue', $subqueue->subqueue_id, ctools_export_ui_plugin_menu_path($plugin, 'edit subqueue', $queue->name));
-
+      $ops = '';
+      if (entity_access('update', 'entityqueue_subqueue', $subqueue)) {
+        $edit_op = str_replace('%entityqueue_subqueue', $subqueue->subqueue_id, ctools_export_ui_plugin_menu_path($plugin, 'edit subqueue', $queue->name));
+        $ops = l(t('edit items'), $edit_op);
+      }
       $rows[] = array(
         'data' => array(
           array(
@@ -72,7 +75,7 @@ class entityqueue_export_ui extends ctools_export_ui {
             'class' => array('entityqueue-ui-subqueue-label')
           ),
           array(
-            'data' => l(t('edit items'), $edit_op),
+            'data' => $ops,
             'class' => array('entityqueue-ui-subqueue-operations')
           ),
         ),
@@ -166,11 +169,12 @@ class entityqueue_export_ui extends ctools_export_ui {
    * Overrides ctools_export_ui::list_build_row().
    */
   public function list_build_row($queue, &$form_state, $operations) {
+    global $user;
     // Rename the 'Edit' operation, as that will be re-assigned to edit subqueue
     // items.
     $operations['edit']['title'] = t('Configure');
 
-    // Remove the 'subqueues' operation from queue that have a singe
+    // Remove the 'subqueues' operation from queue that have a single
     // subqueue, and remove the 'edit subqueue' operation for the rest.
     $handlers = ctools_get_plugins('entityqueue', 'handler');
     if ($handlers[$queue->handler]['queue type'] == 'single') {
@@ -214,6 +218,14 @@ class entityqueue_export_ui extends ctools_export_ui {
       $subitems = format_plural($queue->subitems, '1 subqueue', '@count subqueues');
     }
 
+    // Remove operations the user doesn't have access to.
+    if (!user_access('administer entityqueue', $user)) {
+      unset($operations['edit'], $operations['export'], $operations['clone']);
+      unset($operations['disable'], $operations['delete']);
+    }
+    if (!entityqueue_queue_access('update', $queue)) {
+      unset($operations['edit subqueue'], $operations['edit']);
+    }
     $ops = theme('links__ctools_dropbutton', array('links' => $operations, 'attributes' => array('class' => array('links', 'inline'))));
 
     $this->rows[$queue->name]['data'][] = array('data' => $ops, 'class' => array('ctools-export-ui-operations'));
