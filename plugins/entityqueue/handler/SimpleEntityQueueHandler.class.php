@@ -36,23 +36,29 @@ class SimpleEntityQueueHandler extends EntityQueueHandlerBase {
    */
   protected function ensureSubqueue() {
     global $user;
+    static $queues = array();
 
-    $query = new EntityFieldQuery();
-    $query
-      ->entityCondition('entity_type', 'entityqueue_subqueue')
-      ->entityCondition('bundle', $this->queue->name);
-    $result = $query->execute();
+    if (!isset($queues[$this->queue->name])) {
+      $queues[$this->queue->name] = TRUE;
 
-    // If we don't have a subqueue already, create one now.
-    if (empty($result['entityqueue_subqueue'])) {
-      $subqueue = entityqueue_subqueue_create();
-      $subqueue->queue = $this->queue->name;
-      $subqueue->name = $this->queue->name;
-      $subqueue->label = $this->getSubqueueLabel($subqueue);
-      $subqueue->module = 'entityqueue';
-      $subqueue->uid = $user->uid;
+      $transaction = db_transaction();
+      $query = new EntityFieldQuery();
+      $query
+        ->entityCondition('entity_type', 'entityqueue_subqueue')
+        ->entityCondition('bundle', $this->queue->name);
+      $result = $query->execute();
 
-      entityqueue_subqueue_save($subqueue);
+      // If we don't have a subqueue already, create one now.
+      if (empty($result['entityqueue_subqueue'])) {
+        $subqueue = entityqueue_subqueue_create();
+        $subqueue->queue = $this->queue->name;
+        $subqueue->name = $this->queue->name;
+        $subqueue->label = $this->getSubqueueLabel($subqueue);
+        $subqueue->module = 'entityqueue';
+        $subqueue->uid = $user->uid;
+
+        entity_get_controller('entityqueue_subqueue')->save($subqueue, $transaction);
+      }
     }
   }
 
