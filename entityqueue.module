@@ -646,7 +646,18 @@ function _entityqueue_get_target_field_name($entity_type) {
  *   An EntityQueue object.
  */
 function _entityqueue_queue_ensure_instance(EntityQueue $queue) {
+  $all_queue_names = variable_get('entityqueue_queue_names', array());
+  if (!in_array($queue->name, $all_queue_names)) {
+    $all_queue_names[] = $queue->name;
+    variable_set('entityqueue_queue_names', $all_queue_names);
+  }
+
   $field_name = _entityqueue_get_target_field_name($queue->target_type);
+  $all_eq_fields = variable_get('entityqueue_field_names', array());
+  if (!in_array($field_name, $all_eq_fields)) {
+    $all_eq_fields[] = $field_name;
+    variable_set('entityqueue_field_names', $all_eq_fields);
+  }
   $handler_settings = array(
     'behaviors' => array(
       'entityqueue' => array(
