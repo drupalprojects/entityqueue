@@ -23,7 +23,16 @@ class EntityReference_SelectionHandler_EntityQueue extends EntityReference_Selec
   protected function __construct($field, $instance = NULL, $entity_type = NULL, $entity = NULL) {
     parent::__construct($field, $instance, $entity_type, $entity);
 
-    $this->queue = entityqueue_queue_load($entity->queue);
+    $queue_name = NULL;
+    if (!empty($entity->queue)) {
+      $queue_name = $entity->queue;
+    }
+    elseif (!empty($instance['bundle'])) {
+      $queue_name = $instance['bundle'];
+    }
+    if (!empty($queue_name)) {
+      $this->queue = entityqueue_queue_load($queue_name);
+    }
 
     // Override the entityreference settings with our own.
     $this->field['settings']['handler_settings']['target_bundles'] = NULL;
