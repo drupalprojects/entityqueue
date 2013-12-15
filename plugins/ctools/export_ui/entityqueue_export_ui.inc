@@ -62,6 +62,16 @@ $plugin = array(
         'type' => MENU_DEFAULT_LOCAL_TASK,
         'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
       ),
+      'delete subqueue' => array(
+        'path' => 'list/%ctools_export_ui/subqueues/%entityqueue_subqueue/delete',
+        'title' => 'Delete subqueue',
+        'type' => MENU_CALLBACK,
+        'page callback' => 'ctools_export_ui_switcher_page',
+        'page arguments' => array('entityqueue_export_ui', 'subqueue_delete', 4, 6),
+        'load arguments' => array('entityqueue_export_ui'),
+        'access callback' => 'entityqueue_access',
+        'access arguments' => array('delete', 6, NULL, 'entityqueue_subqueue'),
+      ),
     ),
   ),
 

@@ -20,6 +20,13 @@ class SimpleEntityQueueHandler extends EntityQueueHandlerBase {
   /**
    * {@inheritdoc}
    */
+  public function canDeleteSubqueue(EntitySubqueue $subqueue) {
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function loadFromCode() {
     $this->ensureSubqueue();
   }

@@ -59,10 +59,14 @@ class entityqueue_export_ui extends ctools_export_ui {
 
     $rows = array();
     foreach ($subqueues as $subqueue) {
-      $ops = '';
+      $ops = array();
       if (entity_access('update', 'entityqueue_subqueue', $subqueue)) {
         $edit_op = str_replace('%entityqueue_subqueue', $subqueue->subqueue_id, ctools_export_ui_plugin_menu_path($plugin, 'edit subqueue', $queue->name));
-        $ops = l(t('edit items'), $edit_op);
+        $ops[] = l(t('edit items'), $edit_op);
+      }
+      if (entity_access('delete', 'entityqueue_subqueue', $subqueue)) {
+        $delete_op = str_replace('%entityqueue_subqueue', $subqueue->subqueue_id, ctools_export_ui_plugin_menu_path($plugin, 'delete subqueue', $queue->name));
+        $ops[] = l(t('delete subqueue'), $delete_op);
       }
       $rows[] = array(
         'data' => array(
@@ -75,7 +79,7 @@ class entityqueue_export_ui extends ctools_export_ui {
             'class' => array('entityqueue-ui-subqueue-label')
           ),
           array(
-            'data' => $ops,
+            'data' => implode(' | ', $ops),
             'class' => array('entityqueue-ui-subqueue-operations')
           ),
         ),
@@ -119,6 +123,13 @@ class entityqueue_export_ui extends ctools_export_ui {
   public function subqueue_edit_page($js, $input, EntityQueue $queue, EntitySubqueue $subqueue) {
     drupal_set_title(t('Edit %subqueue', array('%subqueue' => $subqueue->label)), PASS_THROUGH);
     return drupal_get_form('entityqueue_subqueue_edit_form', $queue, $subqueue);
+  }
+
+  /**
+   * Page callback; Displays the subqueue delete form.
+   */
+  public function subqueue_delete_page($js, $input, EntityQueue $queue, EntitySubqueue $subqueue) {
+    return drupal_get_form('entityqueue_subqueue_delete_form', $queue, $subqueue);
   }
 
   /**
@@ -179,6 +190,7 @@ class entityqueue_export_ui extends ctools_export_ui {
     $handlers = ctools_get_plugins('entityqueue', 'handler');
     if ($handlers[$queue->handler]['queue type'] == 'single') {
       unset($operations['subqueues']);
+      unset($operations['delete subqueue']);
       $operations['edit subqueue']['href'] = str_replace('%entityqueue_subqueue', $queue->subqueue_id, $operations['edit subqueue']['href']);
     }
     else {
@@ -332,4 +344,46 @@ function entityqueue_subqueue_edit_form_submit($form, &$form_state) {
   else {
     $form_state['redirect'] = $plugin_base_path . '/list/' . $queue->name . '/subqueues';
   }
+}
+
+/**
+ * Form callback.
+ */
+function entityqueue_subqueue_delete_form($form, &$form_state, $queue, $subqueue) {
+  $handler = entityqueue_get_handler($queue);
+  // If they can't delete this subqueue, return access denied.
+  if (!$handler->canDeleteSubqueue($subqueue)) {
+    drupal_set_message(t('The %queue: %subqueue subqueue cannot be deleted.', array(
+      '%queue' => $queue->label,
+      '%subqueue' => $subqueue->label,
+    )), 'warning');
+    drupal_access_denied();
+    drupal_exit();
+  }
+
+  $form['#queue'] = $queue;
+  $form['#subqueue'] = $subqueue;
+  $form['subqueue_id'] = array(
+    '#type' => 'value',
+    '#value' => $subqueue->subqueue_id,
+  );
+  return confirm_form($form, t('Are you sure you want to delete %queue: %subqueue?', array(
+    '%queue' => $queue->label,
+    '%subqueue' => $subqueue->label,
+  )), 'admin/structure/entityqueue/list/' . $queue->name . '/subqueues', NULL, t('Delete'));
+}
+
+/**
+ * Form submit handler.
+ * @see entityqueue_subqueue_delete_form()
+ */
+function entityqueue_subqueue_delete_form_submit($form, &$form_state) {
+  $queue = $form['#queue'];
+  $subqueue = $form['#subqueue'];
+  $handler = entityqueue_get_handler($queue);
+
+  if ($handler->canDeleteSubqueue($subqueue)) {
+    entity_delete('entityqueue_subqueue', $subqueue->subqueue_id);
+  }
+  $form_state['redirect'] = 'admin/structure/entityqueue/list/' . $queue->name . '/subqueues';
 }

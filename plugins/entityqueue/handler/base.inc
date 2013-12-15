@@ -46,6 +46,11 @@ interface EntityQueueHandlerInterface {
   public function getSubqueueLabel(EntitySubqueue $subqueue);
 
   /**
+   * Returns TRUE if subqueue can be deleted, otherwise returns FALSE.
+   */
+  public function canDeleteSubqueue(EntitySubqueue $subqueue);
+
+  /**
    * Act on creating a queue.
    */
   public function create();
@@ -154,6 +159,10 @@ abstract class EntityQueueHandlerBase implements EntityQueueHandlerInterface {
   }
 
   public function getSubqueueLabel(EntitySubqueue $subqueue) {}
+
+  public function canDeleteSubqueue(EntitySubqueue $subqueue) {
+    return TRUE;
+  }
 
   public function create() {}
 
