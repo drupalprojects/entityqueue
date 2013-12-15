@@ -1010,3 +1010,10 @@ function entityqueue_field_widget_ajax_callback($form, $form_state) {
     '#commands' => $commands,
   );
 }
+
+/**
+ * Ajax form callback.
+ */
+function entityqueue_subqueue_ajax_callback($form, $form_state) {
+  return $form;
+}

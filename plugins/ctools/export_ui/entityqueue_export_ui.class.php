@@ -301,6 +301,15 @@ function entityqueue_subqueue_edit_form($form, &$form_state, EntityQueue $queue,
 
   field_attach_form('entityqueue_subqueue', $subqueue, $form, $form_state);
 
+  // Since the form has ajax buttons, the $wrapper_id will change each time
+  // one of those buttons is clicked. Therefore the whole form has to be
+  // replaced, otherwise the buttons will have the old $wrapper_id and will only
+  // work on the first click.
+  $field_name = _entityqueue_get_target_field_name($queue->target_type);
+  $wrapper_id = drupal_html_id($field_name . '-wrapper');
+  $form['#prefix'] = '<div id="' . $wrapper_id . '">';
+  $form['#suffix'] = '</div>';
+
   // Entity type (bundle) is needed by entity_form_submit_build_entity().
   $form['queue'] = array(
     '#type' => 'value',
@@ -314,6 +323,37 @@ function entityqueue_subqueue_edit_form($form, &$form_state, EntityQueue $queue,
     '#weight' => 40,
   );
 
+  $form['actions']['reverse'] = array(
+    '#type' => 'button',
+    '#value' => t('Reverse'),
+    '#weight' => 41,
+    '#validate' => array('entityqueue_subqueue_reverse_validate'),
+    '#ajax' => array(
+      'callback' => 'entityqueue_subqueue_ajax_callback',
+      'wrapper' => $wrapper_id,
+    ),
+  );
+  $form['actions']['shuffle'] = array(
+    '#type' => 'button',
+    '#value' => t('Shuffle'),
+    '#weight' => 42,
+    '#validate' => array('entityqueue_subqueue_shuffle_validate'),
+    '#ajax' => array(
+      'callback' => 'entityqueue_subqueue_ajax_callback',
+      'wrapper' => $wrapper_id,
+    ),
+  );
+  $form['actions']['clear'] = array(
+    '#type' => 'button',
+    '#value' => t('Clear'),
+    '#weight' => 43,
+    '#validate' => array('entityqueue_subqueue_clear_validate'),
+    '#ajax' => array(
+      'callback' => 'entityqueue_subqueue_ajax_callback',
+      'wrapper' => $wrapper_id,
+    ),
+  );
+
   $form['#validate'][] = 'entityqueue_subqueue_edit_form_validate';
   $form['#submit'][] = 'entityqueue_subqueue_edit_form_submit';
 
@@ -325,6 +365,70 @@ function entityqueue_subqueue_edit_form($form, &$form_state, EntityQueue $queue,
  */
 function entityqueue_subqueue_edit_form_validate($form, &$form_state) {
   entity_form_field_validate('entityqueue_subqueue', $form, $form_state);
+}
+
+/**
+ * Validation callback to reverse items in the subqueue.
+ */
+function entityqueue_subqueue_reverse_validate($form, &$form_state) {
+  $queue = $form_state['entityqueue_queue'];
+  $field_name = _entityqueue_get_target_field_name($queue->target_type);
+  $lang = $form[$field_name]['#language'];
+  if (isset($form_state['values'])) {
+    if (isset($form_state['values'][$field_name][$lang])) {
+      $field_values = $form_state['values'][$field_name][$lang];
+      foreach ($field_values as $key => $value) {
+        if (!is_numeric($key) || empty($value['target_id'])) {
+          unset($field_values[$key]);
+        }
+      }
+      $field_values = array_reverse($field_values);
+      // Set weights according to their new order.
+      foreach ($field_values as $key => $value) {
+        if (is_numeric($key)) {
+          $field_values[$key]['_weight'] = $key;
+        }
+      }
+      $form_state['values'][$field_name][$lang] = $field_values;
+    }
+  }
+}
+
+/**
+ * Validation callback to shuffle items in the subqueue.
+ */
+function entityqueue_subqueue_shuffle_validate($form, &$form_state) {
+  $queue = $form_state['entityqueue_queue'];
+  $field_name = _entityqueue_get_target_field_name($queue->target_type);
+  $lang = $form[$field_name]['#language'];
+  if (isset($form_state['values'])) {
+    if (isset($form_state['values'][$field_name][$lang])) {
+      $field_values = $form_state['values'][$field_name][$lang];
+      foreach ($field_values as $key => $value) {
+        if (!is_numeric($key) || empty($value['target_id'])) {
+          unset($field_values[$key]);
+        }
+      }
+      shuffle($field_values);
+      // Set weights according to their new order.
+      foreach ($field_values as $key => $value) {
+        if (is_numeric($key)) {
+          $field_values[$key]['_weight'] = $key;
+        }
+      }
+      $form_state['values'][$field_name][$lang] = $field_values;
+    }
+  }
+}
+
+/**
+ * Validation callback to clear items in the subqueue.
+ */
+function entityqueue_subqueue_clear_validate($form, &$form_state) {
+  $queue = $form_state['entityqueue_queue'];
+  $field_name = _entityqueue_get_target_field_name($queue->target_type);
+  $lang = $form[$field_name]['#language'];
+  $form_state['values'][$field_name][$lang] = array();
 }
 
 /**
