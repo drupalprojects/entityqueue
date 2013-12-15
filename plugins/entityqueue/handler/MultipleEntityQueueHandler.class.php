@@ -41,11 +41,17 @@ class MultipleEntityQueueHandler extends SimpleEntityQueueHandler {
   /**
    * {@inheritdoc}
    */
+  public function loadFromCode() {}
+
+  /**
+   * {@inheritdoc}
+   */
+  public function insert() {}
+
+  /**
+   * {@inheritdoc}
+   */
   public function canDeleteSubqueue(EntitySubqueue $subqueue) {
-    // Don't allow deleting the original subqueue.
-    if ($subqueue->queue == $subqueue->name) {
-      return FALSE;
-    }
     return TRUE;
   }
 

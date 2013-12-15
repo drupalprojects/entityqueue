@@ -141,6 +141,9 @@ class entityqueue_export_ui extends ctools_export_ui {
     // @todo This is quite inefficient to do here but ctools_export_load_object()
     // doesn't help us.
     if (!empty($this->items)) {
+      foreach ($this->items as $name => $queue) {
+        $this->items[$name]->subitems = 0;
+      }
       $query = new EntityFieldQuery();
       $query
         ->entityCondition('entity_type', $this->entityType)
