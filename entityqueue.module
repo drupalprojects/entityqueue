@@ -81,7 +81,7 @@ function entityqueue_permission() {
     ),
   );
 
-  $queues = entityqueue_queue_load_multiple();
+  $queues = entityqueue_queue_load_multiple(array(), TRUE);
   $handlers = ctools_get_plugins('entityqueue', 'handler');
   foreach ($queues as $name => $queue) {
     if ($handlers[$queue->handler]['queue type'] == 'multiple') {
@@ -220,9 +220,9 @@ function entityqueue_queue_load($name) {
  * @return EntityQueue[]
  *   An array of EntityQueue objects, keyed by queue name.
  */
-function entityqueue_queue_load_multiple($names = array()) {
+function entityqueue_queue_load_multiple($names = array(), $reset = FALSE) {
   ctools_include('export');
-  $queues = !empty($names) ? ctools_export_load_object('entityqueue_queue', 'names', $names) : ctools_export_crud_load_all('entityqueue_queue');
+  $queues = !empty($names) ? ctools_export_load_object('entityqueue_queue', 'names', $names) : ctools_export_crud_load_all('entityqueue_queue', $reset);
 
   // Bail out early if we haven't found any queues.
   if (empty($queues)) {
