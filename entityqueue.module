@@ -428,9 +428,18 @@ function entityqueue_access($op, $entity = NULL, $account = NULL, $entity_type =
 /**
  * Menu access callback.
  */
-function entityqueue_queue_access($op, EntityQueue $queue) {
+function entityqueue_queue_access($op, $queue) {
+  if (is_object($queue) && ($queue instanceof EntityQueue)) {
+    $queue_name = $queue->name;
+  }
+  elseif (is_string($queue)) {
+    $queue_name = $queue;
+  }
+  else {
+    return;
+  }
   $stub = (object) array(
-    'queue' => $queue->name,
+    'queue' => $queue_name,
   );
   return entity_access($op, 'entityqueue_subqueue', $stub);
 }
