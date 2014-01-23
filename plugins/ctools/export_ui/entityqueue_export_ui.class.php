@@ -374,11 +374,11 @@ function entityqueue_subqueue_reverse_validate($form, &$form_state) {
   $queue = $form_state['entityqueue_queue'];
   $field_name = _entityqueue_get_target_field_name($queue->target_type);
   $lang = $form[$field_name]['#language'];
-  if (isset($form_state['values'])) {
-    if (isset($form_state['values'][$field_name][$lang])) {
-      $field_values = $form_state['values'][$field_name][$lang];
+  foreach(array('input', 'values') as $state) {
+    if (isset($form_state[$state][$field_name][$lang])) {
+      $field_values = $form_state[$state][$field_name][$lang];
       foreach ($field_values as $key => $value) {
-        if (!is_numeric($key) || empty($value['target_id'])) {
+        if (!is_numeric($key) || empty($value['target_id']) || $value['target_id'] == '_none') {
           unset($field_values[$key]);
         }
       }
@@ -389,7 +389,7 @@ function entityqueue_subqueue_reverse_validate($form, &$form_state) {
           $field_values[$key]['_weight'] = $key;
         }
       }
-      $form_state['values'][$field_name][$lang] = $field_values;
+      $form_state[$state][$field_name][$lang] = $field_values;
     }
   }
 }
@@ -401,11 +401,11 @@ function entityqueue_subqueue_shuffle_validate($form, &$form_state) {
   $queue = $form_state['entityqueue_queue'];
   $field_name = _entityqueue_get_target_field_name($queue->target_type);
   $lang = $form[$field_name]['#language'];
-  if (isset($form_state['values'])) {
-    if (isset($form_state['values'][$field_name][$lang])) {
-      $field_values = $form_state['values'][$field_name][$lang];
+  foreach(array('input', 'values') as $state) {
+    if (isset($form_state[$state][$field_name][$lang])) {
+      $field_values = $form_state[$state][$field_name][$lang];
       foreach ($field_values as $key => $value) {
-        if (!is_numeric($key) || empty($value['target_id'])) {
+        if (!is_numeric($key) || empty($value['target_id']) || $value['target_id'] == '_none') {
           unset($field_values[$key]);
         }
       }
@@ -416,7 +416,7 @@ function entityqueue_subqueue_shuffle_validate($form, &$form_state) {
           $field_values[$key]['_weight'] = $key;
         }
       }
-      $form_state['values'][$field_name][$lang] = $field_values;
+      $form_state[$state][$field_name][$lang] = $field_values;
     }
   }
 }
@@ -428,7 +428,15 @@ function entityqueue_subqueue_clear_validate($form, &$form_state) {
   $queue = $form_state['entityqueue_queue'];
   $field_name = _entityqueue_get_target_field_name($queue->target_type);
   $lang = $form[$field_name]['#language'];
-  $form_state['values'][$field_name][$lang] = array();
+  foreach(array('input', 'values') as $state) {
+    $form_state[$state][$field_name][$lang] = array();
+  }
+  if (isset($form_state['build_info']['args'][1])) {
+    $subqueue = $form_state['build_info']['args'][1];
+    if (isset($subqueue->{$field_name}[$lang])) {
+      $form_state['build_info']['args'][1]->{$field_name}[$lang] = array();
+    }
+  }
 }
 
 /**
