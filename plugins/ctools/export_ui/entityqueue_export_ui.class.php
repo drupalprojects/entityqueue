@@ -306,7 +306,15 @@ function entityqueue_subqueue_edit_form($form, &$form_state, EntityQueue $queue,
   // replaced, otherwise the buttons will have the old $wrapper_id and will only
   // work on the first click.
   $field_name = _entityqueue_get_target_field_name($queue->target_type);
-  $wrapper_id = drupal_html_id($field_name . '-wrapper');
+  if (isset($form_state['form_wrapper_id'])) {
+    $wrapper_id = $form_state['form_wrapper_id'];
+  }
+  else {
+    $wrapper_id = drupal_html_id($field_name . '-wrapper');
+  }
+  $form_state['form_wrapper_id'] = $wrapper_id;
+  $form_state['field_name'] = $field_name;
+
   $form['#prefix'] = '<div id="' . $wrapper_id . '">';
   $form['#suffix'] = '</div>';
 

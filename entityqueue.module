@@ -840,7 +840,13 @@ function entityqueue_field_widget_form(&$form, &$form_state, $field, $instance, 
         'id' => $table_id,
         'class' => $table_classes,
       ),
+      '#attached' => array(
+        'js' => array(
+          drupal_get_path('module', 'entityqueue') . '/js/entityqueue.widget.js' => array('type' => 'file'),
+        ),
+      ),
     );
+
     $rows = array();
     $values = isset($form_state['values'][$field_name][$langcode]) ? $form_state['values'][$field_name][$langcode] : $items;
     if (!empty($values)) {
@@ -944,7 +950,6 @@ function entityqueue_field_widget_form(&$form, &$form_state, $field, $instance, 
     );
 
     $subform['#element_validate'] = array('entityqueue_widget_dragtable_element_validate');
-
     return $subform;
   }
 }
@@ -1003,17 +1008,18 @@ function entityqueue_field_widget_ajax_callback($form, $form_state) {
   $field_name = $form_state['triggering_element']['#parents'][0];
   $lang = $form[$field_name]['#language'];
   $form_state['rebuild'] = TRUE;
-  $table_id = '#' . drupal_clean_css_identifier('entityqueue-dragtable-' . $field_name);
-  $markup = drupal_render($form[$field_name][$lang]['items']);
-  $commands[] = ajax_command_replace($table_id, $markup);
-  $input_id = $table_id . '-add';
-  $commands[] = ajax_command_invoke($input_id, 'val', array(''));
-  $warning = array(
-    '#prefix' => '<div class="tabledrag-changed-warning messages warning"><span class="warning tabledrag-changed">*</span>',
-    '#suffix' => '</div>',
-    '#markup' => t('Changes will not be saved until the form is submitted.'),
+  $form[$field_name][$lang]['add']['#value'] = '';
+  $markup = drupal_render($form[$field_name]);
+
+  $commands[] = ajax_command_replace('.' . drupal_clean_css_identifier('field-name-' . $field_name) , $markup);
+
+
+  $add_id = drupal_clean_css_identifier('entityqueue-dragtable-' . $field_name . '-add');
+  $commands[] = ajax_command_invoke('#' . $add_id, 'val', array(''));
+  $settings = array(
+    drupal_clean_css_identifier('entityqueue-dragtable-' . $field_name) => true,
   );
-  $commands[] = ajax_command_before($table_id, drupal_render($warning));
+  drupal_add_js(array('entityqueue_changed' => $settings), 'setting');
   return array(
     '#type' => 'ajax',
     '#commands' => $commands,
@@ -1024,5 +1030,16 @@ function entityqueue_field_widget_ajax_callback($form, $form_state) {
  * Ajax form callback.
  */
 function entityqueue_subqueue_ajax_callback($form, $form_state) {
-  return $form;
+  $settings = array(
+    drupal_clean_css_identifier('entityqueue-dragtable-' . $form_state['field_name']) => true,
+  );
+  drupal_add_js(array('entityqueue_changed' => $settings), 'setting');
+
+  $markup = drupal_render($form);
+  $commands[] = ajax_command_replace('#' . $form_state['form_wrapper_id'] , $markup);
+
+  return array(
+    '#type' => 'ajax',
+    '#commands' => $commands,
+  );
 }
