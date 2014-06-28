@@ -25,6 +25,7 @@ class entityqueue_export_ui extends ctools_export_ui {
   public function subqueues_page($js, $input, EntityQueue $queue) {
     $plugin = $this->plugin;
     drupal_set_title($this->get_page_title('subqueues', $queue));
+    _entityqueue_set_breadcrumb();
 
     $header = array(
       array(
@@ -122,6 +123,7 @@ class entityqueue_export_ui extends ctools_export_ui {
    */
   public function subqueue_edit_page($js, $input, EntityQueue $queue, EntitySubqueue $subqueue) {
     drupal_set_title(t('Edit %subqueue', array('%subqueue' => $subqueue->label)), PASS_THROUGH);
+    _entityqueue_set_breadcrumb();
     return drupal_get_form('entityqueue_subqueue_edit_form', $queue, $subqueue);
   }
 
@@ -129,6 +131,7 @@ class entityqueue_export_ui extends ctools_export_ui {
    * Page callback; Displays the subqueue delete form.
    */
   public function subqueue_delete_page($js, $input, EntityQueue $queue, EntitySubqueue $subqueue) {
+    _entityqueue_set_breadcrumb();
     return drupal_get_form('entityqueue_subqueue_delete_form', $queue, $subqueue);
   }
 

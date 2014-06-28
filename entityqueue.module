@@ -1046,3 +1046,22 @@ function entityqueue_subqueue_ajax_callback($form, $form_state) {
     '#commands' => $commands,
   );
 }
+
+/**
+ * Workaround for missing breadcrumbs on callback and action paths.
+ *
+ * Shamelessly stolen from http://drupal.org/project/xmlsitemap
+ *
+ * @todo Remove when http://drupal.org/node/576290 is fixed.
+ */
+function _entityqueue_set_breadcrumb($path = 'admin/structure/entityqueue') {
+  $breadcrumb = array();
+  $path = explode('/', $path);
+  do {
+    $menu_path = implode('/', $path);
+    $menu_item = menu_get_item($menu_path);
+    array_unshift($breadcrumb, l($menu_item['title'], $menu_path));
+  } while (array_pop($path) && !empty($path));
+  array_unshift($breadcrumb, l(t('Home'), NULL));
+  drupal_set_breadcrumb($breadcrumb);
+}

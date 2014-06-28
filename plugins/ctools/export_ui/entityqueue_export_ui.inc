@@ -108,6 +108,8 @@ function entityqueue_export_ui_form(&$form, &$form_state) {
     drupal_exit();
   }
 
+  _entityqueue_set_breadcrumb();
+
   ctools_include('plugins');
   $queue = &$form_state['item'];
 
