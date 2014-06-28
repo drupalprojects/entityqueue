@@ -551,16 +551,19 @@ function entityqueue_block_view_alter(&$data, $block) {
     foreach ($relationships as $relationship) {
       if ($relationship['field'] == 'entityqueue_relationship') {
         $referenced_subqueues = array_keys(array_filter($relationship['queues']));
+        if (!empty($referenced_subqueues)) {
+          // Contextual links can handle only one set of links coming from a module,
+          // so we'll have to settle for the first referenced queue.
+          $subqueue = entityqueue_subqueue_load(reset($referenced_subqueues));
 
-        // Contextual links can handle only one set of links coming from a module,
-        // so we'll have to settle for the first referenced queue.
-        $subqueue = entityqueue_subqueue_load(reset($referenced_subqueues));
-
-        $link = array('entityqueue' => array('admin/structure/entityqueue/list', array($subqueue->queue, 'subqueues', $subqueue->name, 'edit')));
-        $content['#contextual_links'] = array_merge($link, $content['#contextual_links']);
-        $content['#entityqueue_contextual_links_info'] = array(
-          'subqueue' => $subqueue,
-        );
+          if ($subqueue) {
+            $link = array('entityqueue' => array('admin/structure/entityqueue/list', array($subqueue->queue, 'subqueues', $subqueue->name, 'edit')));
+            $content['#contextual_links'] = array_merge($link, $content['#contextual_links']);
+            $content['#entityqueue_contextual_links_info'] = array(
+              'subqueue' => $subqueue,
+            );
+          }
+        }
       }
     }
   }
