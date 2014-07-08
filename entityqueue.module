@@ -284,6 +284,13 @@ function entityqueue_queue_delete($queue) {
     ->entityCondition('bundle', $queue->name);
   $result = $query->execute();
   if (!empty($result['entityqueue_subqueue'])) {
+    if ($queue->export_type == EXPORT_IN_CODE + EXPORT_IN_DATABASE) {
+      db_delete('entityqueue_queue')
+        ->condition('name', $queue->name)
+        ->execute();
+
+      return;
+    }
     entity_delete_multiple('entityqueue_subqueue', array_keys($result['entityqueue_subqueue']));
   }
 
