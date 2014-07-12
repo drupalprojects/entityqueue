@@ -238,7 +238,7 @@ function entityqueue_update_7001() {
   ctools_include('entityqueue_queue.class', 'entityqueue');
 
   // Retrieve all queues (from database + default queues).
-  $db_queues = db_query("SELECT name, target_type FROM {entityqueue_queue}")->fetchAllAssoc('name');
+  $db_queues = db_query("SELECT name, target_type FROM {entityqueue_queue}")->fetchAllKeyed();
   $entityqueue_schema = entityqueue_schema();
   $default_queues = _ctools_export_get_defaults('entityqueue_queue', $entityqueue_schema['entityqueue_queue']['export']);
 
@@ -256,4 +256,24 @@ function entityqueue_update_7001() {
     $field_names[] = _entityqueue_get_target_field_name($target_type);
   }
   variable_set('entityqueue_field_names', $field_names);
+
+  // Mark the update as no longer broken.
+  variable_set('entityqueue_broken_update_7001', FALSE);
+}
+
+/**
+ * Re-runs the fixed version of entityqueue_update_7001().
+ *
+ * @see http://www.drupal.org/node/2297599
+ */
+function entityqueue_update_7002() {
+  $ret = '';
+  if (variable_get('entityqueue_broken_update_7001', TRUE)) {
+    $ret = t('Ran fixed version of entityqueue_update_7001.');
+    entityqueue_update_7001(); // Run the update again.
+  }
+  // Now that the update is complete, we can remove our variable, since this
+  // update won't run again.
+  variable_del('entityqueue_broken_update_7001');
+  return $ret;
 }
