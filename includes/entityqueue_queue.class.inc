@@ -23,7 +23,7 @@ class EntityQueue {
   /**
    * @var string $language
    */
-  public $langauge = '';
+  public $language = '';
 
   /**
    * @var string $handler
