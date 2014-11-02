@@ -19,7 +19,7 @@ class EntityReferenceBehavior_EntityQueue extends EntityReference_BehaviorHandle
       $empty_target_id = create_function('$value', 'return (!empty($value["target_id"])) ? TRUE : FALSE;');
       $eq_items = array_filter($items, $empty_target_id);
 
-      if (count($eq_items) < $min_size) {
+      if (count($eq_items) < $min_size && $entity->op != t('Add item')) {
         $errors[$field['field_name']][$langcode][0][] = array(
           'error' => 'entityqueue_min_size',
           'message' => t("The minimum number of items in this queue is @min_size.", array('@min_size' => $min_size)),

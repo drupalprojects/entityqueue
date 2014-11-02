@@ -897,6 +897,7 @@ function entityqueue_field_widget_form(&$form, &$form_state, $field, $instance, 
         '#type' => 'button',
         '#value' => t('Remove'),
         '#name' => $field_name . '_remove_' . $key,
+        '#validate' => array(),
         '#ajax' => array(
           'callback' => 'entityqueue_field_widget_ajax_callback',
           'wrapper' => $table_id,
