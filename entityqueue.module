@@ -531,30 +531,37 @@ function entityqueue_subqueue_load_by_target_type($target_type) {
 }
 
 /**
- * Implements hook_block_view_alter().
+ * Implements hook_contextual_links_view_alter().
  */
-function entityqueue_block_view_alter(&$data, $block) {
-  if ($data == NULL || !isset($data['content']) || !is_array($data['content'])) {
+function entityqueue_contextual_links_view_alter(&$element, $items) {
+  // Do not add contextual link on view preview.
+  if (module_exists('views_ui') && views_ui_contextual_links_suppress()) {
     return;
   }
-  // Add contextual links for blocks provided by Views that have a Entityqueue
-  // relationship.
-  $content = &$data['content'];
-  if ($block->module == 'views' && !empty($content['#contextual_links']['views_ui'])) {
-    $view_name = $content['#views_contextual_links_info']['views_ui']['view_name'];
-    $view_display_id = $content['#views_contextual_links_info']['views_ui']['view_display_id'];
 
-    // Get the view object from views contextual info or initialize it manually.
-    if (!empty($content['#views_contextual_links_info']['views_ui']['view'])) {
-      $view = $content['#views_contextual_links_info']['views_ui']['view'];
-    }
-    else {
-      $view = views_get_view($view_name);
-    }
-    $view->init_display();
+  // Add contextual link "Edit entityqueue".
+  $views_ui_element = array();
+  if (isset($element['#element']['#views_contextual_links_info']['views_ui'])) {
+    $views_ui_element = $element['#element']['#views_contextual_links_info']['views_ui'];
+  }
+  // In case of block #views_contextual_links_info element is inside of
+  // 'content' and not '#element' directly.
+  // @see http://drupal.org/node/1413596#comment-5912688
+  if (empty($views_ui_element) && isset($element['#element']['content']['#views_contextual_links_info']['views_ui'])) {
+    $views_ui_element = $element['#element']['content']['#views_contextual_links_info']['views_ui'];
+  }
 
+  if (!empty($views_ui_element['view_display_id']) && isset($views_ui_element['view'])) {
+    $display_id = $views_ui_element['view_display_id'];
+    $view = $views_ui_element['view'];
+    $view->build($display_id);
+
+    // Proceed only if there is entityqueue sort criteria available.
+    if (!$sort_key = entityqueue_get_entityqueue_sort($view)) {
+      return;
+    }
     // Get view display relationships.
-    $relationships = $view->display[$view_display_id]->handler->get_option('relationships');
+    $relationships = $view->display[$display_id]->handler->get_option('relationships');
     foreach ($relationships as $relationship) {
       if ($relationship['field'] == 'entityqueue_relationship') {
         $referenced_subqueues = array_keys(array_filter($relationship['queues']));
@@ -564,16 +571,36 @@ function entityqueue_block_view_alter(&$data, $block) {
           $subqueue = entityqueue_subqueue_load(reset($referenced_subqueues));
 
           if ($subqueue) {
-            $link = array('entityqueue' => array('admin/structure/entityqueue/list', array($subqueue->queue, 'subqueues', $subqueue->name, 'edit')));
-            $content['#contextual_links'] = array_merge($link, $content['#contextual_links']);
-            $content['#entityqueue_contextual_links_info'] = array(
-              'subqueue' => $subqueue,
+            $path = 'admin/structure/entityqueue/list/' . $subqueue->name . '/subqueues/' . $subqueue->subqueue_id . '/edit';
+            $element['#links']['entityqueue-order'] = array(
+              'title' => t('Edit subqueue'),
+              'href' => $path,
+              'query' => array('destination' => current_path()),
             );
           }
         }
       }
     }
   }
+}
+
+/**
+ * Get the entityqueue position sort of a view if there is one and return its
+ * ID. If there are multiple of these sorts the first is returned.
+ *
+ * @param $view
+ *   The view object.
+ *
+ * @return
+ *   The ID of the sort or FALSE if there isn't one.
+ */
+function entityqueue_get_entityqueue_sort($view) {
+  foreach ($view->sort as $id => $sort) {
+    if ($sort->definition['handler'] == 'entityqueue_handler_sort_position') {
+      return $id;
+    }
+  }
+  return FALSE;
 }
 
 /**
