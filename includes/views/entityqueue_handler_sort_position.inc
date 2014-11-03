@@ -32,7 +32,10 @@ class entityqueue_handler_sort_position extends views_handler_sort {
       $this->query->add_orderby($field_table_alias, $this->real_field, $this->options['order']);
     }
     else {
-      drupal_set_message(t('In order to sort by the queue position, you need to add the Entityqueue: Queue relationship.'), 'error');
+      if (user_access('administer views')) {
+        $view = $this->view;
+        drupal_set_message(t('In order to sort by the queue position, you need to add the Entityqueue: Queue relationship on View: @view with display: @display', array('@view' => $view->name, '@display' => $view->current_display)), 'error');
+      }
     }
   }
 }
