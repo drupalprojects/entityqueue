@@ -77,23 +77,6 @@ function entityqueue_views_data_alter(&$data) {
     }
   }
 
-  $data['entityqueue_subqueue']['queue'] = array(
-    'title' => t('Queue Name'),
-    'label' => t('Queue Name'),
-    'group' => t('Entityqueue'),
-    'help' => t('The entityqueue machine name.'),
-    'sort' => array(
-      'handler' => 'views_handler_sort',
-    ),
-  );
-
-  $data['entityqueue_subqueue']['name'] = array(
-    'title' => t('Subqueue Name'),
-    'label' => t('Subqueue Name'),
-    'group' => t('Entityqueue'),
-    'help' => t('The subqueue machine name.'),
-    'sort' => array(
-      'handler' => 'views_handler_sort',
-    ),
-  );
+  // Use our argument handler
+  $data['entityqueue_subqueue']['subqueue_id']['argument']['handler'] = 'entityqueue_handler_argument_subqueue_id';
 }

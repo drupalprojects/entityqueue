@@ -366,16 +366,70 @@ function entityqueue_entity_info() {
 
 /**
  * Implements hook_entity_property_info().
- *
- * @todo Do it :)
  */
-//function entityqueue_entity_property_info() {
-//  $info = array();
-//
-//  $properties = &$info['entityqueue_subqueue']['properties'];
-//
-//  return $info;
-//}
+function entityqueue_entity_property_info() {
+  $info = array();
+  $properties = &$info['entityqueue_subqueue']['properties'];
+
+  $properties['subqueue_id'] = array(
+    'label' => t('Subqueue ID'),
+    'type' => 'integer',
+    'description' => t('The unique subqueue ID.'),
+    'schema field' => 'subqueue_id',
+  );
+
+  // @todo convert to a token type, like the language property
+  $properties['queue'] = array(
+    'label' => t('Queue Name'),
+    'description' => t('The entityqueue machine name.'),
+    'schema field' => 'queue',
+    'required' => TRUE,
+  );
+
+  $properties['name'] = array(
+    'label' => t('Name'),
+    'description' => t('The subqueue machine name.'),
+    'schema field' => 'name',
+    'required' => TRUE,
+  );
+
+  $properties['label'] = array(
+    'label' => t('Label'),
+    'description' => t('The subqueue label.'),
+    'schema field' => 'label',
+    'required' => TRUE,
+  );
+
+  $properties['language'] = array(
+    'label' => t('Language'),
+    'type' => 'token',
+    'description' => t('The language the subqueue is written in.'),
+    'setter callback' => 'entity_property_verbatim_set',
+    'options list' => 'entity_metadata_language_list',
+    'schema field' => 'language',
+    'setter permission' => 'administer entityqueue',
+  );
+
+  // @todo figure out how other modules do this
+  $properties['module'] = array(
+    'label' => t('Module'),
+    'description' => t('The machine name of the module that defines the subqueue.'),
+    'schema field' => 'module',
+    'required' => TRUE,
+  );
+
+  $properties['uid'] = array(
+    'label' => t('Author'),
+    'type' => 'user',
+    'description' => t('The creator of the subqueue.'),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer entityqueue',
+    'required' => TRUE,
+    'schema field' => 'uid',
+  );
+
+  return $info;
+}
 
 /**
  * Access callback for the entity API.
