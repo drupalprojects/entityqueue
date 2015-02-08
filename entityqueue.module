@@ -1043,7 +1043,7 @@ function entityqueue_field_widget_form(&$form, &$form_state, $field, $instance, 
 
     if (!empty($instance['description'])) {
       $subform['description'] = array(
-        '#markup' => t(field_filter_xss($instance['description'])),
+        '#markup' => field_filter_xss($instance['description']),
         '#prefix' => '<div class="description">',
         '#suffix' => '</div>',
         '#weight' => 11,
