@@ -960,24 +960,24 @@ function entityqueue_field_widget_form(&$form, &$form_state, $field, $instance, 
       $form_state['destination'] = $destination;
     }
 
-    $j = 0; // Keeps track of existing items index
+    $weight = 0; // Keeps track of existing items index
     foreach ($values as $key => $item) {
       $target_id = $item[$value_key];
       $actions = array();
 
-      if (isset($entities[$target_id])) {
-        $label = entity_label($target_type, $entities[$target_id]);
-        $uri = entity_uri($target_type, $entities[$target_id]);
-        $label = l($label, $uri['path']);
+      if (!isset($entities[$target_id])) {
+        // Skip entities that no longer exist.
+        continue;
       }
-      else {
-        $label = t('Missing @type', array('@type' => $target_type));
-      }
+
+      $label = entity_label($target_type, $entities[$target_id]);
+      $uri = entity_uri($target_type, $entities[$target_id]);
+      $label = l($label, $uri['path']);
 
       $actions[] = array(
         '#type' => 'button',
         '#value' => t('Remove'),
-        '#name' => $field_name . '_remove_' . $key,
+        '#name' => $field_name . '_remove_' . $weight,
         '#validate' => array(),
         '#ajax' => array(
           'callback' => 'entityqueue_field_widget_ajax_callback',
@@ -985,7 +985,7 @@ function entityqueue_field_widget_form(&$form, &$form_state, $field, $instance, 
         ),
       );
 
-      $subform['items'][$key] = array(
+      $subform['items'][$weight] = array(
         'label' => array(
           '#type' => 'markup',
           '#markup' => $label,
@@ -1001,11 +1001,13 @@ function entityqueue_field_widget_form(&$form, &$form_state, $field, $instance, 
         'weight' => array(
           '#type' => 'weight',
           '#delta' => $count,
-          '#default_value' => $key,
+          '#default_value' => $weight,
           '#title' => '',
           '#attributes' => array('class' => array('item-weight')),
         ),
       );
+
+      $weight++;
     }
     // This is stolen from entityreference_field_widget_form() and trimmed down
     // for our purposes.
