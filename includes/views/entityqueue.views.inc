@@ -68,6 +68,21 @@ function entityqueue_views_data_alter(&$data) {
             'field_name' => $field_name,
             'real field' => 'delta',
           );
+          $relationship['filter'] = array(
+            'handler' => 'entityqueue_handler_filter_in_queue',
+            'group' => t('Entityqueue'),
+            'title' => t('@target In Queue', array(
+              '@target' => $target_entity_info['label'],
+            )),
+            'label' => t('@target In Queue', array(
+              '@target' => $target_entity_info['label'],
+            )),
+            'help' => t('Filter for entities that are not/in a entityqueue in the @target queue.', array(
+              '@target' => $target_entity_info['label'],
+            )),
+            'field table' => $field_table,
+            'field field' => $field['field_name'] . '_target_id',
+          );
         }
       }
 
