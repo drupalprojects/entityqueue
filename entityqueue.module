@@ -971,9 +971,14 @@ function entityqueue_field_widget_form(&$form, &$form_state, $field, $instance, 
         continue;
       }
 
-      $label = entity_label($target_type, $entities[$target_id]);
-      $uri = entity_uri($target_type, $entities[$target_id]);
-      $label = l($label, $uri['path']);
+      if (entity_access('view', $target_type, $entities[$target_id])) {
+        $label = entity_label($target_type, $entities[$target_id]);
+        $uri = entity_uri($target_type, $entities[$target_id]);
+        $label = l($label, $uri['path']);
+      }
+      else {
+        $label = t('- Restricted access -');
+      }
 
       $actions[] = array(
         '#type' => 'button',
