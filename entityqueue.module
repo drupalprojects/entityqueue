@@ -801,8 +801,6 @@ function _entityqueue_create_entityreference_field($queue, $field_name, $entity_
   // Look for or add the specified entityreference field to the requested entity
   // bundle.
   $field = field_read_field($field_name);
-  $instance = field_read_instance($entity_type, $field_name, $bundle);
-
   if (empty($field)) {
     $field = array(
       'field_name' => $field_name,
@@ -820,6 +818,7 @@ function _entityqueue_create_entityreference_field($queue, $field_name, $entity_
     field_create_field($field);
   }
 
+  $instance = field_read_instance($entity_type, $field_name, $bundle);
   if (empty($instance)) {
     $instance = array(
       'field_name' => $field_name,
