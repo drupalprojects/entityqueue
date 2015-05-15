@@ -64,15 +64,6 @@ function entityqueue_permission() {
 }
 
 /**
- * Implements hook_menu().
- */
-function entityqueue_menu() {
-  $items = array();
-
-  return $items;
-}
-
-/**
  * Constructs a new EntityQueue object, without saving it to the database.
  *
  * @param array $values
