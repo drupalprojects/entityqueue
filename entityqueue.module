@@ -23,45 +23,6 @@ function entityqueue_ctools_plugin_api_hook_name() {
 }
 
 /**
- * Implements hook_ctools_plugin_type().
- */
-function entityqueue_ctools_plugin_type() {
-  $plugins['handler'] = array(
-    'classes' => array('class'),
-    // The default behavior of handler plugins is to have multiple subqueues per
-    // queue.
-    'defaults' => array('queue type' => 'multiple'),
-  );
-  return $plugins;
-}
-
-/**
- * Gets the handler for a given queue.
- *
- * @param EntityQueue $queue
- *   An EntityQueue object.
- *
- * @return EntityQueueHandlerInterface
- */
-function entityqueue_get_handler(EntityQueue $queue) {
-  $object_cache = &drupal_static(__FUNCTION__);
-
-  if (!isset($object_cache[$queue->name])) {
-    ctools_include('plugins');
-    $class = ctools_plugin_load_class('entityqueue', 'handler', $queue->handler, 'class');
-
-    if (class_exists($class)) {
-      $object_cache[$queue->name] = call_user_func(array($class, 'getInstance'), $queue);
-    }
-    else {
-      $object_cache[$queue->name] = BrokenEntityQueueHandler::getInstance($queue);
-    }
-  }
-
-  return $object_cache[$queue->name];
-}
-
-/**
  * Implements hook_permission().
  */
 function entityqueue_permission() {
