@@ -51,4 +51,35 @@ class EntityReference_SelectionHandler_EntityQueue extends EntityReference_Selec
 
     return $query;
   }
+
+  /**
+   * Implements EntityReferenceHandler::validateReferencableEntities().
+   */
+  public function validateReferencableEntities(array $ids) {
+    $referencable = parent::validateReferencableEntities($ids);
+    // Allow users to save the queue even if they don't have access to an
+    // existing entity in the queue. See https://www.drupal.org/node/2383903
+    $existing = $this->getCurrentlyReferencedEntityIds();
+
+    return array_unique(array_merge($referencable, $existing));
+  }
+
+  /**
+   * Gets ids of existing entities in the queue.
+   *
+   * @return array
+   *   Entity ids that are currently referenced by the entity.
+   */
+  public function getCurrentlyReferencedEntityIds() {
+    $ret = array();
+    if (isset($this->entity) && isset($this->field)) {
+      $entity_type = $this->entity_type;
+      $field_name = $this->field['field_name'];
+      $wrapper = entity_metadata_wrapper($entity_type, $this->entity);
+      $ret = $wrapper->{$field_name}->raw();
+    }
+
+    return $ret;
+  }
+
 }
