@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Contains the EntityQueueHandler annotation plugin.
@@ -10,11 +11,11 @@ use Drupal\Component\Annotation\Plugin;
 
 
 /**
- * Defines a QueueHandler annotation object.
+ * Defines a EntityQueueHandler annotation object.
  *
  * @Annotation
  */
-class QueueHandler extends Plugin {
+class EntityQueueHandler extends Plugin {
 
   /**
    * The plugin ID.

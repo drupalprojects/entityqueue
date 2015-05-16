@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Contains the EntityQueueHandlerBase class.
@@ -13,7 +14,7 @@ use Drupal\Core\Form\FormStateInterface;
  * Class EntityQueueHandlerBase
  * @package Drupal\entityqueue\Plugin\EntityQueue
  */
-abstract class QueueHandlerBase extends PluginBase {
+abstract class EntityQueueHandlerBase extends PluginBase {
 
   /**
    * {@inheritdoc}
@@ -22,4 +23,5 @@ abstract class QueueHandlerBase extends PluginBase {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->configuration += $this->defaultConfiguration();
   }
+
 }

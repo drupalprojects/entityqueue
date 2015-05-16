@@ -11,7 +11,7 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
 
 
-class QueueHandlerManager extends DefaultPluginManager {
+class EntityQueueHandlerManager extends DefaultPluginManager {
 
   /**
    * Constructs a new EntityQueueHandlerManager.
@@ -25,9 +25,9 @@ class QueueHandlerManager extends DefaultPluginManager {
    *   The module handler to invoke the alter hook with.
    */
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
-    parent::__construct('Plugin/QueueHandler', $namespaces, $module_handler, null, 'Drupal\entityqueue\Annotation\QueueHandler');
+    parent::__construct('Plugin/EntityQueueHandler', $namespaces, $module_handler, null, 'Drupal\entityqueue\Annotation\EntityQueueHandler');
 
-    $this->setCacheBackend($cache_backend, 'queuehandler');
+    $this->setCacheBackend($cache_backend, 'entityqueuehandler');
   }
 
   /**

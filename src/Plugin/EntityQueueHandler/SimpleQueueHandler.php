@@ -14,11 +14,11 @@ use Drupal\entityqueue\EntityQueueHandlerBase;
  *
  * Implements an EntityQueue Handler.
  *
- * @QueueHandler(
+ * @EntityQueueHandler(
  *   id = "EntityQueueHandler_simple",
  *   title = @Translation("Simple"),
  * )
  */
-class MultipleQueueHandler extends QueueHandlerBase {
+class MultipleQueueHandler extends EntityQueueHandlerBase {
 
 }
