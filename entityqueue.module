@@ -23,47 +23,6 @@ function entityqueue_ctools_plugin_api_hook_name() {
 }
 
 /**
- * Implements hook_permission().
- */
-function entityqueue_permission() {
-  $permissions = array(
-    'administer entityqueue' => array(
-      'title' => t('Administer entityqueue'),
-      'description' => t('Administer entityqueue configuration and create, update and delete all queues.'),
-      'restrict access' => TRUE,
-    ),
-    'manipulate entityqueues' => array(
-      'title' => t('Manipulate queues'),
-      'description' => t('Access the entityqueues list.')
-    ),
-    'manipulate all entityqueues' => array(
-      'title' => t('Manipulate all queues'),
-      'description' => t('Access to update all queues.'),
-    ),
-  );
-
-  $queues = entityqueue_queue_load_multiple(array(), TRUE);
-  $handlers = ctools_get_plugins('entityqueue', 'handler');
-  foreach ($queues as $name => $queue) {
-    if ($handlers[$queue->handler]['queue type'] == 'multiple') {
-      $permissions["create $name entityqueue"] = array(
-        'title' => t('Add %queue subqueues', array('%queue' => $queue->label())),
-        'description' => t('Access to create new subqueue to the %queue queue.', array('%queue' => $queue->label())),
-      );
-      $permissions["delete $name entityqueue"] = array(
-        'title' => t('Delete %queue subqueues', array('%queue' => $queue->label())),
-        'description' => t('Access to delete subqueues of the %queue queue.', array('%queue' => $queue->label())),
-      );
-    }
-    $permissions["update $name entityqueue"] = array(
-      'title' => t('Manipulate %queue queue', array('%queue' => $queue->label())),
-      'description' => t('Access to update the %queue queue.', array('%queue' => $queue->label())),
-    );
-  }
-  return $permissions;
-}
-
-/**
  * Constructs a new EntityQueue object, without saving it to the database.
  *
  * @param array $values
