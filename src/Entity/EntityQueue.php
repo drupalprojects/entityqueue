@@ -113,24 +113,48 @@ class EntityQueue extends ConfigEntityBase implements EntityQueueInterface {
     return $this->target_type;
   }
 
-  public function getHandler() {
-    return $this->handler;
-  }
-
-  public function getHandlerPlugin() {
-    return $this->handlerPluginCollection->get($this->handler);
-  }
-
   public function getTargetBundles() {
     return $this->target_bundles;
   }
 
-  public function setHandlerPlugin($handler) {
+  /**
+   * {@inheritdoc}
+   */
+  public function getHandler() {
+    return $this->handler;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setHandler($handler) {
     $this->handler = $handler;
     $this->handlerPluginCollection = new DefaultSingleLazyPluginCollection(
       \Drupal::service('plugin.manager.entityqueue.handler'),
       $this->handler, $this->handlerConfig
     );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHandlerPlugin() {
+    return $this->handlerPluginCollection->get($this->handler);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function toArray() {
+    $properties = parent::toArray();
+
+    $names = ['handler'];
+
+    foreach ($names as $name) {
+      $properties[$name] = $this->get($name);
+    }
+
+    return $properties;
   }
 
 }

@@ -42,9 +42,26 @@ class EntityQueueForm extends EntityForm {
       '#disabled' => !$entityqueue->isNew(),
     );
 
-    /* You will need additional form elements for your custom properties. */
+    $handlers = \Drupal::service('plugin.manager.entityqueue.handler')->getAllEntityQueueHandlers();
+    $form['handler'] = array(
+      '#type' => 'select',
+      '#title' => $this->t('Handler'),
+      '#options' => $handlers,
+      '#default_value' => $entityqueue->getHandler(),
+      '#required' => TRUE,
+      '#disabled' => !$entityqueue->isNew(),
+    );
 
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildEntity(array $form, FormStateInterface $form_state) {
+    $entity = parent::buildEntity($form, $form_state);
+    $entity->setHandler($entity->get('handler'));
+    return $entity;
   }
 
   /**
