@@ -1,0 +1,33 @@
+# EntityQueue routing definition
+entity.entityqueue.collection:
+  path: '/admin/structure/entityqueue'
+  defaults:
+    _entity_list: 'entityqueue'
+    _title: 'EntityQueue Configuration'
+  requirements:
+    _permission: 'administer site configuration'
+
+entity.entityqueue.add_form:
+  path: '/admin/structure/entityqueue/add'
+  defaults:
+    _entity_form: 'entityqueue.add'
+    _title: 'Add EntityQueue'
+  requirements:
+    _permission: 'administer site configuration'
+
+entity.entityqueue.edit_form:
+  path: '/admin/structure/entityqueue/{entityqueue}'
+  defaults:
+    _entity_form: 'entityqueue.edit'
+    _title: 'Edit EntityQueue'
+  requirements:
+    _permission: 'administer site configuration'
+
+entity.entityqueue.delete_form:
+  path: '/admin/structure/entityqueue/{entityqueue}/delete'
+  defaults:
+    _entity_form: 'entityqueue.delete'
+    _title: 'Delete EntityQueue'
+  requirements:
+    _permission: 'administer site configuration'
+
