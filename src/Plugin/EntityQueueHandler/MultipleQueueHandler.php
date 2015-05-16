@@ -21,4 +21,11 @@ use Drupal\entityqueue\EntityQueueHandlerBase;
  */
 class SimpleQueueHandler extends EntityQueueHandlerBase {
 
+  /**
+   * {@inheritdoc}
+   */
+  public function supportsMultipleSubqueues() {
+    return false;
+  }
+
 }

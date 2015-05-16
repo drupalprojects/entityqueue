@@ -14,7 +14,7 @@ use Drupal\Core\Form\FormStateInterface;
  * Class EntityQueueHandlerBase
  * @package Drupal\entityqueue\Plugin\EntityQueue
  */
-abstract class EntityQueueHandlerBase extends PluginBase {
+abstract class EntityQueueHandlerBase extends PluginBase implements EntityQueueHandlerInterface {
 
   /**
    * {@inheritdoc}

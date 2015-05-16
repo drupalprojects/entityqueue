@@ -74,13 +74,40 @@ class EntityQueue extends ConfigEntityBase implements EntityQueueInterface {
 
   /**
    * The ID of the EntityQueueHandler.
+   *
+   * @var string
    */
-  protected $handler = 'simple';
+  protected $handler;
+
+  /**
+   * The EntityQueueHandler plugin.
+   *
+   * @var \Drupal\Core\Plugin\DefaultSingleLazyPluginCollection
+   */
+  protected $handlerPluginCollection;
+
+  /**
+   * An array to store and load the EntityQueueHandler plugin configuration.
+   *
+   * @var array
+   */
+  protected $handlerConfig = [];
 
   /**
    * Array of bundle names of the target entities.
    */
   protected $target_bundles = array();
+
+  public function __construct(array $values, $entity_type) {
+    parent::__construct($values, $entity_type);
+
+    if ($this->handler) {
+      $this->handlerPluginCollection = new DefaultSingleLazyPluginCollection(
+        \Drupal::service('plugin.manager.entityqueue.handler'),
+        $this->handler, $this->handlerConfig
+      );
+    }
+  }
 
   public function getTargetType() {
     return $this->target_type;
@@ -90,7 +117,20 @@ class EntityQueue extends ConfigEntityBase implements EntityQueueInterface {
     return $this->handler;
   }
 
+  public function getHandlerPlugin() {
+    return $this->handlerPluginCollection->get($this->handler);
+  }
+
   public function getTargetBundles() {
     return $this->target_bundles;
   }
+
+  public function setHandlerPlugin($handler) {
+    $this->handler = $handler;
+    $this->handlerPluginCollection = new DefaultSingleLazyPluginCollection(
+      \Drupal::service('plugin.manager.entityqueue.handler'),
+      $this->handler, $this->handlerConfig
+    );
+  }
+
 }
