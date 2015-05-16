@@ -7,6 +7,9 @@
 
 namespace Drupal\entityqueue;
 
+use Drupal\Core\Plugin\PluginFormInterface;
+use Drupal\Component\Plugin\ConfigurablePluginInterface;
+
 interface EntityQueueHandlerInterface extends PluginFormInterface, ConfigurablePluginInterface {
 
   /**

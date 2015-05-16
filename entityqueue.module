@@ -542,7 +542,7 @@ function entityqueue_subqueue_load_by_target_type($target_type) {
  */
 function entityqueue_contextual_links_view_alter(&$element, $items) {
   // Do not add contextual link on view preview.
-  if (module_exists('views_ui') && views_ui_contextual_links_suppress()) {
+  if (\Drupal::moduleHandler()->moduleExists('views_ui') && views_ui_contextual_links_suppress()) {
     return;
   }
 

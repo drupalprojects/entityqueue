@@ -4,7 +4,7 @@
  * Contains \Drupal\entityqueue\Plugin\EntityQueueHandler\SimpleQueueHandler.
  */
 
-namespace Drupal\entityqueue\Plugin\EntityQueue;
+namespace Drupal\entityqueue\Plugin\EntityQueueHandler;
 
 use Drupal\entityqueue\EntityQueueHandlerBase;
 
@@ -19,13 +19,13 @@ use Drupal\entityqueue\EntityQueueHandlerBase;
  *   title = @Translation("Multiple"),
  * )
  */
-class SimpleQueueHandler extends EntityQueueHandlerBase {
+class MultipleQueueHandler extends EntityQueueHandlerBase {
 
   /**
    * {@inheritdoc}
    */
   public function supportsMultipleSubqueues() {
-    return false;
+    return true;
   }
 
 }
