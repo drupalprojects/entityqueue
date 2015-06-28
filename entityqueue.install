@@ -33,7 +33,7 @@ function entityqueue_schema() {
     ),
     'fields' => array(
       'name' => array(
-        'type' => 'varchar',
+        'type' => 'varchar_ascii',
         'length' => 255,
         'not null' => TRUE,
         'default' => '',
@@ -54,14 +54,14 @@ function entityqueue_schema() {
         'default' => '',
       ),
       'handler' => array(
-        'type' => 'varchar',
+        'type' => 'varchar_ascii',
         'length' => 255,
         'not null' => TRUE,
         'default' => '',
         'description' => 'The handler plugin that manages this queue.',
       ),
       'target_type' => array(
-        'type' => 'varchar',
+        'type' => 'varchar_ascii',
         'length' => 32,
         'not null' => TRUE,
         'default' => '',
@@ -87,14 +87,14 @@ function entityqueue_schema() {
         'description' => 'Primary Key: Unique subqueue ID.',
       ),
       'queue' => array(
-        'type' => 'varchar',
+        'type' => 'varchar_ascii',
         'length' => 255,
         'not null' => TRUE,
         'default' => '',
         'description' => 'The queue (bundle) of this subqueue.',
       ),
       'name' => array(
-        'type' => 'varchar',
+        'type' => 'varchar_ascii',
         'length' => 255,
         'not null' => TRUE,
         'default' => '',
@@ -109,13 +109,13 @@ function entityqueue_schema() {
       ),
       'language' => array(
         'description' => 'The {languages}.language of this subqueue.',
-        'type' => 'varchar',
+        'type' => 'varchar_ascii',
         'length' => 12,
         'not null' => TRUE,
         'default' => '',
       ),
       'module' => array(
-        'type' => 'varchar',
+        'type' => 'varchar_ascii',
         'length' => 255,
         'not null' => TRUE,
         'description' => 'The name of the module that created this subqueue.',
