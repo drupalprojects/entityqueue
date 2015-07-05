@@ -154,19 +154,7 @@ function entityqueue_schema() {
  */
 /*
 function entityqueue_install() {
-  // Add entityreference fields for queues that are defined in code.
-  $install = &drupal_static(__FUNCTION__);
-  $install = TRUE;
 
-  $queues = ctools_export_crud_load_all('entityqueue_queue');
-  foreach ($queues as $name => $queue) {
-    if (!empty($queue->in_code_only)) {
-      _entityqueue_queue_ensure_instance($queue);
-    }
-  }
-
-  $install = FALSE;
-  entity_info_cache_clear();
 }
 */
 /**
