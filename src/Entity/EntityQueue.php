@@ -33,9 +33,9 @@ use Drupal\Core\Plugin\DefaultSingleLazyPluginCollection;
  *     "uuid" = "uuid"
  *   },
  *   links = {
- *     "edit-form" = "entity.entityqueue.edit_form",
- *     "delete-form" = "entity.entityqueue.delete_form",
- *     "collection" = "entity.entityqueue.collection"
+ *     "edit-form" = "/admin/structure/entityqueue/{entityqueue}",
+ *     "delete-form" = "/admin/structure/entityqueue/{entityqueue}/delete",
+ *     "collection" = "/admin/structure/entityqueue"
  *   }
  * )
  */

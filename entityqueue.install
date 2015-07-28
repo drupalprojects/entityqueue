@@ -152,6 +152,7 @@ function entityqueue_schema() {
 /**
  * Implements hook_install().
  */
+/*
 function entityqueue_install() {
   // Add entityreference fields for queues that are defined in code.
   $install = &drupal_static(__FUNCTION__);
@@ -167,10 +168,11 @@ function entityqueue_install() {
   $install = FALSE;
   entity_info_cache_clear();
 }
-
+*/
 /**
  * Implements hook_uninstall().
  */
+/*
 function entityqueue_uninstall() {
   // Delete entityqueue's field instances.
   $queues = variable_get('entityqueue_queue_names', array());
@@ -190,6 +192,7 @@ function entityqueue_uninstall() {
   variable_del('entityqueue_queue_names');
   variable_del('entityqueue_field_names');
 }
+*/
 
 /**
  * Add "language" column to all entityqueue tables.
