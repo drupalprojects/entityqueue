@@ -320,8 +320,6 @@ function entityqueue_entity_info() {
       'module' => 'entityqueue',
       'base table' => 'entityqueue_subqueue',
       'load hook' => 'entityqueue_subqueue_load',
-      'uri callback' => 'entityqueue_subqueue_uri',
-      'label callback' => 'entityqueue_subqueue_label',
       'access callback' => 'entityqueue_access',
       'fieldable' => TRUE,
       'entity keys' => array(
