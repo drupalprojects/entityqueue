@@ -624,7 +624,7 @@ function entityqueue_contextual_links_view_alter(&$element, $items) {
           $subqueue = entityqueue_subqueue_load(reset($referenced_subqueues));
 
           if ($subqueue) {
-            $path = 'admin/structure/entityqueue/list/' . $subqueue->name . '/subqueues/' . $subqueue->subqueue_id . '/edit';
+            $path = 'admin/structure/entityqueue/list/' . $subqueue->queue . '/subqueues/' . $subqueue->subqueue_id . '/edit';
             $element['#links']['entityqueue-order'] = array(
               'title' => t('Edit subqueue'),
               'href' => $path,
