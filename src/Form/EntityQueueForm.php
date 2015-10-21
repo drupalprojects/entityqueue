@@ -2,21 +2,19 @@
 
 /**
  * @file
- * Contains Drupal\entityqueue\Form\EntityQueueForm.
+ * Contains \Drupal\entityqueue\Form\EntityQueueForm.
  */
 
 namespace Drupal\entityqueue\Form;
 
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityForm;
+use Drupal\Core\Entity\BundleEntityFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class EntityQueueForm.
- *
- * @package Drupal\entityqueue\Form
+ * Base form for entityqueue edit forms.
  */
-class EntityQueueForm extends EntityForm {
+class EntityQueueForm extends BundleEntityFormBase {
+
   /**
    * {@inheritdoc}
    */
@@ -44,7 +42,7 @@ class EntityQueueForm extends EntityForm {
 
     $handlers = \Drupal::service('plugin.manager.entityqueue.handler')->getAllEntityQueueHandlers();
     $form['handler'] = array(
-      '#type' => 'select',
+      '#type' => 'radios',
       '#title' => $this->t('Handler'),
       '#options' => $handlers,
       '#default_value' => $entityqueue->getHandler(),
@@ -62,26 +60,6 @@ class EntityQueueForm extends EntityForm {
     $entity = parent::buildEntity($form, $form_state);
     $entity->setHandler($entity->get('handler'));
     return $entity;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function save(array $form, FormStateInterface $form_state) {
-    $entityqueue = $this->entity;
-    $status = $entityqueue->save();
-
-    if ($status) {
-      drupal_set_message($this->t('Saved the %label EntityQueue.', array(
-        '%label' => $entityqueue->label(),
-      )));
-    }
-    else {
-      drupal_set_message($this->t('The %label EntityQueue was not saved.', array(
-        '%label' => $entityqueue->label(),
-      )));
-    }
-    $form_state->setRedirectUrl($entityqueue->urlInfo('collection'));
   }
 
 }

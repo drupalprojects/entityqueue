@@ -1,4 +1,3 @@
-# EntityQueue routing definition
 entity.entityqueue.collection:
   path: '/admin/structure/entityqueue'
   defaults:
@@ -30,4 +29,3 @@ entity.entityqueue.delete_form:
     _title: 'Delete EntityQueue'
   requirements:
     _permission: 'administer site configuration'
-

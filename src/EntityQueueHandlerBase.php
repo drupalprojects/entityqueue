@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains the EntityQueueHandlerBase class.
+ * Contains \Drupal\entityqueue\EntityQueueHandlerBase.
  */
 
 namespace Drupal\entityqueue;
@@ -11,8 +11,7 @@ use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class EntityQueueHandlerBase
- * @package Drupal\entityqueue\Plugin\EntityQueue
+ * Base class for EntityQueueHandler plugins.
  */
 abstract class EntityQueueHandlerBase extends PluginBase implements EntityQueueHandlerInterface {
 
@@ -72,6 +71,5 @@ abstract class EntityQueueHandlerBase extends PluginBase implements EntityQueueH
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     // Override this.
   }
-
 
 }

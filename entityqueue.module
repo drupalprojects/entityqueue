@@ -6,23 +6,6 @@
  */
 
 /**
- * Implements hook_ctools_plugin_directory().
- */
-function entityqueue_ctools_plugin_directory($module, $plugin) {
-  return 'plugins/' . $module . '/' . $plugin;
-}
-
-/**
- * Returns the hook to use in order to determine if modules support the
- * entityqueue API.
- *
- * @return string
- */
-function entityqueue_ctools_plugin_api_hook_name() {
-  return 'entityqueue_api';
-}
-
-/**
  * Constructs a new EntityQueue object, without saving it to the database.
  *
  * @param array $values

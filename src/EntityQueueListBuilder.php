@@ -2,18 +2,19 @@
 
 /**
  * @file
- * Contains Drupal\entityqueue\Controller\EntityQueueListBuilder.
+ * Contains Drupal\entityqueue\EntityQueueListBuilder.
  */
 
-namespace Drupal\entityqueue\Controller;
+namespace Drupal\entityqueue;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Provides a listing of EntityQueue.
+ * Defines a class that builds a listing of entity queues.
  */
 class EntityQueueListBuilder extends ConfigEntityListBuilder {
+
   /**
    * {@inheritdoc}
    */

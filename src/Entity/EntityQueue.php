@@ -7,7 +7,7 @@
 
 namespace Drupal\entityqueue\Entity;
 
-use Drupal\Core\Config\Entity\ConfigEntityBase;
+use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
 use Drupal\entityqueue\EntityQueueInterface;
 use Drupal\Core\Plugin\DefaultSingleLazyPluginCollection;
 
@@ -16,17 +16,17 @@ use Drupal\Core\Plugin\DefaultSingleLazyPluginCollection;
  *
  * @ConfigEntityType(
  *   id = "entityqueue",
- *   label = @Translation("EntityQueue"),
+ *   label = @Translation("Entity queue"),
  *   handlers = {
- *     "list_builder" = "Drupal\entityqueue\Controller\EntityQueueListBuilder",
+ *     "list_builder" = "Drupal\entityqueue\EntityQueueListBuilder",
  *     "form" = {
  *       "add" = "Drupal\entityqueue\Form\EntityQueueForm",
  *       "edit" = "Drupal\entityqueue\Form\EntityQueueForm",
- *       "delete" = "Drupal\entityqueue\Form\EntityQueueDeleteForm"
+ *       "delete" = "Drupal\Core\Entity\EntityDeleteForm"
  *     }
  *   },
- *   config_prefix = "entityqueue",
  *   admin_permission = "administer entityqueue",
+ *   config_prefix = "entityqueue",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",
@@ -39,7 +39,7 @@ use Drupal\Core\Plugin\DefaultSingleLazyPluginCollection;
  *   }
  * )
  */
-class EntityQueue extends ConfigEntityBase implements EntityQueueInterface {
+class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface {
 
   /**
    * The EntityQueue ID.
@@ -56,12 +56,16 @@ class EntityQueue extends ConfigEntityBase implements EntityQueueInterface {
   protected $label;
 
   /**
-   * @var int $min_size.
+   * The minimum number of items that this queue can hold.
+   *
+   * @var int
    */
   protected $min_size = 0;
 
   /**
-   * @var int $max_size.
+   * The maximum number of items that this queue can hold.
+   *
+   * @var int
    */
   protected $max_size = 10;
 
@@ -98,17 +102,6 @@ class EntityQueue extends ConfigEntityBase implements EntityQueueInterface {
    */
   protected $target_bundles = array();
 
-  public function __construct(array $values, $entity_type) {
-    parent::__construct($values, $entity_type);
-
-    if ($this->handler) {
-      $this->handlerPluginCollection = new DefaultSingleLazyPluginCollection(
-        \Drupal::service('plugin.manager.entityqueue.handler'),
-        $this->handler, $this->handlerConfig
-      );
-    }
-  }
-
   public function getTargetType() {
     return $this->target_type;
   }
@@ -133,6 +126,8 @@ class EntityQueue extends ConfigEntityBase implements EntityQueueInterface {
       \Drupal::service('plugin.manager.entityqueue.handler'),
       $this->handler, $this->handlerConfig
     );
+
+    return $this;
   }
 
   /**

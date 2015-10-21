@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\entityqueue\EntityQueueInterface.
+ * Contains \Drupal\entityqueue\EntityQueueInterface.
  */
 
 namespace Drupal\entityqueue;
@@ -26,7 +26,8 @@ interface EntityQueueInterface extends ConfigEntityInterface {
    *
    * @param string $handler
    *   The handler name.
-   * @return void
+   *
+   * @return $this
    */
   public function setHandler($handler);
 

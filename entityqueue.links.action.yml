@@ -1,6 +1,5 @@
 entity.entityqueue.add_form:
   route_name: 'entity.entityqueue.add_form'
-  title: 'Add EntityQueue'
+  title: 'Add entity queue'
   appears_on:
     - entity.entityqueue.collection
-

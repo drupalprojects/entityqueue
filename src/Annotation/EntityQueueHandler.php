@@ -2,16 +2,22 @@
 
 /**
  * @file
- * Contains the EntityQueueHandler annotation plugin.
+ * Contains \Drupal\entityqueue\Annotation\EntityQueueHandler.
  */
 
 namespace Drupal\entityqueue\Annotation;
 
 use Drupal\Component\Annotation\Plugin;
 
-
 /**
  * Defines a EntityQueueHandler annotation object.
+ *
+ * Plugin Namespace: Plugin\EntityQueueHandler
+ *
+ * @see \Drupal\entityqueue\EntityQueueHandlerInterface
+ * @see \Drupal\entityqueue\EntityQueueHandlerManager
+ * @see \Drupal\entityqueue\EntityQueueHandlerBase
+ * @see plugin_api
  *
  * @Annotation
  */
@@ -25,11 +31,12 @@ class EntityQueueHandler extends Plugin {
   public $id;
 
   /**
-   * The title of the plugin.
-   *
-   * @var \Drupal\Core\Annotation\Translation
+   * The human-readable name of the queue handler plugin.
    *
    * @ingroup plugin_translatable
+   *
+   * @var \Drupal\Core\Annotation\Translation
    */
   public $title;
+
 }

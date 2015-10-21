@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @file
- * Contains the EntityQueueHandlerPluginManager class.
+ * Contains \Drupal\entityqueue\EntityQueueHandlerManager.
  */
 
 namespace Drupal\entityqueue;
@@ -10,7 +11,9 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
 
-
+/**
+ * Provides an EntityQueueHandler plugin manager.
+ */
 class EntityQueueHandlerManager extends DefaultPluginManager {
 
   /**
@@ -45,4 +48,5 @@ class EntityQueueHandlerManager extends DefaultPluginManager {
 
     return $handlers;
   }
+
 }
