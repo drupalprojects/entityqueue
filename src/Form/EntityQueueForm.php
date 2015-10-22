@@ -11,7 +11,7 @@ use Drupal\Core\Entity\BundleEntityFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Base form for entityqueue edit forms.
+ * Base form for entity queue edit forms.
  */
 class EntityQueueForm extends BundleEntityFormBase {
 

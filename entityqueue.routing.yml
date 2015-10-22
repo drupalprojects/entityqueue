@@ -1,31 +1,31 @@
-entity.entityqueue.collection:
+entity.entity_queue.collection:
   path: '/admin/structure/entityqueue'
   defaults:
-    _entity_list: 'entityqueue'
+    _entity_list: 'entity_queue'
     _title: 'EntityQueue Configuration'
   requirements:
     _permission: 'administer site configuration'
 
-entity.entityqueue.add_form:
+entity.entity_queue.add_form:
   path: '/admin/structure/entityqueue/add'
   defaults:
-    _entity_form: 'entityqueue.add'
+    _entity_form: 'entity_queue.add'
     _title: 'Add EntityQueue'
   requirements:
     _permission: 'administer site configuration'
 
-entity.entityqueue.edit_form:
-  path: '/admin/structure/entityqueue/{entityqueue}'
+entity.entity_queue.edit_form:
+  path: '/admin/structure/entityqueue/{entity_queue}'
   defaults:
-    _entity_form: 'entityqueue.edit'
+    _entity_form: 'entity_queue.edit'
     _title: 'Edit EntityQueue'
   requirements:
     _permission: 'administer site configuration'
 
-entity.entityqueue.delete_form:
-  path: '/admin/structure/entityqueue/{entityqueue}/delete'
+entity.entity_queue.delete_form:
+  path: '/admin/structure/entityqueue/{entity_queue}/delete'
   defaults:
-    _entity_form: 'entityqueue.delete'
+    _entity_form: 'entity_queue.delete'
     _title: 'Delete EntityQueue'
   requirements:
     _permission: 'administer site configuration'

@@ -15,7 +15,7 @@ use Drupal\Core\Plugin\DefaultSingleLazyPluginCollection;
  * Defines the EntityQueue entity class.
  *
  * @ConfigEntityType(
- *   id = "entityqueue",
+ *   id = "entity_queue",
  *   label = @Translation("Entity queue"),
  *   handlers = {
  *     "list_builder" = "Drupal\entityqueue\EntityQueueListBuilder",
@@ -26,15 +26,16 @@ use Drupal\Core\Plugin\DefaultSingleLazyPluginCollection;
  *     }
  *   },
  *   admin_permission = "administer entityqueue",
- *   config_prefix = "entityqueue",
+ *   config_prefix = "entity_queue",
+ *   bundle_of = "entity_subqueue",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",
  *     "uuid" = "uuid"
  *   },
  *   links = {
- *     "edit-form" = "/admin/structure/entityqueue/{entityqueue}",
- *     "delete-form" = "/admin/structure/entityqueue/{entityqueue}/delete",
+ *     "edit-form" = "/admin/structure/entityqueue/{entity_queue}",
+ *     "delete-form" = "/admin/structure/entityqueue/{entity_queue}/delete",
  *     "collection" = "/admin/structure/entityqueue"
  *   }
  * )

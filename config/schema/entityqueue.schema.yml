@@ -1,4 +1,4 @@
-entityqueue.entityqueue.*:
+entityqueue.entity_queue.*:
   type: config_entity
   label: 'EntityQueue config'
   mapping:
