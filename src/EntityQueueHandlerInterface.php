@@ -7,6 +7,7 @@
 
 namespace Drupal\entityqueue;
 
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
 use Drupal\Component\Plugin\ConfigurablePluginInterface;
 
@@ -26,5 +27,57 @@ interface EntityQueueHandlerInterface extends PluginFormInterface, ConfigurableP
    * @return bool
    */
   public function supportsMultipleSubqueues();
+
+  /**
+   * Acts on an entity queue before the presave hook is invoked.
+   *
+   * @param \Drupal\entityqueue\EntityQueueInterface
+   *   The entity queue object.
+   * @param \Drupal\Core\Entity\EntityStorageInterface $storage
+   *   The entity storage object.
+   */
+  public function onQueuePreSave(EntityQueueInterface $queue, EntityStorageInterface $storage);
+
+  /**
+   * Acts on an entity queue before the insert or update hook is invoked.
+   *
+   * @param \Drupal\entityqueue\EntityQueueInterface
+   *   The entity queue object.
+   * @param \Drupal\Core\Entity\EntityStorageInterface $storage
+   *   The entity storage object.
+   * @param bool $update
+   *   TRUE if the queue has been updated, or FALSE if it has been inserted.
+   */
+  public function onQueuePostSave(EntityQueueInterface $queue, EntityStorageInterface $storage, $update = TRUE);
+
+  /**
+   * Acts on entity queues before they are deleted and before hooks are invoked.
+   *
+   * @param \Drupal\entityqueue\EntityQueueInterface
+   *   The entity queue object.
+   * @param \Drupal\Core\Entity\EntityStorageInterface $storage
+   *   The entity storage object.
+   */
+  public function onQueuePreDelete(EntityQueueInterface $queue, EntityStorageInterface $storage);
+
+  /**
+   * Acts on deleted entity queues before the delete hook is invoked.
+   *
+   * @param \Drupal\entityqueue\EntityQueueInterface
+   *   The entity queue object.
+   * @param \Drupal\Core\Entity\EntityStorageInterface $storage
+   *   The entity storage object.
+   */
+  public function onQueuePostDelete(EntityQueueInterface $queue, EntityStorageInterface $storage);
+
+  /**
+   * Acts on loaded entity queues.
+   *
+   * @param \Drupal\entityqueue\EntityQueueInterface
+   *   The entity queue object.
+   * @param \Drupal\Core\Entity\EntityStorageInterface $storage
+   *   The entity storage object.
+   */
+  public function onQueuePostLoad(EntityQueueInterface $queue, EntityStorageInterface $storage);
 
 }

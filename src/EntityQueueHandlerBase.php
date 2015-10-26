@@ -8,6 +8,7 @@
 namespace Drupal\entityqueue;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -71,5 +72,30 @@ abstract class EntityQueueHandlerBase extends PluginBase implements EntityQueueH
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     // Override this.
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function onQueuePreSave(EntityQueueInterface $queue, EntityStorageInterface $storage) { }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function onQueuePostSave(EntityQueueInterface $queue, EntityStorageInterface $storage, $update = TRUE) { }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function onQueuePreDelete(EntityQueueInterface $queue, EntityStorageInterface $storage) { }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function onQueuePostDelete(EntityQueueInterface $queue, EntityStorageInterface $storage) { }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function onQueuePostLoad(EntityQueueInterface $queue, EntityStorageInterface $storage) { }
 
 }

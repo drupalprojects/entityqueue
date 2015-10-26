@@ -8,8 +8,10 @@
 namespace Drupal\entityqueue\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
+use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
+use Drupal\entityqueue\EntityQueueHandlerPluginCollection;
 use Drupal\entityqueue\EntityQueueInterface;
-use Drupal\Core\Plugin\DefaultSingleLazyPluginCollection;
 
 /**
  * Defines the EntityQueue entity class.
@@ -37,10 +39,20 @@ use Drupal\Core\Plugin\DefaultSingleLazyPluginCollection;
  *     "edit-form" = "/admin/structure/entityqueue/{entity_queue}",
  *     "delete-form" = "/admin/structure/entityqueue/{entity_queue}/delete",
  *     "collection" = "/admin/structure/entityqueue"
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "min_size",
+ *     "max_size",
+ *     "target_type",
+ *     "target_bundles",
+ *     "handler",
+ *     "handler_configuration"
  *   }
  * )
  */
-class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface {
+class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface, EntityWithPluginCollectionInterface {
 
   /**
    * The EntityQueue ID.
@@ -78,6 +90,11 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
   protected $target_type = '';
 
   /**
+   * Array of bundle names of the target entities.
+   */
+  protected $target_bundles = [];
+
+  /**
    * The ID of the EntityQueueHandler.
    *
    * @var string
@@ -85,23 +102,18 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
   protected $handler;
 
   /**
-   * The EntityQueueHandler plugin.
-   *
-   * @var \Drupal\Core\Plugin\DefaultSingleLazyPluginCollection
-   */
-  protected $handlerPluginCollection;
-
-  /**
    * An array to store and load the EntityQueueHandler plugin configuration.
    *
    * @var array
    */
-  protected $handlerConfig = [];
+  protected $handler_configuration = [];
 
   /**
-   * Array of bundle names of the target entities.
+   * The EntityQueueHandler plugin.
+   *
+   * @var \Drupal\entityqueue\EntityQueueHandlerPluginCollection
    */
-  protected $target_bundles = array();
+  protected $handlerPluginCollection;
 
   public function getTargetType() {
     return $this->target_type;
@@ -123,10 +135,7 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
    */
   public function setHandler($handler) {
     $this->handler = $handler;
-    $this->handlerPluginCollection = new DefaultSingleLazyPluginCollection(
-      \Drupal::service('plugin.manager.entityqueue.handler'),
-      $this->handler, $this->handlerConfig
-    );
+    $this->getPluginCollection()->addInstanceID($handler, []);
 
     return $this;
   }
@@ -135,22 +144,80 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
    * {@inheritdoc}
    */
   public function getHandlerPlugin() {
-    return $this->handlerPluginCollection->get($this->handler);
+    return $this->getPluginCollection()->get($this->handler);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function toArray() {
-    $properties = parent::toArray();
+  public function getPluginCollections() {
+    return ['handler_configuration' => $this->getPluginCollection()];
+  }
 
-    $names = ['handler'];
-
-    foreach ($names as $name) {
-      $properties[$name] = $this->get($name);
+  /**
+   * Encapsulates the creation of the EntityQueueHandlerPluginCollection.
+   *
+   * @return \Drupal\entityqueue\EntityQueueHandlerPluginCollection
+   *   The entity queue's plugin collection.
+   */
+  protected function getPluginCollection() {
+    if (!$this->handlerPluginCollection) {
+      $this->handlerPluginCollection = new EntityQueueHandlerPluginCollection(
+        \Drupal::service('plugin.manager.entityqueue.handler'),
+        $this->handler, $this->handler_configuration);
     }
+    return $this->handlerPluginCollection;
+  }
 
-    return $properties;
+  /**
+   * {@inheritdoc}
+   */
+  public function preSave(EntityStorageInterface $storage) {
+    parent::preSave($storage);
+
+    $this->getHandlerPlugin()->onQueuePreSave($this, $storage);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function postSave(EntityStorageInterface $storage, $update = TRUE) {
+    parent::postSave($storage, $update);
+
+    $this->getHandlerPlugin()->onQueuePostSave($this, $storage, $update);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function preDelete(EntityStorageInterface $storage, array $entities) {
+    parent::preDelete($storage, $entities);
+
+    foreach ($entities as $queue) {
+      $queue->getHandlerPlugin()->onQueuePreDelete($queue, $storage);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function postDelete(EntityStorageInterface $storage, array $entities) {
+    parent::postDelete($storage, $entities);
+
+    foreach ($entities as $queue) {
+      $queue->getHandlerPlugin()->onQueuePostDelete($queue, $storage);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function postLoad(EntityStorageInterface $storage, array &$entities) {
+    parent::postLoad($storage, $entities);
+
+    foreach ($entities as $queue) {
+      $queue->getHandlerPlugin()->onQueuePostLoad($queue, $storage);
+    }
   }
 
 }
