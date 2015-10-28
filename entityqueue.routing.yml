@@ -29,3 +29,21 @@ entity.entity_queue.delete_form:
     _title: 'Delete EntityQueue'
   requirements:
     _permission: 'administer site configuration'
+
+entity.entity_queue.enable:
+  path: '/admin/structure/entityqueue/{entity_queue}/enable'
+  defaults:
+    _controller: '\Drupal\entityqueue\Controller\EntityQueueUIController::ajaxOperation'
+    op: enable
+  requirements:
+    _entity_access: entity_queue.enable
+    _csrf_token: 'TRUE'
+
+entity.entity_queue.disable:
+  path: '/admin/structure/entityqueue/{entity_queue}/disable'
+  defaults:
+    _controller: '\Drupal\entityqueue\Controller\EntityQueueUIController::ajaxOperation'
+    op: disable
+  requirements:
+    _entity_access: entity_queue.disable
+    _csrf_token: 'TRUE'

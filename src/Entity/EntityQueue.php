@@ -33,12 +33,15 @@ use Drupal\entityqueue\EntityQueueInterface;
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",
- *     "uuid" = "uuid"
+ *     "uuid" = "uuid",
+ *     "status" = "status"
  *   },
  *   links = {
  *     "edit-form" = "/admin/structure/entityqueue/{entity_queue}",
  *     "delete-form" = "/admin/structure/entityqueue/{entity_queue}/delete",
- *     "collection" = "/admin/structure/entityqueue"
+ *     "collection" = "/admin/structure/entityqueue",
+ *     "enable" = "/admin/structure/entityqueue/{entity_queue}/enable",
+ *     "disable" = "/admin/structure/entityqueue/{entity_queue}/disable"
  *   },
  *   config_export = {
  *     "id",
