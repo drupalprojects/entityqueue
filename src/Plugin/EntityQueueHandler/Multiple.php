@@ -14,7 +14,7 @@ use Drupal\entityqueue\EntityQueueHandlerBase;
  *
  * @EntityQueueHandler(
  *   id = "multiple",
- *   title = @Translation("Multiple")
+ *   title = @Translation("Multiple subqueues")
  * )
  */
 class Multiple extends EntityQueueHandlerBase {

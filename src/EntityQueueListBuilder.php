@@ -75,7 +75,7 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
     $header['label'] = $this->t('Queue name');
     $header['id'] = $this->t('Machine name');
     $header['target_type'] = $this->t('Target type');
-    $header['handler'] = $this->t('Handler');
+    $header['handler'] = $this->t('Queue type');
     $header['items'] = $this->t('Items');
 
     return $header + parent::buildHeader();

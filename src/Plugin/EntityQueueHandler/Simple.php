@@ -17,7 +17,7 @@ use Drupal\entityqueue\EntityQueueInterface;
  *
  * @EntityQueueHandler(
  *   id = "simple",
- *   title = @Translation("Simple")
+ *   title = @Translation("Simple queue")
  * )
  */
 class Simple extends EntityQueueHandlerBase {
@@ -37,7 +37,7 @@ class Simple extends EntityQueueHandlerBase {
     // form.
     $operations['edit_subqueue'] = [
       'title' => t('Edit items'),
-      'weight' => -50,
+      'weight' => -9,
       'url' => EntitySubqueue::load($this->queue->id())->urlInfo('edit-form'),
     ];
 

@@ -96,7 +96,7 @@ abstract class EntityQueueHandlerBase extends PluginBase implements EntityQueueH
     // Add an operation to list all subqueues by default.
     $operations['view_subqueues'] = [
       'title' => t('View subqueues'),
-      'weight' => -50,
+      'weight' => -9,
       'url' => $this->queue->urlInfo('subqueue-list'),
     ];
 
