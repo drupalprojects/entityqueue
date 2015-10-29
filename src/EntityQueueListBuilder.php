@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\entityqueue\EntityQueueListBuilder.
+ * Contains \Drupal\entityqueue\EntityQueueListBuilder.
  */
 
 namespace Drupal\entityqueue;
@@ -116,6 +116,9 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
         $operations[$op]['attributes']['class'][] = 'use-ajax';
       }
     }
+
+    // Allow queue handlers to add their own operations.
+    $operations += $entity->getHandlerPlugin()->getQueueListBuilderOperations();
 
     return $operations;
   }

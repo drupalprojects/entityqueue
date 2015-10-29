@@ -7,6 +7,7 @@
 
 namespace Drupal\entityqueue\Form;
 
+use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Entity\BundleEntityFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Psr\Log\LoggerInterface;
@@ -16,6 +17,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Base form for entity queue edit forms.
  */
 class EntityQueueForm extends BundleEntityFormBase {
+
+  /**
+   * The entity queue handler plugin manager.
+   *
+   * @var \Drupal\Component\Plugin\PluginManagerInterface
+   */
+  protected $entityQueueHandlerManager;
 
   /**
    * A logger instance.
@@ -29,6 +37,7 @@ class EntityQueueForm extends BundleEntityFormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
+      $container->get('plugin.manager.entityqueue.handler'),
       $container->get('logger.factory')->get('entityqueue')
     );
   }
@@ -36,10 +45,13 @@ class EntityQueueForm extends BundleEntityFormBase {
   /**
    * Constructs a EntityQueueForm.
    *
+   * @param \Drupal\Component\Plugin\PluginManagerInterface
+   *   The entity queue handler plugin manager.
    * @param \Psr\Log\LoggerInterface $logger
    *   A logger instance.
    */
-  public function __construct(LoggerInterface $logger) {
+  public function __construct(PluginManagerInterface $entity_queue_handler_manager, LoggerInterface $logger) {
+    $this->entityQueueHandlerManager = $entity_queue_handler_manager;
     $this->logger = $logger;
   }
 
@@ -68,7 +80,7 @@ class EntityQueueForm extends BundleEntityFormBase {
       '#disabled' => !$entityqueue->isNew(),
     );
 
-    $handlers = \Drupal::service('plugin.manager.entityqueue.handler')->getAllEntityQueueHandlers();
+    $handlers = $this->entityQueueHandlerManager->getAllEntityQueueHandlers();
     $form['handler'] = array(
       '#type' => 'radios',
       '#title' => $this->t('Handler'),

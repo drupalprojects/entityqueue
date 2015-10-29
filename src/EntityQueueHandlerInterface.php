@@ -22,11 +22,30 @@ use Drupal\Component\Plugin\ConfigurablePluginInterface;
 interface EntityQueueHandlerInterface extends PluginFormInterface, ConfigurablePluginInterface {
 
   /**
+   * Sets the entity queue that is using this plugin.
+   *
+   * @param \Drupal\entityqueue\EntityQueueInterface $queue
+   *   The entity queue.
+   *
+   * @return $this
+   */
+  public function setQueue(EntityQueueInterface $queue);
+
+  /**
    * Whether or not the handler supports multiple subqueues.
    *
    * @return bool
    */
   public function supportsMultipleSubqueues();
+
+  /**
+   * Gets this queue handler's list builder operations.
+   *
+   * @return array
+   *   An array of entity operations, as defined by
+   *   \Drupal\Core\Entity\EntityListBuilderInterface::getOperations()
+   */
+  public function getQueueListBuilderOperations();
 
   /**
    * Acts on an entity queue before the presave hook is invoked.

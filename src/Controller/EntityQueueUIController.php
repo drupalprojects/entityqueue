@@ -48,4 +48,20 @@ class EntityQueueUIController extends ControllerBase {
     return $this->redirect('entity.entity_queue.collection');
   }
 
+  /**
+   * Provides a list of all the subqueues of an entity queue.
+   *
+   * @param \Drupal\entityqueue\EntityQueueInterface $entity_queue
+   *   The entity queue.
+   *
+   * @return array
+   *   A render array.
+   */
+  public function subqueueList(EntityQueueInterface $entity_queue) {
+    $list_builder = $this->entityManager()->getListBuilder('entity_subqueue');
+    $list_builder->setQueueId($entity_queue->id());
+
+    return $list_builder->render();
+  }
+
 }

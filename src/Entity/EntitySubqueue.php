@@ -31,6 +31,7 @@ use Drupal\user\UserInterface;
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider",
  *     },
+ *     "list_builder" = "Drupal\entityqueue\EntitySubqueueListBuilder"
  *   },
  *   base_table = "entity_subqueue",
  *   data_table = "entity_subqueue_field_data",
@@ -237,6 +238,19 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
    */
   public static function getCurrentUserId() {
     return array(\Drupal::currentUser()->id());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function urlInfo($rel = 'canonical', array $options = []) {
+    $url = parent::urlInfo($rel, $options);
+
+    // The 'entity_queue' parameter is needed by the subqueue routes, so we need
+    // to add it manually.
+    $url->setRouteParameter('entity_queue', $this->bundle());
+
+    return $url;
   }
 
 }

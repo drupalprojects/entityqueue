@@ -17,6 +17,13 @@ use Drupal\Core\Form\FormStateInterface;
 abstract class EntityQueueHandlerBase extends PluginBase implements EntityQueueHandlerInterface {
 
   /**
+   * The entity queue that is using this plugin.
+   *
+   * @var \Drupal\entityqueue\Entity\EntityQueue
+   */
+  protected $queue;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(array $configuration, $plugin_id, array $plugin_definition) {
@@ -71,6 +78,29 @@ abstract class EntityQueueHandlerBase extends PluginBase implements EntityQueueH
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     // Override this.
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setQueue(EntityQueueInterface $queue) {
+    $this->queue = $queue;
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getQueueListBuilderOperations() {
+    // Add an operation to list all subqueues by default.
+    $operations['view_subqueues'] = [
+      'title' => t('View subqueues'),
+      'weight' => -50,
+      'url' => $this->queue->urlInfo('subqueue-list'),
+    ];
+
+    return $operations;
   }
 
   /**

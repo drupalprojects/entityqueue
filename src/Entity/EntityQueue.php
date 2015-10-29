@@ -41,7 +41,8 @@ use Drupal\entityqueue\EntityQueueInterface;
  *     "delete-form" = "/admin/structure/entityqueue/{entity_queue}/delete",
  *     "collection" = "/admin/structure/entityqueue",
  *     "enable" = "/admin/structure/entityqueue/{entity_queue}/enable",
- *     "disable" = "/admin/structure/entityqueue/{entity_queue}/disable"
+ *     "disable" = "/admin/structure/entityqueue/{entity_queue}/disable",
+ *     "subqueue-list" = "/admin/structure/entityqueue/{entity_queue}/list"
  *   },
  *   config_export = {
  *     "id",
@@ -167,7 +168,7 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
     if (!$this->handlerPluginCollection) {
       $this->handlerPluginCollection = new EntityQueueHandlerPluginCollection(
         \Drupal::service('plugin.manager.entityqueue.handler'),
-        $this->handler, $this->handler_configuration);
+        $this->handler, $this->handler_configuration, $this);
     }
     return $this->handlerPluginCollection;
   }
