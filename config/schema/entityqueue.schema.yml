@@ -10,3 +10,6 @@ entityqueue.entity_queue.*:
       label: 'Label'
     uuid:
       type: string
+    target_type:
+      type: string
+      label: 'Type of items to queue'

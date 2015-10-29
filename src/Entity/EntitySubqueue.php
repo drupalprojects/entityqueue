@@ -11,6 +11,7 @@ use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\entityqueue\EntitySubqueueInterface;
 use Drupal\user\UserInterface;
@@ -146,6 +147,25 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
       ))
       ->setDisplayConfigurable('form', TRUE);
 
+    $fields['items'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Items'))
+      ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
+      ->setDisplayOptions('view', array(
+        'label' => 'hidden',
+        'type' => 'entity_reference_label',
+        'weight' => 0,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'entity_reference_autocomplete',
+        'weight' => 5,
+        'settings' => array(
+          'match_operator' => 'CONTAINS',
+          'size' => '60',
+          'placeholder' => '',
+        ),
+      ))
+      ->setDisplayConfigurable('form', TRUE);
+
     $fields['langcode'] = BaseFieldDefinition::create('language')
       ->setLabel(t('Language'))
       ->setDescription(t('The subqueue language code.'))
@@ -173,6 +193,20 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
       ->setDescription(t('The time that the subqueue was last edited.'));
 
     return $fields;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function bundleFieldDefinitions(EntityTypeInterface $entity_type, $bundle, array $base_field_definitions) {
+    // Change the target type of the 'items' field to the one defined by the
+    // parent queue (i.e. bundle).
+    if ($queue = EntityQueue::load($bundle)) {
+      $fields['items'] = clone $base_field_definitions['items'];
+      $fields['items']->setSetting('target_type', $queue->getTargetType());
+      return $fields;
+    }
+    return [];
   }
 
   /**

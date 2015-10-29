@@ -61,23 +61,23 @@ class EntityQueueForm extends BundleEntityFormBase {
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
 
-    $entityqueue = $this->entity;
+    $queue = $this->entity;
     $form['label'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('Label'),
       '#maxlength' => 255,
-      '#default_value' => $entityqueue->label(),
+      '#default_value' => $queue->label(),
       '#description' => $this->t("Label for the EntityQueue."),
       '#required' => TRUE,
     );
 
     $form['id'] = array(
       '#type' => 'machine_name',
-      '#default_value' => $entityqueue->id(),
+      '#default_value' => $queue->id(),
       '#machine_name' => array(
         'exists' => '\Drupal\entityqueue\Entity\EntityQueue::load',
       ),
-      '#disabled' => !$entityqueue->isNew(),
+      '#disabled' => !$queue->isNew(),
     );
 
     $handlers = $this->entityQueueHandlerManager->getAllEntityQueueHandlers();
@@ -85,9 +85,21 @@ class EntityQueueForm extends BundleEntityFormBase {
       '#type' => 'radios',
       '#title' => $this->t('Handler'),
       '#options' => $handlers,
-      '#default_value' => $entityqueue->getHandler(),
+      '#default_value' => $queue->getHandler(),
       '#required' => TRUE,
-      '#disabled' => !$entityqueue->isNew(),
+      '#disabled' => !$queue->isNew(),
+    );
+
+    // @todo It should be up to the queue handler to determine what entity types
+    // are queue-able.
+    $form['target_type'] = array(
+      '#type' => 'select',
+      '#title' => t('Type of items to queue'),
+      '#options' => \Drupal::entityManager()->getEntityTypeLabels(TRUE),
+      '#default_value' => $queue->get('target_type'),
+      '#required' => TRUE,
+      '#disabled' => !$queue->isNew(),
+      '#size' => 1,
     );
 
     return $form;
