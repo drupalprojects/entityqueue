@@ -32,6 +32,21 @@ class Simple extends EntityQueueHandlerBase {
   /**
    * {@inheritdoc}
    */
+  public function getQueueListBuilderOperations() {
+    // Simple queues have just one subqueue so we can link directly to the edit
+    // form.
+    $operations['edit_subqueue'] = [
+      'title' => t('Edit items'),
+      'weight' => -50,
+      'url' => EntitySubqueue::load($this->queue->id())->urlInfo('edit-form'),
+    ];
+
+    return $operations;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function onQueuePostSave(EntityQueueInterface $queue, EntityStorageInterface $storage, $update = TRUE) {
     // Make sure that every simple queue has a subqueue.
     if (!$update) {

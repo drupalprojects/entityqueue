@@ -19,6 +19,36 @@ use Drupal\Core\Ajax\ReplaceCommand;
 class EntityQueueUIController extends ControllerBase {
 
   /**
+   * Provides a list of all the subqueues of an entity queue.
+   *
+   * @param \Drupal\entityqueue\EntityQueueInterface $entity_queue
+   *   The entity queue.
+   *
+   * @return array
+   *   A render array.
+   */
+  public function subqueueList(EntityQueueInterface $entity_queue) {
+    $list_builder = $this->entityManager()->getListBuilder('entity_subqueue');
+    $list_builder->setQueueId($entity_queue->id());
+
+    return $list_builder->render();
+  }
+
+  /**
+   * Returns a form to add a new subqeue.
+   *
+   * @param \Drupal\entityqueue\EntityQueueInterface $entity_queue
+   *   The queue this subqueue will be added to.
+   *
+   * @return array
+   *   The entity subqueue add form.
+   */
+  public function addForm(EntityQueueInterface $entity_queue) {
+    $subqueue = $this->entityManager()->getStorage('entity_subqueue')->create(['queue' => $entity_queue->id()]);
+    return $this->entityFormBuilder()->getForm($subqueue);
+  }
+
+  /**
    * Calls a method on an entity queue and reloads the listing page.
    *
    * @param \Drupal\entityqueue\EntityQueueInterface $entity_queue
@@ -46,22 +76,6 @@ class EntityQueueUIController extends ControllerBase {
 
     // Otherwise, redirect back to the page.
     return $this->redirect('entity.entity_queue.collection');
-  }
-
-  /**
-   * Provides a list of all the subqueues of an entity queue.
-   *
-   * @param \Drupal\entityqueue\EntityQueueInterface $entity_queue
-   *   The entity queue.
-   *
-   * @return array
-   *   A render array.
-   */
-  public function subqueueList(EntityQueueInterface $entity_queue) {
-    $list_builder = $this->entityManager()->getListBuilder('entity_subqueue');
-    $list_builder->setQueueId($entity_queue->id());
-
-    return $list_builder->render();
   }
 
 }

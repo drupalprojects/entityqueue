@@ -25,7 +25,7 @@ use Drupal\user\UserInterface;
  *   handlers = {
  *     "form" = {
  *       "default" = "Drupal\entityqueue\Form\EntitySubqueueForm",
- *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm",
+ *       "delete" = "\Drupal\entityqueue\Form\EntitySubqueueDeleteForm",
  *       "edit" = "Drupal\entityqueue\Form\EntitySubqueueForm"
  *     },
  *     "access" = "Drupal\entityqueue\EntitySubqueueAccessControlHandler",
@@ -48,6 +48,7 @@ use Drupal\user\UserInterface;
  *   field_ui_base_route = "entity.entity_queue.edit_form",
  *   permission_granularity = "bundle",
  *   links = {
+ *     "canonical" = "/admin/structure/entityqueue/{entity_queue}",
  *     "edit-form" = "/admin/structure/entityqueue/{entity_queue}/{entity_subqueue}",
  *     "delete-form" = "/admin/structure/entityqueue/{entity_queue}/{entity_subqueue}/delete"
  *   }
@@ -99,7 +100,6 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
     return $this->get('created')->value;
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -138,11 +138,11 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
       ->setDisplayOptions('view', array(
         'label' => 'hidden',
         'type' => 'string',
-        'weight' => -5,
+        'weight' => -10,
       ))
       ->setDisplayOptions('form', array(
         'type' => 'string_textfield',
-        'weight' => -5,
+        'weight' => -10,
       ))
       ->setDisplayConfigurable('form', TRUE);
 
@@ -161,36 +161,12 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
       ->setLabel(t('Authored by'))
       ->setDescription(t('The username of the subqueue author.'))
       ->setSetting('target_type', 'user')
-      ->setDefaultValueCallback('Drupal\entityqueue\Entity\EntitySubqueue::getCurrentUserId')
-      ->setDisplayOptions('view', array(
-        'label' => 'hidden',
-        'type' => 'author',
-        'weight' => 0,
-      ))
-      ->setDisplayOptions('form', array(
-        'type' => 'entity_reference_autocomplete',
-        'weight' => 5,
-        'settings' => array(
-          'match_operator' => 'CONTAINS',
-          'size' => '60',
-          'placeholder' => '',
-        ),
-      ))
-      ->setDisplayConfigurable('form', TRUE);
+      ->setDefaultValueCallback('Drupal\entityqueue\Entity\EntitySubqueue::getCurrentUserId');
 
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Authored on'))
       ->setDescription(t('The time that the subqueue was created.'))
-      ->setDisplayOptions('view', array(
-        'label' => 'hidden',
-        'type' => 'timestamp',
-        'weight' => 0,
-      ))
-      ->setDisplayOptions('form', array(
-        'type' => 'datetime_timestamp',
-        'weight' => 10,
-      ))
-      ->setDisplayConfigurable('form', TRUE);
+      ->setDefaultValueCallback('Drupal\entityqueue\Entity\EntitySubqueue::getDefaultCreatedTime');
 
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
@@ -239,6 +215,18 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
    */
   public static function getCurrentUserId() {
     return array(\Drupal::currentUser()->id());
+  }
+
+  /**
+   * Default value callback for 'created' base field definition.
+   *
+   * @see ::baseFieldDefinitions()
+   *
+   * @return array
+   *   An array of default values.
+   */
+  public static function getDefaultCreatedTime() {
+    return REQUEST_TIME;
   }
 
   /**
