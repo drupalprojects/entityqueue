@@ -9,11 +9,45 @@ namespace Drupal\entityqueue;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Defines a class that builds a listing of entity queues.
  */
 class EntityQueueListBuilder extends ConfigEntityListBuilder {
+
+  /**
+   * The entity manager.
+   *
+   * @var \Drupal\Core\Entity\EntityManagerInterface
+   */
+  protected $entityManager;
+
+  /**
+   * Constructs a new class instance.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   *   The entity type definition.
+   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   *   The entity manager.
+   */
+  public function __construct(EntityTypeInterface $entity_type, EntityManagerInterface $entity_manager) {
+    parent::__construct($entity_type, $entity_manager->getStorage($entity_type->id()));
+
+    $this->entityManager = $entity_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
+    return new static(
+      $entity_type,
+      $container->get('entity.manager')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -53,7 +87,7 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
   public function buildRow(EntityInterface $entity) {
     $row['label'] = $entity->label();
     $row['id'] = $entity->id();
-    $row['target_type'] = $entity->getTargetType();
+    $row['target_type'] = $this->entityManager->getDefinition($entity->getTargetType())->getLabel();
     $row['handler'] = $entity->getHandlerPlugin()->getPluginDefinition()['title'];
     $row['items'] = '@todo';
 
