@@ -28,6 +28,7 @@ use Drupal\user\UserInterface;
  *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm",
  *       "edit" = "Drupal\entityqueue\Form\EntitySubqueueForm"
  *     },
+ *     "access" = "Drupal\entityqueue\EntitySubqueueAccessControlHandler",
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider",
  *     },

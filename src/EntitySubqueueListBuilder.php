@@ -78,4 +78,15 @@ class EntitySubqueueListBuilder extends EntityListBuilder {
     return $row + parent::buildRow($entity);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultOperations(EntityInterface $entity) {
+    $operations = parent::getDefaultOperations($entity);
+
+    $operations['edit']['title'] = $this->t('Edit items');
+
+    return $operations;
+  }
+
 }
