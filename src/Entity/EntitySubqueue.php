@@ -156,7 +156,7 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
         'weight' => 0,
       ))
       ->setDisplayOptions('form', array(
-        'type' => 'entity_reference_autocomplete',
+        'type' => 'entityqueue_dragtable',
         'weight' => 5,
         'settings' => array(
           'match_operator' => 'CONTAINS',
