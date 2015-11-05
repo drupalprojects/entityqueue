@@ -102,7 +102,7 @@ class EntityqueueDragtableWidget extends EntityReferenceAutocompleteWidget {
     // Lower the 'items_count' field state property in order to prevent the
     // parent implementation to append an extra empty item.
     if ($cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) {
-      $field_state['items_count'] = count($items) - 1;
+      $field_state['items_count'] = (count($items) > 1) ? count($items) - 1 : 0;
       static::setWidgetState($parents, $field_name, $form_state, $field_state);
     }
 
