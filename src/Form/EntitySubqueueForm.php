@@ -18,6 +18,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class EntitySubqueueForm extends ContentEntityForm {
 
   /**
+   * The entity being used by this form.
+   *
+   * @var \Drupal\entityqueue\EntitySubqueueInterface
+   */
+  protected $entity;
+
+  /**
    * A logger instance.
    *
    * @var \Psr\Log\LoggerInterface
@@ -59,6 +66,7 @@ class EntitySubqueueForm extends ContentEntityForm {
       ),
       '#disabled' => !$this->entity->isNew(),
       '#weight' => -5,
+      '#access' => !$this->entity->getQueue()->getHandlerPlugin()->hasAutomatedSubqueues(),
     );
 
     return $form;
@@ -81,7 +89,13 @@ class EntitySubqueueForm extends ContentEntityForm {
       $this->logger->notice('The entity subqueue %label has been added.', array('%label' => $subqueue->label(), 'link' =>  $edit_link));
     }
 
-    $form_state->setRedirectUrl($subqueue->queue->entity->urlInfo('subqueue-list'));
+    $queue = $subqueue->getQueue();
+    if ($queue->getHandlerPlugin()->supportsMultipleSubqueues()) {
+      $form_state->setRedirectUrl($queue->urlInfo('subqueue-list'));
+    }
+    else {
+      $form_state->setRedirectUrl($queue->urlInfo('collection'));
+    }
   }
 
 }

@@ -26,4 +26,11 @@ class Multiple extends EntityQueueHandlerBase {
     return TRUE;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function hasAutomatedSubqueues() {
+    return FALSE;
+  }
+
 }

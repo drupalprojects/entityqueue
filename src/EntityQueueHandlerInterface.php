@@ -39,6 +39,16 @@ interface EntityQueueHandlerInterface extends PluginFormInterface, ConfigurableP
   public function supportsMultipleSubqueues();
 
   /**
+   * Whether or not the handler contains subqueues with an automated lifecycle.
+   *
+   * For example, this property controls whether the title of subqueues can be
+   * edited, or if they can be created or deleted through the UI or API calls.
+   *
+   * @return bool
+   */
+  public function hasAutomatedSubqueues();
+
+  /**
    * Gets this queue handler's list builder operations.
    *
    * @return array

@@ -32,6 +32,13 @@ class Simple extends EntityQueueHandlerBase {
   /**
    * {@inheritdoc}
    */
+  public function hasAutomatedSubqueues() {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getQueueListBuilderOperations() {
     // Simple queues have just one subqueue so we can link directly to the edit
     // form.

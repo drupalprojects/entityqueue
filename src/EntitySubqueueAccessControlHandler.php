@@ -11,6 +11,7 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityAccessControlHandler;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\entityqueue\Entity\EntityQueue;
 
 /**
  * Defines the access control handler for the entity_subqueue entity type.
@@ -23,6 +24,7 @@ class EntitySubqueueAccessControlHandler extends EntityAccessControlHandler {
    * {@inheritdoc}
    */
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
+    /** @var \Drupal\entityqueue\EntitySubqueueInterface $entity */
     switch ($operation) {
       case 'view':
         return AccessResult::allowedIfHasPermission($account, 'access content');
@@ -33,7 +35,13 @@ class EntitySubqueueAccessControlHandler extends EntityAccessControlHandler {
         break;
 
       case 'delete':
-        return AccessResult::allowedIfHasPermissions($account, ["delete {$entity->bundle()} entityqueue", 'manipulate all entityqueues', 'administer entityqueue'], 'OR');
+        $can_delete_subqueue = AccessResult::allowedIf(!$entity->getQueue()->getHandlerPlugin()->hasAutomatedSubqueues());
+
+        $access_result = AccessResult
+          ::allowedIfHasPermissions($account, ["delete {$entity->bundle()} entityqueue", 'manipulate all entityqueues', 'administer entityqueue'], 'OR')
+          ->andIf($can_delete_subqueue);
+
+        return $access_result;
         break;
 
       default:
@@ -46,7 +54,14 @@ class EntitySubqueueAccessControlHandler extends EntityAccessControlHandler {
    * {@inheritdoc}
    */
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
-    return AccessResult::allowedIfHasPermissions($account, ["create {$entity_bundle} entityqueue", 'manipulate all entityqueues', 'administer entityqueue'], 'OR');
+    $access_result = AccessResult::allowedIfHasPermissions($account, ["create {$entity_bundle} entityqueue", 'manipulate all entityqueues', 'administer entityqueue'], 'OR');
+
+    if ($entity_bundle) {
+      $queue = EntityQueue::load($entity_bundle);
+      $access_result = AccessResult::allowedIf(!$queue->getHandlerPlugin()->hasAutomatedSubqueues());
+    }
+
+    return $access_result;
   }
 
 }

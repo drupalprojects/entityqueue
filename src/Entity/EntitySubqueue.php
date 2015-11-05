@@ -13,6 +13,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\entityqueue\EntityQueueInterface;
 use Drupal\entityqueue\EntitySubqueueInterface;
 use Drupal\user\UserInterface;
 
@@ -62,13 +63,6 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
   /**
    * {@inheritdoc}
    */
-  public function getQueueName() {
-    return $this->bundle();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function access($operation = 'view', AccountInterface $account = NULL, $return_as_object = FALSE) {
     if ($operation == 'create') {
       return parent::access($operation, $account, $return_as_object);
@@ -77,6 +71,21 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
     return \Drupal::entityManager()
       ->getAccessControlHandler($this->entityTypeId)
       ->access($this, $operation, $account, $return_as_object);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getQueue() {
+    return $this->get('queue')->entity;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setQueue(EntityQueueInterface $queue) {
+    $this->set('queue', $queue->id());
+    return $this;
   }
 
   /**
