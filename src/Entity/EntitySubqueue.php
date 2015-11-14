@@ -275,8 +275,8 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
   /**
    * {@inheritdoc}
    */
-  public function urlInfo($rel = 'canonical', array $options = []) {
-    $url = parent::urlInfo($rel, $options);
+  public function toUrl($rel = 'canonical', array $options = []) {
+    $url = parent::toUrl($rel, $options);
 
     // The 'entity_queue' parameter is needed by the subqueue routes, so we need
     // to add it manually.
