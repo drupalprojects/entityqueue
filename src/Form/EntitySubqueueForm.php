@@ -57,7 +57,7 @@ class EntitySubqueueForm extends ContentEntityForm {
     $form = parent::form($form, $form_state);
 
     // @todo Consider creating a 'Machine name' field widget.
-    $form['name'] = array(
+    $form['name'] = [
       '#type' => 'machine_name',
       '#default_value' => $this->entity->id(),
       '#machine_name' => array(
@@ -67,7 +67,7 @@ class EntitySubqueueForm extends ContentEntityForm {
       '#disabled' => !$this->entity->isNew(),
       '#weight' => -5,
       '#access' => !$this->entity->getQueue()->getHandlerPlugin()->hasAutomatedSubqueues(),
-    );
+    ];
 
     return $form;
   }
@@ -79,22 +79,22 @@ class EntitySubqueueForm extends ContentEntityForm {
     $subqueue = $this->entity;
     $status = $subqueue->save();
 
-    $edit_link = $subqueue->link($this->t('Edit'), 'edit-form');
+    $edit_link = $subqueue->toLink($this->t('Edit'), 'edit-form');
     if ($status == SAVED_UPDATED) {
-      drupal_set_message($this->t('The entity subqueue %label has been updated.', array('%label' => $subqueue->label())));
-      $this->logger->notice('The entity subqueue %label has been updated.', array('%label' => $subqueue->label(), 'link' => $edit_link));
+      drupal_set_message($this->t('The entity subqueue %label has been updated.', ['%label' => $subqueue->label()]));
+      $this->logger->notice('The entity subqueue %label has been updated.', ['%label' => $subqueue->label(), 'link' => $edit_link]);
     }
     else {
-      drupal_set_message($this->t('The entity subqueue %label has been added.', array('%label' => $subqueue->label())));
-      $this->logger->notice('The entity subqueue %label has been added.', array('%label' => $subqueue->label(), 'link' =>  $edit_link));
+      drupal_set_message($this->t('The entity subqueue %label has been added.', ['%label' => $subqueue->label()]));
+      $this->logger->notice('The entity subqueue %label has been added.', ['%label' => $subqueue->label(), 'link' =>  $edit_link]);
     }
 
     $queue = $subqueue->getQueue();
     if ($queue->getHandlerPlugin()->supportsMultipleSubqueues()) {
-      $form_state->setRedirectUrl($queue->urlInfo('subqueue-list'));
+      $form_state->setRedirectUrl($queue->toUrl('subqueue-list'));
     }
     else {
-      $form_state->setRedirectUrl($queue->urlInfo('collection'));
+      $form_state->setRedirectUrl($queue->toUrl('collection'));
     }
   }
 

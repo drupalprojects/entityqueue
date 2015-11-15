@@ -19,6 +19,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class EntityQueueForm extends BundleEntityFormBase {
 
   /**
+   * The entity being used by this form.
+   *
+   * @var \Drupal\entityqueue\EntityQueueInterface
+   */
+  protected $entity;
+
+  /**
    * The entity queue handler plugin manager.
    *
    * @var \Drupal\Component\Plugin\PluginManagerInterface
@@ -62,45 +69,83 @@ class EntityQueueForm extends BundleEntityFormBase {
     $form = parent::form($form, $form_state);
 
     $queue = $this->entity;
-    $form['label'] = array(
+    $form['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Label'),
       '#maxlength' => 255,
       '#default_value' => $queue->label(),
       '#description' => $this->t("Label for the EntityQueue."),
       '#required' => TRUE,
-    );
+    ];
 
-    $form['id'] = array(
+    $form['id'] = [
       '#type' => 'machine_name',
       '#default_value' => $queue->id(),
-      '#machine_name' => array(
+      '#machine_name' => [
         'exists' => '\Drupal\entityqueue\Entity\EntityQueue::load',
-      ),
+      ],
       '#disabled' => !$queue->isNew(),
-    );
+    ];
 
     $handlers = $this->entityQueueHandlerManager->getAllEntityQueueHandlers();
-    $form['handler'] = array(
+    $form['handler'] = [
       '#type' => 'radios',
       '#title' => $this->t('Handler'),
       '#options' => $handlers,
       '#default_value' => $queue->getHandler(),
       '#required' => TRUE,
       '#disabled' => !$queue->isNew(),
-    );
+    ];
 
     // @todo It should be up to the queue handler to determine what entity types
     // are queue-able.
-    $form['target_type'] = array(
+    $form['target_type'] = [
       '#type' => 'select',
-      '#title' => t('Type of items to queue'),
+      '#title' => $this->t('Type of items to queue'),
       '#options' => \Drupal::entityManager()->getEntityTypeLabels(TRUE),
-      '#default_value' => $queue->get('target_type'),
+      '#default_value' => $queue->getTargetEntityTypeId(),
       '#required' => TRUE,
       '#disabled' => !$queue->isNew(),
       '#size' => 1,
-    );
+    ];
+
+    $form['settings'] = [
+      '#type' => 'vertical_tabs',
+    ];
+
+    $form['properties'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Queue properties'),
+      '#open' => TRUE,
+      '#group' => 'settings',
+    ];
+    $form['properties']['size'] = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['form--inline', 'clearfix']],
+    ];
+    $form['properties']['size']['min_size'] = [
+      '#type' => 'number',
+      '#size' => 2,
+      '#default_value' => $queue->getMinimumSize(),
+      '#field_prefix' => $this->t('Restrict this queue to a minimum of'),
+    ];
+    $form['properties']['size']['max_size'] = [
+      '#type' => 'number',
+      '#default_value' => $queue->getMaximumSize(),
+      '#field_prefix' => $this->t('and a maximum of'),
+      '#field_suffix' => $this->t('items.'),
+    ];
+    $form['properties']['act_as_queue'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Act as queue'),
+      '#default_value' => $queue->getActAsQueue(),
+      '#description' => $this->t('When enabled, adding more than the maximum number of items will remove extra items from the top of the queue.'),
+      '#states' => [
+        'invisible' => [
+          ':input[name="max_size"]' => ['value' => 0],
+        ],
+      ],
+    ];
 
     return $form;
   }
@@ -121,17 +166,17 @@ class EntityQueueForm extends BundleEntityFormBase {
     $queue = $this->entity;
     $status = $queue->save();
 
-    $edit_link = $queue->link($this->t('Edit'), 'edit-form');
+    $edit_link = $queue->toLink($this->t('Edit'), 'edit-form');
     if ($status == SAVED_UPDATED) {
-      drupal_set_message($this->t('The entity queue %label has been updated.', array('%label' => $queue->label())));
-      $this->logger->notice('The entity queue %label has been updated.', array('%label' => $queue->label(), 'link' => $edit_link));
+      drupal_set_message($this->t('The entity queue %label has been updated.', ['%label' => $queue->label()]));
+      $this->logger->notice('The entity queue %label has been updated.', ['%label' => $queue->label(), 'link' => $edit_link]);
     }
     else {
-      drupal_set_message($this->t('The entity queue %label has been added.', array('%label' => $queue->label())));
-      $this->logger->notice('The entity queue %label has been added.', array('%label' => $queue->label(), 'link' =>  $edit_link));
+      drupal_set_message($this->t('The entity queue %label has been added.', ['%label' => $queue->label()]));
+      $this->logger->notice('The entity queue %label has been added.', ['%label' => $queue->label(), 'link' =>  $edit_link]);
     }
 
-    $form_state->setRedirectUrl($queue->urlInfo('collection'));
+    $form_state->setRedirectUrl($queue->toUrl('collection'));
   }
 
 }

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\entityqueue\Entity\EntityQueue.
+ * Contains \Drupal\entityqueue\Entity\EntityQueue.
  */
 
 namespace Drupal\entityqueue\Entity;
@@ -47,12 +47,12 @@ use Drupal\entityqueue\EntityQueueInterface;
  *   config_export = {
  *     "id",
  *     "label",
+ *     "target_type",
+ *     "handler",
+ *     "handler_configuration",
  *     "min_size",
  *     "max_size",
- *     "target_type",
- *     "target_bundles",
- *     "handler",
- *     "handler_configuration"
+ *     "act_as_queue"
  *   }
  * )
  */
@@ -73,6 +73,13 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
   protected $label;
 
   /**
+   * The type of the target entities.
+   *
+   * @var string
+   */
+  protected $target_type = '';
+
+  /**
    * The minimum number of items that this queue can hold.
    *
    * @var int
@@ -84,19 +91,14 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
    *
    * @var int
    */
-  protected $max_size = 10;
+  protected $max_size = 0;
 
   /**
-   * The type of the target entities.
+   * The behavior of exceeding the maximum number of queue items.
    *
-   * @var string
+   * @var bool
    */
-  protected $target_type = '';
-
-  /**
-   * Array of bundle names of the target entities.
-   */
-  protected $target_bundles = [];
+  protected $act_as_queue = FALSE;
 
   /**
    * The ID of the EntityQueueHandler.
@@ -126,8 +128,25 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
     return $this->target_type;
   }
 
-  public function getTargetBundles() {
-    return $this->target_bundles;
+  /**
+   * {@inheritdoc}
+   */
+  public function getMinimumSize() {
+    return $this->min_size;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getMaximumSize() {
+    return $this->max_size;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getActAsQueue() {
+    return $this->act_as_queue;
   }
 
   /**

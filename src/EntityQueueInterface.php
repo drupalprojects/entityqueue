@@ -47,6 +47,31 @@ interface EntityQueueInterface extends ConfigEntityInterface {
   public function getTargetEntityTypeId();
 
   /**
+   * Gets the minimum number of items that this queue can hold.
+   *
+   * @return int
+   */
+  public function getMinimumSize();
+
+  /**
+   * Gets the maximum number of items that this queue can hold.
+   *
+   * @return int
+   */
+  public function getMaximumSize();
+
+  /**
+   * Returns the behavior of exceeding the maximum number of queue items.
+   *
+   * If TRUE, when a maximum size is set and it is exceeded, the queue will be
+   * truncated to the maximum size by removing items from the front of the
+   * queue.
+   *
+   * @return bool
+   */
+  public function getActAsQueue();
+
+  /**
    * Loads one or more queues based on their target entity type.
    *
    * @param string $target_entity_type_id

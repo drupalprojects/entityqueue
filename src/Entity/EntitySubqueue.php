@@ -9,6 +9,7 @@ namespace Drupal\entityqueue\Entity;
 
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
@@ -53,6 +54,9 @@ use Drupal\user\UserInterface;
  *     "canonical" = "/admin/structure/entityqueue/{entity_queue}",
  *     "edit-form" = "/admin/structure/entityqueue/{entity_queue}/{entity_subqueue}",
  *     "delete-form" = "/admin/structure/entityqueue/{entity_queue}/{entity_subqueue}/delete"
+ *   },
+ *   constraints = {
+ *     "QueueSize" = {}
  *   }
  * )
  */
@@ -71,6 +75,29 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
     return \Drupal::entityManager()
       ->getAccessControlHandler($this->entityTypeId)
       ->access($this, $operation, $account, $return_as_object);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function preSave(EntityStorageInterface $storage) {
+    parent::preSave($storage);
+
+    /** @var \Drupal\entityqueue\EntityQueueInterface $queue */
+    $queue = $this->getQueue();
+    $max_size = $queue->getMaximumSize();
+    $act_as_queue = $queue->getActAsQueue();
+
+    $items = $this->get('items')->getValue();
+    $number_of_items = count($items);
+
+    // Remove extra items from the front of the queue if the maximum size is
+    // exceeded.
+    if ($act_as_queue && $number_of_items > $max_size) {
+      $items = array_slice($items, -$max_size);
+
+      $this->set('items', $items);
+    }
   }
 
   /**
