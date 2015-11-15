@@ -15,14 +15,14 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
 interface EntityQueueInterface extends ConfigEntityInterface {
 
   /**
-   * Get the EntityQueueHandler plugin id.
+   * Gets the EntityQueueHandler plugin id.
    *
    * @return string
    */
   public function getHandler();
 
   /**
-   * Set the EntityQueueHandler.
+   * Sets the EntityQueueHandler.
    *
    * @param string $handler
    *   The handler name.
@@ -32,10 +32,29 @@ interface EntityQueueInterface extends ConfigEntityInterface {
   public function setHandler($handler);
 
   /**
-   * Get the EntityQueueHandler plugin object.
+   * Gets the EntityQueueHandler plugin object.
    *
    * @return EntityQueueHandlerInterface
    */
   public function getHandlerPlugin();
+
+  /**
+   * Gets the ID of the target entity type.
+   *
+   * @return string
+   *   The target entity type ID.
+   */
+  public function getTargetEntityTypeId();
+
+  /**
+   * Loads one or more queues based on their target entity type.
+   *
+   * @param string $target_entity_type_id
+   *   The target entity type ID.
+   *
+   * @return static[]
+   *   An array of entity queue objects, indexed by their IDs.
+   */
+  public static function loadMultipleByTargetType($target_entity_type_id);
 
 }

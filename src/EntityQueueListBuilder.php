@@ -87,7 +87,7 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
   public function buildRow(EntityInterface $entity) {
     $row['label'] = $entity->label();
     $row['id'] = $entity->id();
-    $row['target_type'] = $this->entityManager->getDefinition($entity->getTargetType())->getLabel();
+    $row['target_type'] = $this->entityManager->getDefinition($entity->getTargetEntityTypeId())->getLabel();
     $row['handler'] = $entity->getHandlerPlugin()->getPluginDefinition()['title'];
     $row['items'] = '@todo';
 

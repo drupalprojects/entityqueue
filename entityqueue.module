@@ -9,6 +9,7 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\entityqueue\Entity\EntityQueue;
 
 /**
  * Implements hook_entity_field_access()
@@ -161,20 +162,6 @@ function entityqueue_queue_load_multiple($names = array(), $reset = FALSE) {
   $recursion = FALSE;
 
   return $queues;
-}
-
-/**
- * Loads multiple queues with a specific target type.
- *
- * @param string $target_type
- *   An entity type (e.g. 'node', 'comment', 'user').
- *
- * @return array
- *   An array of EntityQueue objects, keyed by queue name.
- */
-function entityqueue_queue_load_by_target_type($target_type) {
-  ctools_include('export');
-  return ctools_export_load_object('entityqueue_queue', 'conditions', array('target_type' => $target_type));
 }
 
 /**
@@ -569,16 +556,6 @@ function entityqueue_get_entityqueue_sort($view) {
     }
   }
   return FALSE;
-}
-
-/**
- * Implements hook_views_api().
- */
-function entityqueue_views_api() {
-  return array(
-    'api' => 3,
-    'path' => drupal_get_path('module', 'entityqueue') . '/includes/views',
-  );
 }
 
 /**

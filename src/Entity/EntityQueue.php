@@ -119,7 +119,10 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
    */
   protected $handlerPluginCollection;
 
-  public function getTargetType() {
+  /**
+   * {@inheritdoc}
+   */
+  public function getTargetEntityTypeId() {
     return $this->target_type;
   }
 
@@ -222,6 +225,17 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
     foreach ($entities as $queue) {
       $queue->getHandlerPlugin()->onQueuePostLoad($queue, $storage);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function loadMultipleByTargetType($target_entity_type_id) {
+    $ids = \Drupal::entityManager()->getStorage('entity_queue')->getQuery()
+      ->condition('target_type', $target_entity_type_id)
+      ->execute();
+
+    return $ids ? static::loadMultiple($ids) : [];
   }
 
 }

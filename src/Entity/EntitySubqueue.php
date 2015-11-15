@@ -212,7 +212,7 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
     // parent queue (i.e. bundle).
     if ($queue = EntityQueue::load($bundle)) {
       $fields['items'] = clone $base_field_definitions['items'];
-      $fields['items']->setSetting('target_type', $queue->getTargetType());
+      $fields['items']->setSetting('target_type', $queue->getTargetEntityTypeId());
       return $fields;
     }
     return [];
