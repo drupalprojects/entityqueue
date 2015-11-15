@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Entity\Sql\SqlEntityStorageInterface;
+use Drupal\entityqueue\Entity\EntityQueue;
 
 /**
  * Implements hook_views_data_alter().
@@ -17,7 +18,7 @@ function entityqueue_views_data_alter(array &$data) {
   $target_entity_type_ids = [];
   $queues = EntityQueue::loadMultiple();
   foreach ($queues as $queue) {
-    $target_entity_type_ids[$queue->getTargetEntityTypeId()][$queue->id()] = $queue;
+    $target_entity_type_ids[$queue->getTargetEntityTypeId()] = TRUE;
   }
 
   // Filter entity types to those that have a 'views_data' handler and use a SQL
@@ -28,10 +29,6 @@ function entityqueue_views_data_alter(array &$data) {
     $entity_type = $entity_manager->getDefinition($entity_type_id);
     if ($entity_type->hasHandlerClass('views_data') && $entity_manager->getStorage($entity_type->id()) instanceof SqlEntityStorageInterface) {
       $entity_types[$entity_type_id] = $entity_type;
-    }
-    else {
-      // No entity queue can have a relationship to this entity type.
-      unset($target_entity_type_ids[$entity_type_id]);
     }
   }
 
