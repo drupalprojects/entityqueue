@@ -96,19 +96,3 @@ function entityqueue_get_entityqueue_sort($view) {
   }
   return FALSE;
 }
-
-/**
- * Implements hook_theme().
- */
-function entityqueue_theme() {
-  return array(
-    'entityqueue_overview_item' => array(
-      'variables' => array('label' => NULL, 'name' => FALSE, 'status' => FALSE),
-      'file' => 'includes/entityqueue.theme.inc',
-    ),
-    'entityqueue_status' => array(
-      'variables' => array('status' => NULL, 'html' => TRUE),
-      'file' => 'includes/entityqueue.theme.inc',
-    ),
-  );
-}
