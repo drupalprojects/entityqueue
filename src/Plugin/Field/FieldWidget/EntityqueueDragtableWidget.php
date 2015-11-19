@@ -20,7 +20,7 @@ use Drupal\Core\Form\FormStateInterface;
  *
  * @FieldWidget(
  *   id = "entityqueue_dragtable",
- *   label = @Translation("Autocomplete (draggable table)"),
+ *   label = @Translation("Autocomplete (draggable table) - Experimental"),
  *   description = @Translation("An autocomplete text field with a draggable table."),
  *   field_types = {
  *     "entity_reference"
