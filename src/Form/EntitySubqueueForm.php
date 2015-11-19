@@ -7,6 +7,8 @@
 
 namespace Drupal\entityqueue\Form;
 
+use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Psr\Log\LoggerInterface;
@@ -56,6 +58,21 @@ class EntitySubqueueForm extends ContentEntityForm {
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
 
+    // Since the form has ajax buttons, the $wrapper_id will change each time
+    // one of those buttons is clicked. Therefore the whole form has to be
+    // replaced, otherwise the buttons will have the old $wrapper_id and will
+    // only work on the first click.
+    if ($form_state->has('subqueue_form_wrapper_id')) {
+      $wrapper_id = $form_state->get('subqueue_form_wrapper_id');
+    }
+    else {
+      $wrapper_id = Html::getUniqueId($this->getFormId() . '-wrapper');
+    }
+
+    $form_state->set('subqueue_form_wrapper_id', $wrapper_id);
+    $form['#prefix'] = '<div id="' . $wrapper_id . '">';
+    $form['#suffix'] = '</div>';
+
     // @todo Consider creating a 'Machine name' field widget.
     $form['name'] = [
       '#type' => 'machine_name',
@@ -69,6 +86,102 @@ class EntitySubqueueForm extends ContentEntityForm {
       '#access' => !$this->entity->getQueue()->getHandlerPlugin()->hasAutomatedSubqueues(),
     ];
 
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function actions(array $form, FormStateInterface $form_state) {
+    $actions = parent::actions($form, $form_state);
+
+    $actions['reverse'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Reverse'),
+      '#submit' => ['::submitAction'],
+      '#op' => 'reverse',
+      '#ajax' => [
+        'callback' => '::subqueueActionAjaxForm',
+        'wrapper' => $form_state->get('subqueue_form_wrapper_id'),
+      ],
+    ];
+
+    $actions['shuffle'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Shuffle'),
+      '#submit' => ['::submitAction'],
+      '#op' => 'shuffle',
+      '#ajax' => [
+        'callback' => '::subqueueActionAjaxForm',
+        'wrapper' => $form_state->get('subqueue_form_wrapper_id'),
+      ],
+    ];
+
+    $actions['clear'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Clear'),
+      '#submit' => ['::submitAction'],
+      '#op' => 'clear',
+      '#ajax' => [
+        'callback' => '::subqueueActionAjaxForm',
+        'wrapper' => $form_state->get('subqueue_form_wrapper_id'),
+      ],
+    ];
+
+    return $actions;
+  }
+
+  /**
+   * Submit callback for the 'reverse', 'shuffle' and 'clear' actions.
+   */
+  public static function submitAction(array &$form, FormStateInterface $form_state) {
+    $trigger = $form_state->getTriggeringElement();
+    $op = $trigger['#op'];
+
+    // Check if we have a form element for the 'items' field.
+    $path = array_merge($form['#parents'], ['items']);
+    $key_exists = NULL;
+    NestedArray::getValue($form_state->getValues(), $path, $key_exists);
+
+    if ($key_exists) {
+      // Remove any user input for the 'items' element in order to allow the
+      // values set below to be applied.
+      $user_input = $form_state->getUserInput();
+      NestedArray::setValue($user_input, $path, NULL);
+      $form_state->setUserInput($user_input);
+
+      $entity = $form_state->getFormObject()->getEntity();
+      $items_widget = $form_state->getFormObject()->getFormDisplay($form_state)->getRenderer('items');
+
+      $subqueue_items = $entity->get('items');
+      $items_widget->extractFormValues($subqueue_items, $form, $form_state);
+      $items_values = $subqueue_items->getValue();
+
+      switch ($op) {
+        case 'reverse':
+          $subqueue_items->setValue(array_reverse($items_values));
+          break;
+
+        case 'shuffle':
+          shuffle($items_values);
+          $subqueue_items->setValue($items_values);
+          break;
+
+        case 'clear':
+          $subqueue_items->setValue(NULL);
+          break;
+      }
+
+      $form_state->getFormObject()->setEntity($entity);
+
+      $form_state->setRebuild();
+    }
+  }
+
+  /**
+   * AJAX callback; Returns the entire form element.
+   */
+  public static function subqueueActionAjaxForm(array &$form, FormStateInterface $form_state) {
     return $form;
   }
 
