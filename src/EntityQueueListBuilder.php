@@ -11,6 +11,7 @@ use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\entityqueue\Entity\EntitySubqueue;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -73,7 +74,6 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
    */
   public function buildHeader() {
     $header['label'] = $this->t('Queue name');
-    $header['id'] = $this->t('Machine name');
     $header['target_type'] = $this->t('Target type');
     $header['handler'] = $this->t('Queue type');
     $header['items'] = $this->t('Items');
@@ -85,13 +85,17 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    $row['label'] = $entity->label();
-    $row['id'] = $entity->id();
-    $row['target_type'] = $this->entityManager->getDefinition($entity->getTargetEntityTypeId())->getLabel();
-    $row['handler'] = $entity->getHandlerPlugin()->getPluginDefinition()['title'];
-    $row['items'] = '@todo';
+    $row = [
+      'data' => [
+        'label' => $entity->label(),
+        'target_type' => $this->entityManager->getDefinition($entity->getTargetEntityTypeId())->getLabel(),
+        'handler' => $entity->getHandlerPlugin()->getPluginDefinition()['title'],
+        'items' => $this->getQueueItemsStatus($entity),
+      ] + parent::buildRow($entity),
+      'title' => $this->t('Machine name: @name', array('@name' => $entity->id())),
+    ];
 
-    return $row + parent::buildRow($entity);
+    return $row;
   }
 
   /**
@@ -155,6 +159,36 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
     $operations += $entity->getHandlerPlugin()->getQueueListBuilderOperations();
 
     return $operations;
+  }
+
+  /**
+   * Returns the number of items in a subqueue or the number of subqueues.
+   *
+   * @param \Drupal\entityqueue\EntityQueueInterface $queue
+   *   An entity queue object.
+   *
+   * @return string
+   *   The number of items in a subqueue or the number of subqueues.
+   */
+  protected function getQueueItemsStatus(EntityQueueInterface $queue) {
+    $handler = $queue->getHandlerPlugin();
+
+    $items = NULL;
+    if ($handler->supportsMultipleSubqueues()) {
+      $subqueues_count = $this->entityManager->getStorage('entity_subqueue')->getQuery()
+        ->condition('queue', $queue->id(), '=')
+        ->count()
+        ->execute();
+
+      $items = $this->t('@count subqueues', ['@count' => $subqueues_count]);
+    }
+    else {
+      $subqueue = EntitySubqueue::load($queue->id());
+
+      $items = $this->t('@count items', ['@count' => count($subqueue->items)]);
+    }
+
+    return $items;
   }
 
 }
