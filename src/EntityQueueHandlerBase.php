@@ -121,7 +121,10 @@ abstract class EntityQueueHandlerBase extends PluginBase implements EntityQueueH
   /**
    * {@inheritdoc}
    */
-  public function onQueuePostDelete(EntityQueueInterface $queue, EntityStorageInterface $storage) { }
+  public function onQueuePostDelete(EntityQueueInterface $queue, EntityStorageInterface $storage) {
+    // @todo Consider if we should remove all subqueues automatically like we
+    //   did in the D7 version.
+  }
 
   /**
    * {@inheritdoc}
