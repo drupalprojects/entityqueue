@@ -194,7 +194,7 @@ class EntitySubqueueForm extends ContentEntityForm {
     $subqueue = $this->entity;
     $status = $subqueue->save();
 
-    $edit_link = $subqueue->toLink($this->t('Edit'), 'edit-form');
+    $edit_link = $subqueue->toLink($this->t('Edit'), 'edit-form')->toString();
     if ($status == SAVED_UPDATED) {
       drupal_set_message($this->t('The entity subqueue %label has been updated.', ['%label' => $subqueue->label()]));
       $this->logger->notice('The entity subqueue %label has been updated.', ['%label' => $subqueue->label(), 'link' => $edit_link]);

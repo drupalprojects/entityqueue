@@ -166,7 +166,7 @@ class EntityQueueForm extends BundleEntityFormBase {
     $queue = $this->entity;
     $status = $queue->save();
 
-    $edit_link = $queue->toLink($this->t('Edit'), 'edit-form');
+    $edit_link = $queue->toLink($this->t('Edit'), 'edit-form')->toString();
     if ($status == SAVED_UPDATED) {
       drupal_set_message($this->t('The entity queue %label has been updated.', ['%label' => $queue->label()]));
       $this->logger->notice('The entity queue %label has been updated.', ['%label' => $queue->label(), 'link' => $edit_link]);
