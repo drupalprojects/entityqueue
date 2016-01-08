@@ -155,7 +155,9 @@ class EntityQueueForm extends BundleEntityFormBase {
    */
   public function buildEntity(array $form, FormStateInterface $form_state) {
     $entity = parent::buildEntity($form, $form_state);
-    $entity->setHandler($entity->get('handler'));
+    if ($handler = $entity->get('handler')) {
+      $entity->setHandler($handler);
+    }
     return $entity;
   }
 
