@@ -7,8 +7,10 @@
 
 namespace Drupal\entityqueue\Entity;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 use Drupal\entityqueue\EntityQueueHandlerPluginCollection;
 use Drupal\entityqueue\EntityQueueInterface;
@@ -198,6 +200,20 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
   /**
    * {@inheritdoc}
    */
+  public function calculateDependencies() {
+    parent::calculateDependencies();
+
+    // Ensure that the queue depends on the module that provides the target
+    // entity type.
+    $target_entity_type = \Drupal::entityTypeManager()->getDefinition($this->target_type);
+    $this->addDependency('module', $target_entity_type->getProvider());
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function preSave(EntityStorageInterface $storage) {
     parent::preSave($storage);
 
@@ -249,8 +265,46 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
   /**
    * {@inheritdoc}
    */
+  protected function invalidateTagsOnSave($update) {
+    // In addition to the parent implementation, we also need to invalidate
+    // queue-specific cache tags.
+    $tags = Cache::mergeTags($this->getEntityType()->getListCacheTags(), $this->getCacheTagsToInvalidate());
+
+    Cache::invalidateTags($tags);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * Override to never invalidate the individual entities' cache tags; the
+   * config system already invalidates them.
+   */
+  protected static function invalidateTagsOnDelete(EntityTypeInterface $entity_type, array $entities) {
+    $tags = $entity_type->getListCacheTags();
+
+    // In addition to the parent implementation, we also need to invalidate
+    // queue-specific cache tags.
+    foreach ($entities as $entity) {
+      $tags = Cache::mergeTags($tags, $entity->getCacheTagsToInvalidate());
+    }
+
+    Cache::invalidateTags($tags);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheTagsToInvalidate() {
+    // A newly created or deleted queue could alter views data relationships, so
+    // we must invalidate the associated 'views_data' cache tag.
+    return ['views_data'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function loadMultipleByTargetType($target_entity_type_id) {
-    $ids = \Drupal::entityManager()->getStorage('entity_queue')->getQuery()
+    $ids = \Drupal::entityTypeManager()->getStorage('entity_queue')->getQuery()
       ->condition('target_type', $target_entity_type_id)
       ->execute();
 
