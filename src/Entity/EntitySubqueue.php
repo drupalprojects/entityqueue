@@ -186,6 +186,11 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
     $fields['items'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Items'))
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
+      // This setting is overridden per bundle (queue) in
+      // static::bundleFieldDefinitions(), but we need to default to a target
+      // entity type that uses strings IDs, in order to allow both integers and
+      // strings to be stored by the default entity reference field storage.
+      ->setSetting('target_type', 'entity_subqueue')
       ->setDisplayOptions('view', array(
         'label' => 'hidden',
         'type' => 'entity_reference_label',
