@@ -12,7 +12,7 @@ use Drupal\entityqueue\Entity\EntityQueue;
  * Implements hook_views_data_alter().
  */
 function entityqueue_views_data_alter(array &$data) {
-  $entity_manager = \Drupal::entityManager();
+  $entity_type_manager = \Drupal::entityTypeManager();
 
   // Find all entity types that need an 'entityqueue' relationship.
   $target_entity_type_ids = [];
@@ -26,19 +26,19 @@ function entityqueue_views_data_alter(array &$data) {
   /** @var \Drupal\Core\Entity\EntityTypeInterface[] $entity_types */
   $entity_types = [];
   foreach (array_keys($target_entity_type_ids) as $entity_type_id) {
-    $entity_type = $entity_manager->getDefinition($entity_type_id);
-    if ($entity_type->hasHandlerClass('views_data') && $entity_manager->getStorage($entity_type->id()) instanceof SqlEntityStorageInterface) {
+    $entity_type = $entity_type_manager->getDefinition($entity_type_id);
+    if ($entity_type->hasHandlerClass('views_data') && $entity_type_manager->getStorage($entity_type->id()) instanceof SqlEntityStorageInterface) {
       $entity_types[$entity_type_id] = $entity_type;
     }
   }
 
   foreach ($entity_types as $entity_type_id => $entity_type) {
     $field_name = 'items';
-    $field_storage = $entity_manager->getFieldStorageDefinitions('entity_subqueue')[$field_name];
+    $field_storage = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions('entity_subqueue')[$field_name];
     $target_base_table = $entity_type->getDataTable() ?: $entity_type->getBaseTable();
 
     /** @var \Drupal\Core\Entity\Sql\DefaultTableMapping $table_mapping */
-    $table_mapping = $entity_manager->getStorage('entity_subqueue')->getTableMapping();
+    $table_mapping = $entity_type_manager->getStorage('entity_subqueue')->getTableMapping();
     $columns = $table_mapping->getColumnNames($field_name);
     $subqueue_items_table_name = $table_mapping->getDedicatedDataTableName($field_storage);
 

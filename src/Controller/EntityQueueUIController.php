@@ -28,7 +28,7 @@ class EntityQueueUIController extends ControllerBase {
    *   A render array.
    */
   public function subqueueList(EntityQueueInterface $entity_queue) {
-    $list_builder = $this->entityManager()->getListBuilder('entity_subqueue');
+    $list_builder = $this->entityTypeManager()->getListBuilder('entity_subqueue');
     $list_builder->setQueueId($entity_queue->id());
 
     return $list_builder->render();
@@ -44,7 +44,7 @@ class EntityQueueUIController extends ControllerBase {
    *   The entity subqueue add form.
    */
   public function addForm(EntityQueueInterface $entity_queue) {
-    $subqueue = $this->entityManager()->getStorage('entity_subqueue')->create(['queue' => $entity_queue->id()]);
+    $subqueue = $this->entityTypeManager()->getStorage('entity_subqueue')->create(['queue' => $entity_queue->id()]);
     return $this->entityFormBuilder()->getForm($subqueue);
   }
 
@@ -68,7 +68,7 @@ class EntityQueueUIController extends ControllerBase {
 
     // If the request is via AJAX, return the rendered list as JSON.
     if ($request->request->get('js')) {
-      $list = $this->entityManager()->getListBuilder('entity_queue')->render();
+      $list = $this->entityTypeManager()->getListBuilder('entity_queue')->render();
       $response = new AjaxResponse();
       $response->addCommand(new ReplaceCommand('#entity-queue-list', $list));
       return $response;

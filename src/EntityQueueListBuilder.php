@@ -9,8 +9,8 @@ namespace Drupal\entityqueue;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\entityqueue\Entity\EntitySubqueue;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -22,22 +22,22 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
   /**
    * The entity manager.
    *
-   * @var \Drupal\Core\Entity\EntityManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityManager;
+  protected $entityTypeManager;
 
   /**
    * Constructs a new class instance.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *   The entity type definition.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity manager.
    */
-  public function __construct(EntityTypeInterface $entity_type, EntityManagerInterface $entity_manager) {
-    parent::__construct($entity_type, $entity_manager->getStorage($entity_type->id()));
+  public function __construct(EntityTypeInterface $entity_type, EntityTypeManagerInterface $entity_type_manager) {
+    parent::__construct($entity_type, $entity_type_manager->getStorage($entity_type->id()));
 
-    $this->entityManager = $entity_manager;
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -46,7 +46,7 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
   public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
     return new static(
       $entity_type,
-      $container->get('entity.manager')
+      $container->get('entity_type.manager')
     );
   }
 
@@ -88,7 +88,7 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
     $row = [
       'data' => [
         'label' => $entity->label(),
-        'target_type' => $this->entityManager->getDefinition($entity->getTargetEntityTypeId())->getLabel(),
+        'target_type' => $this->entityTypeManager->getDefinition($entity->getTargetEntityTypeId())->getLabel(),
         'handler' => $entity->getHandlerPlugin()->getPluginDefinition()['title'],
         'items' => $this->getQueueItemsStatus($entity),
       ] + parent::buildRow($entity),
@@ -149,7 +149,7 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
     // Add AJAX functionality to enable/disable operations.
     foreach (array('enable', 'disable') as $op) {
       if (isset($operations[$op])) {
-        $operations[$op]['url'] = $entity->urlInfo($op);
+        $operations[$op]['url'] = $entity->toUrl($op);
         // Enable and disable operations should use AJAX.
         $operations[$op]['attributes']['class'][] = 'use-ajax';
       }
@@ -175,7 +175,7 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
 
     $items = NULL;
     if ($handler->supportsMultipleSubqueues()) {
-      $subqueues_count = $this->entityManager->getStorage('entity_subqueue')->getQuery()
+      $subqueues_count = $this->entityTypeManager->getStorage('entity_subqueue')->getQuery()
         ->condition('queue', $queue->id(), '=')
         ->count()
         ->execute();

@@ -9,6 +9,7 @@ namespace Drupal\entityqueue\Form;
 
 use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Entity\BundleEntityFormBase;
+use Drupal\Core\Entity\EntityTypeRepositoryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -24,6 +25,13 @@ class EntityQueueForm extends BundleEntityFormBase {
    * @var \Drupal\entityqueue\EntityQueueInterface
    */
   protected $entity;
+
+  /**
+   * The entity type repository.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeRepositoryInterface
+   */
+  protected $entityTypeRepository;
 
   /**
    * The entity queue handler plugin manager.
@@ -44,6 +52,7 @@ class EntityQueueForm extends BundleEntityFormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
+      $container->get('entity_type.repository'),
       $container->get('plugin.manager.entityqueue.handler'),
       $container->get('logger.factory')->get('entityqueue')
     );
@@ -52,12 +61,15 @@ class EntityQueueForm extends BundleEntityFormBase {
   /**
    * Constructs a EntityQueueForm.
    *
+   * @param \Drupal\Core\Entity\EntityTypeRepositoryInterface
+   *   The entity type repository.
    * @param \Drupal\Component\Plugin\PluginManagerInterface
    *   The entity queue handler plugin manager.
    * @param \Psr\Log\LoggerInterface $logger
    *   A logger instance.
    */
-  public function __construct(PluginManagerInterface $entity_queue_handler_manager, LoggerInterface $logger) {
+  public function __construct(EntityTypeRepositoryInterface $entity_type_repository, PluginManagerInterface $entity_queue_handler_manager, LoggerInterface $logger) {
+    $this->entityTypeRepository = $entity_type_repository;
     $this->entityQueueHandlerManager = $entity_queue_handler_manager;
     $this->logger = $logger;
   }
@@ -74,7 +86,7 @@ class EntityQueueForm extends BundleEntityFormBase {
       '#title' => $this->t('Label'),
       '#maxlength' => 255,
       '#default_value' => $queue->label(),
-      '#description' => $this->t("Label for the EntityQueue."),
+      '#description' => $this->t('Label for the entity queue.'),
       '#required' => TRUE,
     ];
 
@@ -102,7 +114,7 @@ class EntityQueueForm extends BundleEntityFormBase {
     $form['target_type'] = [
       '#type' => 'select',
       '#title' => $this->t('Type of items to queue'),
-      '#options' => \Drupal::entityManager()->getEntityTypeLabels(TRUE),
+      '#options' => $this->entityTypeRepository->getEntityTypeLabels(TRUE),
       '#default_value' => $queue->getTargetEntityTypeId(),
       '#required' => TRUE,
       '#disabled' => !$queue->isNew(),
