@@ -11,6 +11,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\inline_entity_form\Plugin\Field\FieldWidget\InlineEntityFormBase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -172,6 +173,39 @@ class EntitySubqueueForm extends ContentEntityForm {
         case 'clear':
           $subqueue_items->setValue(NULL);
           break;
+      }
+
+      // Handle 'inline_entity_form' widgets separately because they have a
+      // custom form state storage for the current state of the referenced
+      // entities.
+      if (\Drupal::moduleHandler()->moduleExists('inline_entity_form') && $items_widget instanceof InlineEntityFormBase) {
+        $items_form_element = NestedArray::getValue($form, $path);
+        $ief_id = $items_form_element['widget']['#ief_id'];
+
+        $entities = $form_state->get(['inline_entity_form', $ief_id, 'entities']);
+
+        if (isset($entities)) {
+          $form_state->set(['inline_entity_form', $ief_id, 'entities'], []);
+
+          switch ($op) {
+            case 'reverse':
+              $entities = array_reverse($entities);
+              break;
+
+            case 'shuffle':
+              shuffle($entities);
+              break;
+
+            case 'clear':
+              $entities = [];
+              break;
+          }
+
+          foreach ($entities as $delta => $item) {
+            $item['_weight'] = $delta;
+            $form_state->set(['inline_entity_form', $ief_id, 'entities', $delta], $item);
+          }
+        }
       }
 
       $form_state->getFormObject()->setEntity($entity);
