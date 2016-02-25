@@ -72,6 +72,31 @@ interface EntityQueueInterface extends ConfigEntityInterface {
   public function getActAsQueue();
 
   /**
+   * Gets the selection settings used by a subqueue's 'items' reference field.
+   *
+   * @return array
+   *   An array with the following keys:
+   *   - target_type: The type of the entities that will be queued.
+   *   - handler: The entity reference selection handler that will be used by
+   *     the subqueue's 'items' field.
+   *   - handler_settings: The entity reference selection handler settings that
+   *     will be used by the subqueue's 'items' field.
+   */
+  public function getEntitySettings();
+
+  /**
+   * Gets the queue settings.
+   *
+   * @return array
+   *   An array with the following keys:
+   *   - min_size: The minimum number of items that this queue can hold.
+   *   - max_size: The maximum number of items that this queue can hold.
+   *   - act_as_queue: The behavior of exceeding the maximum number of queue
+   *     items.
+   */
+  public function getQueueSettings();
+
+  /**
    * Loads one or more queues based on their target entity type.
    *
    * @param string $target_entity_type_id

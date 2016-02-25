@@ -49,12 +49,10 @@ use Drupal\entityqueue\EntityQueueInterface;
  *   config_export = {
  *     "id",
  *     "label",
- *     "target_type",
  *     "handler",
  *     "handler_configuration",
- *     "min_size",
- *     "max_size",
- *     "act_as_queue"
+ *     "entity_settings",
+ *     "queue_settings"
  *   }
  * )
  */
@@ -75,39 +73,33 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
   protected $label;
 
   /**
-   * The type of the target entities.
+   * The entity selection settings used for the subqueue's 'items' field.
    *
-   * @var string
+   * @var array
    */
-  protected $target_type = '';
+  protected $entity_settings = [
+    'target_type' => 'node',
+    'handler' => 'default',
+    'handler_settings' => [],
+  ];
 
   /**
-   * The minimum number of items that this queue can hold.
+   * The queue settings.
    *
-   * @var int
+   * @var array
    */
-  protected $min_size = 0;
-
-  /**
-   * The maximum number of items that this queue can hold.
-   *
-   * @var int
-   */
-  protected $max_size = 0;
-
-  /**
-   * The behavior of exceeding the maximum number of queue items.
-   *
-   * @var bool
-   */
-  protected $act_as_queue = FALSE;
+  protected $queue_settings = [
+    'min_size' => 0,
+    'max_size' => 0,
+    'act_as_queue' => FALSE,
+  ];
 
   /**
    * The ID of the EntityQueueHandler.
    *
    * @var string
    */
-  protected $handler;
+  protected $handler = 'simple';
 
   /**
    * An array to store and load the EntityQueueHandler plugin configuration.
@@ -127,28 +119,46 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
    * {@inheritdoc}
    */
   public function getTargetEntityTypeId() {
-    return $this->target_type;
+    return $this->entity_settings['target_type'];
   }
 
   /**
    * {@inheritdoc}
    */
   public function getMinimumSize() {
-    return $this->min_size;
+    return $this->queue_settings['min_size'];
   }
 
   /**
    * {@inheritdoc}
    */
   public function getMaximumSize() {
-    return $this->max_size;
+    return $this->queue_settings['max_size'];
   }
 
   /**
    * {@inheritdoc}
    */
   public function getActAsQueue() {
-    return $this->act_as_queue;
+    return $this->queue_settings['act_as_queue'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntitySettings() {
+    return $this->entity_settings;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getQueueSettings() {
+    return $this->queue_settings + [
+      // Ensure that we always have an empty array by default for the
+      // 'handler_settings', regardless of the incoming form values.
+      'handler_settings' => []
+    ];
   }
 
   /**
@@ -205,7 +215,7 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
 
     // Ensure that the queue depends on the module that provides the target
     // entity type.
-    $target_entity_type = \Drupal::entityTypeManager()->getDefinition($this->target_type);
+    $target_entity_type = \Drupal::entityTypeManager()->getDefinition($this->getTargetEntityTypeId());
     $this->addDependency('module', $target_entity_type->getProvider());
 
     return $this;
