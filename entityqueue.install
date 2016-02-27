@@ -14,11 +14,11 @@
  * Updates the internal structure of the entity queue config entities.
  */
 function entityqueue_update_8001() {
-  $config = \Drupal::configFactory();
+  $config_factory = \Drupal::configFactory();
 
   // Iterate over all entity queues.
-  foreach ($config->listAll('entityqueue.entity_queue.') as $queue_id) {
-    $config = $config->getEditable($queue_id);
+  foreach ($config_factory->listAll('entityqueue.entity_queue.') as $queue_id) {
+    $config = $config_factory->getEditable($queue_id);
 
     $entity_settings = [
       'target_type' => $config->get('target_type'),
