@@ -307,7 +307,7 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
   public function getCacheTagsToInvalidate() {
     // A newly created or deleted queue could alter views data relationships, so
     // we must invalidate the associated 'views_data' cache tag.
-    return ['views_data', 'entity_field_info'];
+    return Cache::mergeTags(parent::getCacheTagsToInvalidate(), ['views_data', 'entity_field_info']);
   }
 
   /**

@@ -7,6 +7,8 @@
 
 namespace Drupal\entityqueue\Plugin\views\relationship;
 
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheableDependencyInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\entityqueue\Entity\EntityQueue;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
@@ -20,7 +22,7 @@ use Drupal\views\ViewExecutable;
  *
  * @ViewsRelationship("entity_queue")
  */
-class EntityQueueRelationship extends RelationshipPluginBase {
+class EntityQueueRelationship extends RelationshipPluginBase implements CacheableDependencyInterface {
 
   /**
    * {@inheritdoc}
@@ -78,6 +80,34 @@ class EntityQueueRelationship extends RelationshipPluginBase {
     }
 
     return $dependencies;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheContexts() {
+    return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheTags() {
+    $tags = [];
+
+    if ($this->options['limit_queue']) {
+      $queue = EntityQueue::load($this->options['limit_queue']);
+      $tags = $queue->getCacheTags();
+    }
+
+    return $tags;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheMaxAge() {
+    return Cache::PERMANENT;
   }
 
 }
