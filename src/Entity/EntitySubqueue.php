@@ -331,7 +331,7 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
     // type list tag.
     // @todo Reconsider this when https://www.drupal.org/node/2710679 is fixed.
     $target_entity_type = $this->entityTypeManager()->getDefinition($this->getQueue()->getTargetEntityTypeId());
-    $tags = Cache::mergeTags($tags, [$target_entity_type->getListCacheTags()]);
+    $tags = Cache::mergeTags($tags, $target_entity_type->getListCacheTags());
 
     return $tags;
   }
