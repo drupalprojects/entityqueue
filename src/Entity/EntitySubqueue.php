@@ -36,10 +36,10 @@ use Drupal\user\UserInterface;
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider",
  *     },
- *     "list_builder" = "Drupal\entityqueue\EntitySubqueueListBuilder"
+ *     "list_builder" = "Drupal\entityqueue\EntitySubqueueListBuilder",
+ *     "views_data" = "Drupal\views\EntityViewsData",
  *   },
  *   base_table = "entity_subqueue",
- *   data_table = "entity_subqueue_field_data",
  *   entity_keys = {
  *     "id" = "name",
  *     "bundle" = "queue",

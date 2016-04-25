@@ -12,7 +12,7 @@ use Drupal\Core\Cache\CacheableDependencyInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\entityqueue\Entity\EntityQueue;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
-use Drupal\views\Plugin\views\relationship\RelationshipPluginBase;
+use Drupal\views\Plugin\views\relationship\EntityReverse;
 use Drupal\views\ViewExecutable;
 
 /**
@@ -22,7 +22,7 @@ use Drupal\views\ViewExecutable;
  *
  * @ViewsRelationship("entity_queue")
  */
-class EntityQueueRelationship extends RelationshipPluginBase implements CacheableDependencyInterface {
+class EntityQueueRelationship extends EntityReverse implements CacheableDependencyInterface {
 
   /**
    * {@inheritdoc}
