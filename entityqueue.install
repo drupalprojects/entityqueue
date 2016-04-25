@@ -42,5 +42,13 @@ function entityqueue_update_8001() {
 }
 
 /**
+ * Clear views data cache.
+ */
+function entityqueue_update_8002() {
+  // Empty update function that rebuilds the views data in order to account for
+  // the updated entityqueue relationship definition.
+}
+
+/**
  * @} End of "addtogroup updates-8.x-1.0-alpha".
  */
