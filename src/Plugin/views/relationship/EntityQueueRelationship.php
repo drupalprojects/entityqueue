@@ -110,4 +110,29 @@ class EntityQueueRelationship extends EntityReverse implements CacheableDependen
     return Cache::PERMANENT;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function query() {
+    parent::query();
+
+    // Add a 'where' condition if needed.
+    if (!empty($this->definition['extra'])) {
+      $bundles = [];
+
+      // Future-proofing: support any number of selected bundles.
+      foreach ($this->definition['extra'] as $extra) {
+        if ($extra['field'] == 'bundle') {
+          $bundles[] = $extra['value'];
+        }
+      }
+
+      // Only add the 'where' condition if $bundles isn't empty.
+      if (!empty($bundles)) {
+        $op = count($bundles) > 1 ? 'IN' : '=';
+        $this->query->addWhere(0, $this->alias . '.name', $bundles, $op);
+      }
+    }
+  }
+
 }
