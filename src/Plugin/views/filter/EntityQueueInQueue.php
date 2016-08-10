@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\entityqueue\Plugin\views\filter\EntityQueueInQueue.
- */
-
 namespace Drupal\entityqueue\Plugin\views\filter;
 
 use Drupal\Core\Session\AccountInterface;

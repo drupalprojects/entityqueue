@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\entityqueue\Plugin\views\sort\EntityQueuePosition.
- */
-
 namespace Drupal\entityqueue\Plugin\views\sort;
 
 use Drupal\Core\Session\AccountInterface;

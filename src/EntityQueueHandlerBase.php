@@ -1,20 +1,18 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\entityqueue\EntityQueueHandlerBase.
- */
-
 namespace Drupal\entityqueue;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Base class for EntityQueueHandler plugins.
  */
 abstract class EntityQueueHandlerBase extends PluginBase implements EntityQueueHandlerInterface {
+
+  use StringTranslationTrait;
 
   /**
    * The entity queue that is using this plugin.
@@ -95,7 +93,7 @@ abstract class EntityQueueHandlerBase extends PluginBase implements EntityQueueH
   public function getQueueListBuilderOperations() {
     // Add an operation to list all subqueues by default.
     $operations['view_subqueues'] = [
-      'title' => t('View subqueues'),
+      'title' => $this->t('View subqueues'),
       'weight' => -9,
       'url' => $this->queue->urlInfo('subqueue-list'),
     ];

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\entityqueue\Plugin\views\relationship\EntityQueueRelationship.
- */
-
 namespace Drupal\entityqueue\Plugin\views\relationship;
 
 use Drupal\Core\Cache\Cache;

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\entityqueue\Entity\EntityQueue.
- */
-
 namespace Drupal\entityqueue\Entity;
 
 use Drupal\Core\Cache\Cache;

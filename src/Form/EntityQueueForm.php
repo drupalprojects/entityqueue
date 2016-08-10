@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\entityqueue\Form\EntityQueueForm.
- */
-
 namespace Drupal\entityqueue\Form;
 
 use Drupal\Component\Plugin\PluginManagerInterface;
@@ -156,7 +151,7 @@ class EntityQueueForm extends BundleEntityFormBase {
     ];
     $form['queue_settings']['act_as_queue'] = [
       '#type' => 'checkbox',
-      '#title' => t('Act as queue'),
+      '#title' => $this->t('Act as queue'),
       '#default_value' => $queue->getActAsQueue(),
       '#description' => $this->t('When enabled, adding more than the maximum number of items will remove extra items from the top of the queue.'),
       '#states' => [

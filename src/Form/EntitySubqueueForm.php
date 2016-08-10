@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\entityqueue\Form\EntitySubqueueForm.
- */
-
 namespace Drupal\entityqueue\Form;
 
 use Drupal\Component\Utility\Html;
