@@ -160,6 +160,12 @@ class EntityQueueForm extends BundleEntityFormBase {
         ],
       ],
     ];
+    $form['queue_settings']['reverse_in_admin'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Reverse order in admin view'),
+      '#default_value' => $queue->getReverseInAdmin(),
+      '#description' => $this->t('Ordinarily queues are arranged with the front of the queue (where items will be removed) on top and the back (where items will be added) on the bottom. If checked, this will display the queue such that items will be added to the top and removed from the bottom.'),
+    ];
 
     // We have to duplicate all the code from
     // \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem::fieldSettingsForm()

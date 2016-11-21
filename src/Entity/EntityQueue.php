@@ -87,6 +87,7 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
     'min_size' => 0,
     'max_size' => 0,
     'act_as_queue' => FALSE,
+    'reverse_in_admin' => FALSE,
   ];
 
   /**
@@ -136,6 +137,13 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
    */
   public function getActAsQueue() {
     return $this->queue_settings['act_as_queue'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getReverseInAdmin() {
+    return isset($this->queue_settings['reverse_in_admin']) ? $this->queue_settings['reverse_in_admin'] : FALSE;
   }
 
   /**
