@@ -9,6 +9,8 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\views\ViewExecutable;
+use Drupal\entityqueue\Entity\EntitySubqueue;
 
 /**
  * Implements hook_entity_field_access().
@@ -25,56 +27,57 @@ function entityqueue_entity_field_access($operation, FieldDefinitionInterface $f
 }
 
 /**
- * Implements hook_contextual_links_view_alter().
+ * Implements hook_views_pre_render().
+ *
+ * Add contexual links to views before rendering.
  */
-function entityqueue_contextual_links_view_alter(&$element, $items) {
+function entityqueue_views_pre_render(ViewExecutable $view) {
   // Do not add contextual link on view preview.
   if (\Drupal::moduleHandler()->moduleExists('views_ui') && views_ui_contextual_links_suppress()) {
     return;
   }
 
-  // Add contextual link "Edit entityqueue".
-  $views_ui_element = array();
-  if (isset($element['#element']['#views_contextual_links_info']['views_ui'])) {
-    $views_ui_element = $element['#element']['#views_contextual_links_info']['views_ui'];
-  }
-  // In case of block #views_contextual_links_info element is inside of
-  // 'content' and not '#element' directly.
-  // @see http://drupal.org/node/1413596#comment-5912688
-  if (empty($views_ui_element) && isset($element['#element']['content']['#views_contextual_links_info']['views_ui'])) {
-    $views_ui_element = $element['#element']['content']['#views_contextual_links_info']['views_ui'];
+  // Proceed only if there is entityqueue sort criteria available.
+  if (!$sort_key = entityqueue_get_entityqueue_sort($view)) {
+    return;
   }
 
-  if (!empty($views_ui_element['view_display_id']) && isset($views_ui_element['view'])) {
-    $display_id = $views_ui_element['view_display_id'];
-    $view = $views_ui_element['view'];
-    $view->build($display_id);
+  // Get view display relationships.
+  $relationships = $view->relationship;
+  foreach ($relationships as $relationship) {
+    if ($relationship->field == 'entityqueue_relationship') {
+      $referenced_subqueues = (array) $relationship->options['limit_queue'];
 
-    // Proceed only if there is entityqueue sort criteria available.
-    if (!$sort_key = entityqueue_get_entityqueue_sort($view)) {
-      return;
-    }
-    // Get view display relationships.
-    $relationships = $view->display[$display_id]->handler->get_option('relationships');
-    foreach ($relationships as $relationship) {
-      if ($relationship['field'] == 'entityqueue_relationship') {
-        $referenced_subqueues = array_keys(array_filter($relationship['queues']));
-        if (!empty($referenced_subqueues)) {
-          // Contextual links can handle only one set of links coming from a module,
-          // so we'll have to settle for the first referenced queue.
-          $subqueue = entityqueue_subqueue_load(reset($referenced_subqueues));
-
-          if ($subqueue) {
-            $path = 'admin/structure/entityqueue/list/' . $subqueue->name . '/subqueues/' . $subqueue->subqueue_id . '/edit';
-            $element['#links']['entityqueue-order'] = array(
-              'title' => t('Edit subqueue'),
-              'href' => $path,
-              'query' => array('destination' => current_path()),
-            );
-          }
-        }
+      // Contextual links can handle only one set of links coming from a module,
+      // so we'll have to settle for the first referenced queue.
+      if (!empty($referenced_subqueues) && ($subqueue = EntitySubqueue::load(reset($referenced_subqueues)))) {
+        $route_parameters = [
+          'entity_queue' => $subqueue->getQueue()->id(),
+          'entity_subqueue' => $subqueue->id(),
+        ];
+        $view->element['#contextual_links']['entityqueue'] = [
+          'route_parameters' => $route_parameters,
+        ];
       }
     }
+  }
+}
+
+/**
+ * Implements hook_contextual_links_view_alter().
+ *
+ * Change Entityqueue on views into offcanvas links if available.
+ */
+function entityqueue_contextual_links_view_alter(&$element, $items) {
+  if (\Drupal::moduleHandler()->moduleExists('outside_in') && isset($element['#links']['entityentity-subqueueedit-form'])) {
+    $element['#links']['entityentity-subqueueedit-form']['attributes'] = [
+      'class' => ['use-ajax'],
+      'data-dialog-type' => 'dialog',
+      'data-dialog-renderer' => 'offcanvas',
+      'data-outside-in-edit' => TRUE,
+    ];
+
+    $element['#attached']['library'][] = 'outside_in/drupal.off_canvas';
   }
 }
 
@@ -90,7 +93,7 @@ function entityqueue_contextual_links_view_alter(&$element, $items) {
  */
 function entityqueue_get_entityqueue_sort($view) {
   foreach ($view->sort as $id => $sort) {
-    if ($sort->definition['handler'] == 'entityqueue_handler_sort_position') {
+    if ($sort->definition['id'] == 'entity_queue_position') {
       return $id;
     }
   }
