@@ -56,6 +56,7 @@ class Simple extends EntityQueueHandlerBase {
         'queue' => $queue->id(),
         'name' => $queue->id(),
         'title' => $queue->label(),
+        'langcode' => $queue->language()->getId(),
       ]);
       $subqueue->save();
     }
