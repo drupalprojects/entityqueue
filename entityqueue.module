@@ -6,10 +6,12 @@
  */
 
 use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\views\ViewExecutable;
+use Drupal\entityqueue\Entity\EntityQueue;
 use Drupal\entityqueue\Entity\EntitySubqueue;
 
 /**
@@ -98,4 +100,35 @@ function entityqueue_get_entityqueue_sort($view) {
     }
   }
   return FALSE;
+}
+
+/**
+ * Implements hook_entity_delete().
+ *
+ * @todo Remove this when https://www.drupal.org/node/2723323 is fixed.
+ */
+function entityqueue_entity_delete(EntityInterface $entity) {
+  // Get all the entity queues referencing the targets entity type.
+  $queues = EntityQueue::loadMultipleByTargetType($entity->getEntityTypeId());
+  foreach ($queues as $queue) {
+    $entity_settings = $queue->getEntitySettings();
+
+    // Check if the queue's bundle also matches that of the target entity.
+    if (is_array($entity_settings['handler_settings']['target_bundles']) && in_array($entity->bundle(), $entity_settings['handler_settings']['target_bundles'])) {
+      // Get subqueues.
+      $query = \Drupal::entityQuery('entity_subqueue')->condition('queue', $queue->id());
+      $result = $query->execute();
+      $subqueues = EntitySubqueue::loadMultiple($result);
+
+      // Check if the entity is referenced in a subqueue.
+      foreach ($subqueues as $subqueue) {
+        $items = $subqueue->get('items')->getValue();
+        if (($item_key = array_search($entity->id(), array_column($items, 'target_id'))) !== FALSE) {
+          unset($items[$item_key]);
+          $subqueue->set('items', $items);
+          $subqueue->save();
+        }
+      }
+    }
+  }
 }
