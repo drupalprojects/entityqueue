@@ -121,12 +121,11 @@ class EntityQueueRelationship extends EntityReverse implements CacheableDependen
           $bundles[] = $extra['value'];
         }
       }
-
-      // Only add the 'where' condition if $bundles isn't empty.
-      if (!empty($bundles)) {
-        $op = count($bundles) > 1 ? 'IN' : '=';
-        $this->query->addWhere(0, $this->alias . '.name', $bundles, $op);
-      }
+      $this->definition['join_extra'][] = [
+        'field' => 'bundle',
+        'operator' => 'IN',
+        'value' => [$bundles],
+      ];
     }
   }
 

@@ -79,12 +79,6 @@ class EntityQueueInQueue extends BooleanOperator {
       $condition = "$subqueue_items_table_alias.$field_field $operator";
 
       $this->query->addWhereExpression($this->options['group'], $condition);
-
-      // Limit to a specific queue if the relationship specifies it.
-      if (isset($relationship) && !empty($relationship->options['limit_queue'])) {
-        $column = "$subqueue_items_table_alias.bundle";
-        $this->query->addWhere($this->options['group'], $column, $relationship->options['limit_queue'], '=');
-      }
     }
     else {
       if ($this->currentUser->hasPermission('administer views')) {
