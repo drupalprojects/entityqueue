@@ -60,6 +60,7 @@ class EntitySubqueueListBuilder extends EntityListBuilder {
    */
   public function buildHeader() {
     $header['label'] = $this->t('Subqueue');
+    $header['items'] = $this->t('Items');
 
     return $header + parent::buildHeader();
   }
@@ -69,6 +70,7 @@ class EntitySubqueueListBuilder extends EntityListBuilder {
    */
   public function buildRow(EntityInterface $entity) {
     $row['label'] = $entity->label();
+    $row['items'] = $this->t('@count items', ['@count' => count($entity->items)]);
 
     return $row + parent::buildRow($entity);
   }
