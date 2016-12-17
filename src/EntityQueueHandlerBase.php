@@ -3,6 +3,7 @@
 namespace Drupal\entityqueue;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -12,6 +13,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
  */
 abstract class EntityQueueHandlerBase extends PluginBase implements EntityQueueHandlerInterface {
 
+  use DependencySerializationTrait;
   use StringTranslationTrait;
 
   /**

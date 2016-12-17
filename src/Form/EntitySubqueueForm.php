@@ -2,9 +2,12 @@
 
 namespace Drupal\entityqueue\Form;
 
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\ContentEntityForm;
+use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\inline_entity_form\Plugin\Field\FieldWidget\InlineEntityFormBase;
 use Psr\Log\LoggerInterface;
@@ -34,7 +37,10 @@ class EntitySubqueueForm extends ContentEntityForm {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('logger.factory')->get('entityqueue')
+      $container->get('entity.manager'),
+      $container->get('logger.factory')->get('entityqueue'),
+      $container->get('entity_type.bundle.info'),
+      $container->get('datetime.time')
     );
   }
 
@@ -44,7 +50,8 @@ class EntitySubqueueForm extends ContentEntityForm {
    * @param \Psr\Log\LoggerInterface $logger
    *   A logger instance.
    */
-  public function __construct(LoggerInterface $logger) {
+  public function __construct(EntityManagerInterface $entity_manager, LoggerInterface $logger, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL) {
+    parent::__construct($entity_manager, $entity_type_bundle_info, $time);
     $this->logger = $logger;
   }
 
