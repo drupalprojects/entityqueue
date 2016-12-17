@@ -6,6 +6,8 @@ use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\ContentEntityForm;
+use Drupal\Core\Entity\EntityChangedInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -38,9 +40,7 @@ class EntitySubqueueForm extends ContentEntityForm {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity.manager'),
-      $container->get('logger.factory')->get('entityqueue'),
-      $container->get('entity_type.bundle.info'),
-      $container->get('datetime.time')
+      $container->get('logger.factory')->get('entityqueue')
     );
   }
 
@@ -50,8 +50,9 @@ class EntitySubqueueForm extends ContentEntityForm {
    * @param \Psr\Log\LoggerInterface $logger
    *   A logger instance.
    */
-  public function __construct(EntityManagerInterface $entity_manager, LoggerInterface $logger, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL) {
-    parent::__construct($entity_manager, $entity_type_bundle_info, $time);
+  public function __construct(EntityManagerInterface $entity_manager, LoggerInterface $logger) {
+    parent::__construct($entity_manager);
+
     $this->logger = $logger;
   }
 
@@ -267,6 +268,16 @@ class EntitySubqueueForm extends ContentEntityForm {
     }
     else {
       $form_state->setRedirectUrl($queue->toUrl('collection'));
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function updateChangedTime(EntityInterface $entity) {
+    // @todo Remove this method when Drupal 8.2.x is no longer supported.
+    if ($entity->getEntityType()->isSubclassOf(EntityChangedInterface::class)) {
+      $entity->setChangedTime(REQUEST_TIME);
     }
   }
 
