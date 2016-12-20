@@ -126,8 +126,9 @@ class EntityQueueRelationship extends EntityReverse implements CacheableDependen
         ];
       }
     }
+
+    // Now - let's build the query.
+    parent::query();
   }
 
-  // Now - let's build the query.
-  parent::query();
 }
