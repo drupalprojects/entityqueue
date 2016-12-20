@@ -109,8 +109,6 @@ class EntityQueueRelationship extends EntityReverse implements CacheableDependen
    * {@inheritdoc}
    */
   public function query() {
-    parent::query();
-
     // Add a 'where' condition if needed.
     if (!empty($this->definition['extra'])) {
       $bundles = [];
@@ -121,12 +119,15 @@ class EntityQueueRelationship extends EntityReverse implements CacheableDependen
           $bundles[] = $extra['value'];
         }
       }
-      $this->definition['join_extra'][] = [
-        'field' => 'bundle',
-        'operator' => 'IN',
-        'value' => [$bundles],
-      ];
+      if (count($bundles) > 0) {
+        $this->definition['join_extra'][] = [
+          'field' => 'bundle',
+          'value' => $bundles,
+        ];
+      }
     }
   }
 
+  // Now - let's build the query.
+  parent::query();
 }
