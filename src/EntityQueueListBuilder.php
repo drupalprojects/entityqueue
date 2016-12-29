@@ -139,7 +139,9 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
   public function getDefaultOperations(EntityInterface $entity) {
     $operations = parent::getDefaultOperations($entity);
 
-    $operations['edit']['title'] = $this->t('Configure');
+    if (isset($operations['edit'])) {
+      $operations['edit']['title'] = $this->t('Configure');
+    }
 
     // Add AJAX functionality to enable/disable operations.
     foreach (array('enable', 'disable') as $op) {
