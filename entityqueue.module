@@ -44,6 +44,11 @@ function entityqueue_views_pre_render(ViewExecutable $view) {
     return;
   }
 
+  // Allow to disable the contextual links.
+  if (!$view->display_handler->getOption('show_admin_links')) {
+    return;
+  }
+
   // Get view display relationships.
   $relationships = $view->relationship;
   foreach ($relationships as $relationship) {
