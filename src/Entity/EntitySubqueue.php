@@ -201,7 +201,8 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
           'placeholder' => '',
         ),
       ))
-      ->setDisplayConfigurable('form', TRUE);
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
 
     $fields['langcode'] = BaseFieldDefinition::create('language')
       ->setLabel(t('Language'))
