@@ -30,9 +30,9 @@ class EntityQueueHandlerPluginCollection extends DefaultSingleLazyPluginCollecti
    *   The entity queue using this plugin.
    */
   public function __construct(PluginManagerInterface $manager, $instance_id, array $configuration, EntityQueueInterface $queue) {
-    parent::__construct($manager, $instance_id, $configuration);
-
     $this->queue = $queue;
+
+    parent::__construct($manager, $instance_id, $configuration);
   }
 
   /**
@@ -51,17 +51,6 @@ class EntityQueueHandlerPluginCollection extends DefaultSingleLazyPluginCollecti
     parent::initializePlugin($instance_id);
 
     $this->pluginInstances[$instance_id]->setQueue($this->queue);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function addInstanceId($id, $configuration = NULL) {
-    // @todo Open a core bug report, the parent class should take care of this..
-    $this->instanceId = $id;
-    $this->instanceIDs = array_filter($this->instanceIDs);
-
-    parent::addInstanceId($id, $configuration);
   }
 
 }
