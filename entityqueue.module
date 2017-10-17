@@ -76,15 +76,15 @@ function entityqueue_views_pre_render(ViewExecutable $view) {
  * Change Entityqueue on views into offcanvas links if available.
  */
 function entityqueue_contextual_links_view_alter(&$element, $items) {
-  if (\Drupal::moduleHandler()->moduleExists('outside_in') && isset($element['#links']['entityentity-subqueueedit-form'])) {
+  if (\Drupal::moduleHandler()->moduleExists('settings_tray') && isset($element['#links']['entityentity-subqueueedit-form'])) {
     $element['#links']['entityentity-subqueueedit-form']['attributes'] = [
       'class' => ['use-ajax'],
       'data-dialog-type' => 'dialog',
-      'data-dialog-renderer' => 'offcanvas',
-      'data-outside-in-edit' => TRUE,
+      'data-dialog-renderer' => 'off_canvas',
+      'data-settings-tray-edit' => TRUE,
     ];
 
-    $element['#attached']['library'][] = 'outside_in/drupal.off_canvas';
+    $element['#attached']['library'][] = 'settings_tray/drupal.off_canvas';
   }
 }
 
