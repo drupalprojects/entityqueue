@@ -349,7 +349,7 @@ function entityqueue_entity_info() {
         'real path' => 'admin/structure/entityqueue/list/' . $name,
         'bundle argument' => 4,
         'access callback' => 'entityqueue_queue_access',
-        'access arguments' => array('view', 4),
+        'access arguments' => array('view', $name),
       ),
     );
   }
