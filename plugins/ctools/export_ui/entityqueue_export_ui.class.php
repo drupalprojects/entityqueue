@@ -208,7 +208,7 @@ class entityqueue_export_ui extends ctools_export_ui {
       case 'disabled':
         $this->sorts[$queue->name] = empty($queue->disabled) . $queue->name;
         break;
-      case 'title':
+      case 'label':
         $this->sorts[$queue->name] = $queue->label;
         break;
       case 'name':
