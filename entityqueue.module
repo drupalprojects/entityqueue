@@ -770,7 +770,7 @@ function _entityqueue_queue_ensure_instance(EntityQueue $queue) {
 }
 
 /**
- * Creates a locked instance of a entityreference field on the specified bundle.
+ * Creates an instance of a entityreference field on the specified bundle.
  *
  * @param EntityQueue $queue
  *   An EntityQueue object.
@@ -806,7 +806,6 @@ function _entityqueue_create_entityreference_field($queue, $field_name, $entity_
       'cardinality' => FIELD_CARDINALITY_UNLIMITED,
       'entity_types' => array($entity_type),
       'translatable' => FALSE,
-      'locked' => TRUE,
       'settings' => array(
         'target_type' => $queue->target_type,
         'handler' => 'entityqueue',

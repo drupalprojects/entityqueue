@@ -277,3 +277,10 @@ function entityqueue_update_7002() {
   variable_del('entityqueue_broken_update_7001');
   return $ret;
 }
+
+/**
+ * Unlocks entity queue field instances so they may be edited individually.
+ */
+function entityqueue_update_7003() {
+  db_query("UPDATE {field_config} SET locked = 0 WHERE field_name LIKE 'eq_%'");
+}
