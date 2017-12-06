@@ -387,7 +387,9 @@ function entityqueue_subqueue_edit_form_validate($form, &$form_state) {
   if ($original_subqueue) {
     $field_name = _entityqueue_get_target_field_name($queue->target_type);
     $lang = $form[$field_name]['#language'];
-    if ($subqueue->{$field_name}[$lang] !== $original_subqueue->{$field_name}[$lang]) {
+    $form_items = $subqueue->{$field_name} ? $subqueue->{$field_name}[$lang] : array();
+    $original_items = $original_subqueue->{$field_name} ? $original_subqueue->{$field_name}[$lang] : array();
+    if ($form_items !== $original_items) {
       form_error($form['queue'], t('This queue has been modified in another window or by another user and cannot be saved. Load this page again and remake your changes.'));
     }
   }
