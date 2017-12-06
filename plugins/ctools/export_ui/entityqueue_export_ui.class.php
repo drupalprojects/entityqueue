@@ -489,6 +489,8 @@ function entityqueue_subqueue_edit_form_submit($form, &$form_state) {
   else {
     $form_state['redirect'] = $plugin_base_path . '/list/' . $queue->name . '/subqueues';
   }
+
+  drupal_set_message(t('The %queue queue has been saved.', array('%queue' => $queue->label())), 'status');
 }
 
 /**
