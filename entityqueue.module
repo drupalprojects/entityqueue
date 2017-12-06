@@ -1153,7 +1153,7 @@ function entityqueue_field_widget_ajax_callback($form, $form_state) {
   $add_id = drupal_clean_css_identifier('entityqueue-dragtable-' . $field_name . '-add');
   $commands[] = ajax_command_invoke('.' . $add_id, 'val', array(''));
   $settings = array(
-    drupal_clean_css_identifier('entityqueue-dragtable-' . $field_name) => true,
+    drupal_clean_css_identifier('entityqueue-dragtable-' . $field_name) => TRUE,
   );
 
   if (!empty($form_state['entityqueue_added_id'])) {
@@ -1170,7 +1170,7 @@ function entityqueue_field_widget_ajax_callback($form, $form_state) {
  */
 function entityqueue_subqueue_ajax_callback($form, $form_state) {
   $settings = array(
-    drupal_clean_css_identifier('entityqueue-dragtable-' . $form_state['field_name']) => true,
+    drupal_clean_css_identifier('entityqueue-dragtable-' . $form_state['field_name']) => TRUE,
   );
   drupal_add_js(array('entityqueue_changed' => $settings), 'setting');
 

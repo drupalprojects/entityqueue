@@ -1,3 +1,7 @@
+/**
+ * @file
+ * Javascript functions for the Entityqueue module.
+ */
 (function($) {
 
   Drupal.behaviors.entityqueueWidget = {
