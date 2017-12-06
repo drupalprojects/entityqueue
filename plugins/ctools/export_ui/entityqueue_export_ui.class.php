@@ -375,6 +375,23 @@ function entityqueue_subqueue_edit_form($form, &$form_state, EntityQueue $queue,
  * Validation callback for the subqueue edit form.
  */
 function entityqueue_subqueue_edit_form_validate($form, &$form_state) {
+  $queue = $form_state['entityqueue_queue'];
+  $subqueue = $form_state['entityqueue_subqueue'];
+
+  // Use load multiple to ensure we load fresh without a cache.
+  $original_subqueues = entityqueue_subqueue_load_multiple(array($subqueue->name), array(), TRUE);
+  $original_subqueue = reset($original_subqueues);
+
+  // Compare the subqueue that was in form state with the freshly loaded copy,
+  // to ensure the queue hasn't been modified in a different user session.
+  if ($original_subqueue) {
+    $field_name = _entityqueue_get_target_field_name($queue->target_type);
+    $lang = $form[$field_name]['#language'];
+    if ($subqueue->{$field_name}[$lang] !== $original_subqueue->{$field_name}[$lang]) {
+      form_error($form['queue'], t('This queue has been modified in another window or by another user and cannot be saved. Load this page again and remake your changes.'));
+    }
+  }
+
   entity_form_field_validate('entityqueue_subqueue', $form, $form_state);
 }
 
