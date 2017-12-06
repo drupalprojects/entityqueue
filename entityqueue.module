@@ -849,6 +849,7 @@ function entityqueue_field_widget_info() {
       'settings' => array(
         'match_operator' => 'CONTAINS',
         'size' => 60,
+        'add_position' => 'bottom',
       ),
       'behaviors' => array(
         'multiple values' => FIELD_BEHAVIOR_CUSTOM,
@@ -889,6 +890,16 @@ function entityqueue_field_widget_settings_form($field, $instance) {
       '#element_validate' => array('_element_validate_integer_positive'),
       '#required' => TRUE,
     );
+    $form['add_position'] = array(
+      '#type' => 'radios',
+      '#title' => t('Position for new items'),
+      '#options' => array(
+        'top' => t('Top of the queue'),
+        'bottom' => t('Bottom of the queue'),
+      ),
+      '#default_value' => $settings['add_position'],
+      '#description' => t('Changing this setting will move the autocomplete field above or below the draggable table.')
+    );
   }
 
   return $form;
@@ -912,6 +923,8 @@ function entityqueue_field_widget_form(&$form, &$form_state, $field, $instance, 
     list($entity_id) = entity_extract_ids($entity_type, $entity);
     $value_key = key($field['columns']);
     $subform['#value_key'] = $value_key;
+    $subform['#add_position'] = $instance['widget']['settings']['add_position'];
+
     // We don't use drupal_html_id() here because our ajax callback needs
     // to be able to know what the table id is. We should never have
     // the same form field multiple times on a page anyway.
@@ -1023,7 +1036,7 @@ function entityqueue_field_widget_form(&$form, &$form_state, $field, $instance, 
     $subform['add'] = array(
       '#type' => 'container',
       '#attributes' => array('class' => array('container-inline')),
-      '#weight' => 10,
+      '#weight' => $subform['#add_position'] === 'top' ? -1 : 10,
       'entity' => array(
         '#type' => 'textfield',
         '#maxlength' => 1024,
@@ -1097,9 +1110,16 @@ function entityqueue_widget_dragtable_element_validate($element, &$form_state) {
   }
   $new_value = $form_state['values'][$field_name][$lang]['add'];
   if (!empty($new_value['entity'])) {
-    $items[] = array(
-      $value_key => $new_value['entity'],
-    );
+    if ($element['#add_position'] === 'top') {
+      array_unshift($items, array(
+        $value_key => $new_value['entity'],
+      ));
+    }
+    else {
+      $items[] = array(
+        $value_key => $new_value['entity'],
+      );
+    }
   }
   form_set_value($element, $items, $form_state);
   // Rebuild form if ajax callback button was clicked.
