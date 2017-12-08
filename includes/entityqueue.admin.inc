@@ -208,18 +208,7 @@ function entityqueue_subqueue_edit_form_submit($form, &$form_state) {
   entity_form_submit_build_entity('entityqueue_subqueue', $subqueue, $form, $form_state);
   $subqueue->save();
 
-  $entityqueue_export_ui_plugin = ctools_get_plugins('ctools', 'export_ui', 'entityqueue_export_ui');
-  $plugin_base_path = ctools_export_ui_plugin_base_path($entityqueue_export_ui_plugin);
-
-  $handlers = ctools_get_plugins('entityqueue', 'handler');
-  if ($handlers[$queue->handler]['queue type'] == 'single') {
-    $form_state['redirect'] = $plugin_base_path;
-  }
-  else {
-    $form_state['redirect'] = $plugin_base_path . '/list/' . $queue->name . '/subqueues';
-  }
-
-  drupal_set_message(t('The %queue queue has been saved.', array('%queue' => $queue->label())), 'status');
+  drupal_set_message(t('The %queue queue has been saved.', array('%queue' => $subqueue->label())), 'status');
 }
 
 /**

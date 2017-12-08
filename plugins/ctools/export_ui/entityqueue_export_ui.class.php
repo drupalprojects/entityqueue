@@ -24,8 +24,8 @@ class entityqueue_export_ui extends ctools_export_ui {
    */
   public function subqueues_page($js, $input, EntityQueue $queue) {
     $plugin = $this->plugin;
-    drupal_set_title($this->get_page_title('subqueues', $queue));
-    _entityqueue_set_breadcrumb();
+    drupal_set_title(t('Subqueues of @queue', array('@queue' => $queue->label())), PASS_THROUGH);
+    _entityqueue_set_breadcrumb('admin/structure/entityqueue/list/' . $queue->name);
 
     $header = array(
       array(
@@ -63,11 +63,11 @@ class entityqueue_export_ui extends ctools_export_ui {
       $operations = array();
       if (entity_access('update', 'entityqueue_subqueue', $subqueue)) {
         $edit_op = str_replace('%entityqueue_subqueue', $subqueue->subqueue_id, ctools_export_ui_plugin_menu_path($plugin, 'edit subqueue', $queue->name));
-        $operations['edit'] = array('title' => t('Edit items'), 'href' => $edit_op);
+        $operations['edit'] = array('title' => t('Edit items'), 'href' => $edit_op, 'query' => drupal_get_destination());
       }
       if (entity_access('delete', 'entityqueue_subqueue', $subqueue)) {
         $delete_op = str_replace('%entityqueue_subqueue', $subqueue->subqueue_id, ctools_export_ui_plugin_menu_path($plugin, 'delete subqueue', $queue->name));
-        $operations['delete'] = array('title' => t('Delete subqueue'), 'href' => $delete_op);
+        $operations['delete'] = array('title' => t('Delete subqueue'), 'href' => $delete_op, 'query' => drupal_get_destination());
       }
       $ops = theme('links__ctools_dropbutton', array('links' => $operations, 'attributes' => array('class' => array('links', 'inline'))));
       $rows[] = array(
@@ -129,7 +129,13 @@ class entityqueue_export_ui extends ctools_export_ui {
   public function subqueue_edit_page($js, $input, EntityQueue $queue, EntitySubqueue $subqueue) {
     module_load_include('inc', 'entityqueue', 'includes/entityqueue.admin');
     drupal_set_title(t('Edit %subqueue', array('%subqueue' => $subqueue->label)), PASS_THROUGH);
-    _entityqueue_set_breadcrumb();
+
+    if ($queue->handler === 'multiple') {
+      _entityqueue_set_breadcrumb($_GET['q']);
+    }
+    else {
+      _entityqueue_set_breadcrumb('admin/structure/entityqueue/list/' . $queue->name);
+    }
     return drupal_get_form('entityqueue_subqueue_edit_form', $queue, $subqueue);
   }
 
@@ -138,7 +144,7 @@ class entityqueue_export_ui extends ctools_export_ui {
    */
   public function subqueue_delete_page($js, $input, EntityQueue $queue, EntitySubqueue $subqueue) {
     module_load_include('inc', 'entityqueue', 'includes/entityqueue.admin');
-    _entityqueue_set_breadcrumb();
+    _entityqueue_set_breadcrumb($_GET['q']);
     return drupal_get_form('entityqueue_subqueue_delete_form', $queue, $subqueue);
   }
 
@@ -205,6 +211,7 @@ class entityqueue_export_ui extends ctools_export_ui {
       unset($operations['subqueues']);
       unset($operations['delete subqueue']);
       $operations['edit subqueue']['href'] = str_replace('%entityqueue_subqueue', $queue->subqueue_id, $operations['edit subqueue']['href']);
+      $operations['edit subqueue']['query'] = drupal_get_destination();
     }
     else {
       unset($operations['edit subqueue']);
