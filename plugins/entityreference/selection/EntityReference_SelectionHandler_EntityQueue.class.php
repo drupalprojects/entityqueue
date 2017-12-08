@@ -39,11 +39,46 @@ class EntityReference_SelectionHandler_EntityQueue extends EntityReference_Selec
   }
 
   /**
+   * Overrides EntityReference_SelectionHandler_Generic::settingsForm().
+   */
+  public static function settingsForm($field, $instance) {
+    $form = parent::settingsForm($field, $instance);
+    $access = $instance['entity_type'] === 'entityqueue_subqueue';
+
+    // Show an explanation describing where bundles may be selected.
+    $form['warning'] = array(
+      '#type' => 'item',
+      '#title' => t('DO NOT USE'),
+      '#markup' => t('This mode should only be used on Entity Queues. This field is on a %type entity type and is not supported.', array('%type' => $instance['entity_type'])),
+      '#weight' => -1,
+      '#access' => !$access,
+    );
+
+    // Force all bundles to be accepted.
+    $form['target_bundles'] = array(
+      '#type' => 'value',
+      '#value' => array(),
+    );
+
+    // Show an explanation describing where bundles may be selected.
+    $form['target_bundles_help'] = array(
+      '#type' => 'item',
+      '#title' => t('Target bundles'),
+      '#markup' => t('Bundles are filtered on a per-queue basis from the <a href="!url">queue\'s settings</a>.', array('!url' => url('admin/structure/entityqueue/list/' . $instance['bundle'] . '/edit'))),
+      '#weight' => -1,
+      '#access' => $access,
+    );
+
+    $form['sort']['#access'] = $access;
+
+    return $form;
+  }
+
+  /**
    * Overrides EntityReference_SelectionHandler_Generic::buildEntityFieldQuery().
    */
   public function buildEntityFieldQuery($match = NULL, $match_operator = 'CONTAINS') {
-    $handler = EntityReference_SelectionHandler_Generic::getInstance($this->field, $this->instance, $this->entity_type, $this->entity);
-    $query = $handler->buildEntityFieldQuery($match, $match_operator);
+    $query = parent::buildEntityFieldQuery($match, $match_operator);
 
     if (!empty($this->queue->settings['target_bundles'])) {
       $query->entityCondition('bundle', $this->queue->settings['target_bundles'], 'IN');

@@ -18,8 +18,8 @@ $plugin = array(
 
   'menu' => array(
     'menu item' => 'entityqueue',
-    'menu title' => 'Entityqueues',
-    'menu description' => 'Manage entity queues.',
+    'menu title' => 'Entity queues',
+    'menu description' => 'Manage orderable queues of content.',
     // Add entityqueue specific menu callbacks.
     'items' => array(
       'subqueues' => array(
@@ -162,7 +162,7 @@ function entityqueue_export_ui_form(&$form, &$form_state) {
   }
   $form['settings']['entityreference_field'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Entityreference field settings'),
+    '#title' => t('Entity reference field settings'),
     '#collapsible' => TRUE,
   );
   $form['settings']['entityreference_field']['target_bundles'] = array(

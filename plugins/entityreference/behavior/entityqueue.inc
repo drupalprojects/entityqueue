@@ -6,7 +6,7 @@
  */
 
 $plugin = array(
-  'title' => t('Entityqueue'),
+  'title' => t('Entity queue'),
   'description' => t('Enforce entity queue settings such as minimum and maximum number of items.'),
   'class' => 'EntityReferenceBehavior_EntityQueue',
   'behavior type' => 'field',
