@@ -169,7 +169,7 @@ class EntityqueueDragtableWidget extends EntityReferenceAutocompleteWidget {
     $submitted_values = NestedArray::getValue($form_state->getValues(), array_slice($button['#parents'], 0, -2));
 
     // Check submitted values for empty items.
-    $new_values = array();
+    $new_values = [];
     foreach ($submitted_values as $delta => $submitted_value) {
       if ($delta !== 'add_more' && (isset($submitted_value['target_id']) || isset($submitted_value['entity']))) {
         $new_values[] = $submitted_value;

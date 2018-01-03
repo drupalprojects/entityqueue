@@ -71,7 +71,7 @@ class EntityReference_SelectionHandler_EntityQueue extends EntityReference_Selec
    *   Entity ids that are currently referenced by the entity.
    */
   public function getCurrentlyReferencedEntityIds() {
-    $ret = array();
+    $ret = [];
     if (isset($this->entity) && isset($this->field)) {
       $entity_type = $this->entity_type;
       $field_name = $this->field['field_name'];

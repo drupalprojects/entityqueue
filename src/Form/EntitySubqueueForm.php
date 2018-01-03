@@ -91,10 +91,10 @@ class EntitySubqueueForm extends ContentEntityForm {
     $form['name'] = [
       '#type' => 'machine_name',
       '#default_value' => $this->entity->id(),
-      '#machine_name' => array(
+      '#machine_name' => [
         'exists' => '\Drupal\entityqueue\Entity\EntitySubqueue::load',
         'source' => ['title', 'widget', 0, 'value'],
-      ),
+      ],
       '#disabled' => !$this->entity->isNew(),
       '#weight' => -5,
       '#access' => !$this->entity->getQueue()->getHandlerPlugin()->hasAutomatedSubqueues(),

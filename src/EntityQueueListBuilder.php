@@ -49,10 +49,10 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
    * {@inheritdoc}
    */
   public function load() {
-    $entities = array(
-      'enabled' => array(),
-      'disabled' => array(),
-    );
+    $entities = [
+      'enabled' => [],
+      'disabled' => [],
+    ];
     foreach (parent::load() as $entity) {
       if ($entity->status()) {
         $entities['enabled'][] = $entity;
@@ -87,7 +87,7 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
         'handler' => $entity->getHandlerPlugin()->getPluginDefinition()['title'],
         'items' => $this->getQueueItemsStatus($entity),
       ] + parent::buildRow($entity),
-      'title' => $this->t('Machine name: @name', array('@name' => $entity->id())),
+      'title' => $this->t('Machine name: @name', ['@name' => $entity->id()]),
     ];
 
     return $row;
@@ -103,24 +103,24 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
     $build['#attributes']['id'] = 'entity-queue-list';
     $build['#attached']['library'][] = 'core/drupal.ajax';
 
-    $build['enabled']['heading']['#markup'] = '<h2>' . $this->t('Enabled', array(), array('context' => 'Plural')) . '</h2>';
-    $build['disabled']['heading']['#markup'] = '<h2>' . $this->t('Disabled', array(), array('context' => 'Plural')) . '</h2>';
+    $build['enabled']['heading']['#markup'] = '<h2>' . $this->t('Enabled', [], ['context' => 'Plural']) . '</h2>';
+    $build['disabled']['heading']['#markup'] = '<h2>' . $this->t('Disabled', [], ['context' => 'Plural']) . '</h2>';
 
-    foreach (array('enabled', 'disabled') as $status) {
+    foreach (['enabled', 'disabled'] as $status) {
       $build[$status]['#type'] = 'container';
-      $build[$status]['#attributes'] = array('class' => array('entity-queue-list-section', $status));
-      $build[$status]['table'] = array(
+      $build[$status]['#attributes'] = ['class' => ['entity-queue-list-section', $status]];
+      $build[$status]['table'] = [
         '#type' => 'table',
-        '#attributes' => array(
-          'class' => array('entity-queue-listing-table'),
-        ),
+        '#attributes' => [
+          'class' => ['entity-queue-listing-table'],
+        ],
         '#header' => $this->buildHeader(),
-        '#rows' => array(),
+        '#rows' => [],
         '#cache' => [
           'contexts' => $this->entityType->getListCacheContexts(),
           'tags' => $this->entityType->getListCacheTags(),
         ],
-      );
+      ];
       foreach ($entities[$status] as $entity) {
         $build[$status]['table']['#rows'][$entity->id()] = $this->buildRow($entity);
       }
@@ -144,7 +144,7 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
     }
 
     // Add AJAX functionality to enable/disable operations.
-    foreach (array('enable', 'disable') as $op) {
+    foreach (['enable', 'disable'] as $op) {
       if (isset($operations[$op])) {
         $operations[$op]['url'] = $entity->toUrl($op);
         // Enable and disable operations should use AJAX.
