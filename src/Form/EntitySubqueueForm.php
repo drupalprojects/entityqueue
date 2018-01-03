@@ -2,14 +2,12 @@
 
 namespace Drupal\entityqueue\Form;
 
-use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
-use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\inline_entity_form\Plugin\Field\FieldWidget\InlineEntityFormBase;
 use Psr\Log\LoggerInterface;
@@ -259,7 +257,7 @@ class EntitySubqueueForm extends ContentEntityForm {
     }
     else {
       drupal_set_message($this->t('The entity subqueue %label has been added.', ['%label' => $subqueue->label()]));
-      $this->logger->notice('The entity subqueue %label has been added.', ['%label' => $subqueue->label(), 'link' =>  $edit_link]);
+      $this->logger->notice('The entity subqueue %label has been added.', ['%label' => $subqueue->label(), 'link' => $edit_link]);
     }
 
     $queue = $subqueue->getQueue();
