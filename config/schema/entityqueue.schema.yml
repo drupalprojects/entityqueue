@@ -44,3 +44,11 @@ entityqueue.entity_queue.*:
         reverse_in_admin:
           type: boolean
           label: 'Reverse order in admin view'
+
+views.relationship.entity_queue:
+  type: views_relationship
+  label: 'Entity queue'
+  mapping:
+    limit_queue:
+      type: string
+      label: 'Limit to a specific entity queue'
