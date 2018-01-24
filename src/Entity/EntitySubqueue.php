@@ -173,6 +173,7 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
         'type' => 'string',
         'weight' => -10,
       ])
+      ->setDisplayConfigurable('view', TRUE)
       ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => -10,
