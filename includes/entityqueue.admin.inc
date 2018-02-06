@@ -190,12 +190,6 @@ function entityqueue_subqueue_clear_validate($form, &$form_state) {
   foreach(array('input', 'values') as $state) {
     $form_state[$state][$field_name][$lang] = array();
   }
-  if (isset($form_state['build_info']['args'][1])) {
-    $subqueue = $form_state['build_info']['args'][1];
-    if (isset($subqueue->{$field_name}[$lang])) {
-      $form_state['build_info']['args'][1]->{$field_name}[$lang] = array();
-    }
-  }
 }
 
 /**
