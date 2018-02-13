@@ -22,6 +22,11 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
   protected $entityTypeManager;
 
   /**
+   * {@inheritdoc}
+   */
+  protected $limit = FALSE;
+
+  /**
    * Constructs a new class instance.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
