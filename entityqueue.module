@@ -116,23 +116,20 @@ function entityqueue_entity_delete(EntityInterface $entity) {
   // Get all the entity queues referencing the targets entity type.
   $queues = EntityQueue::loadMultipleByTargetType($entity->getEntityTypeId());
   foreach ($queues as $queue) {
-    $entity_settings = $queue->getEntitySettings();
+    // Get all the subqueues which are referencing the deleted entity.
+    $query = \Drupal::entityQuery('entity_subqueue')
+      ->condition('queue', $queue->id())
+      ->condition('items', $entity->id());
+    $result = $query->execute();
+    $subqueues = EntitySubqueue::loadMultiple($result);
 
-    // Check if the queue's bundle also matches that of the target entity.
-    if (is_array($entity_settings['handler_settings']['target_bundles']) && in_array($entity->bundle(), $entity_settings['handler_settings']['target_bundles'])) {
-      // Get subqueues.
-      $query = \Drupal::entityQuery('entity_subqueue')->condition('queue', $queue->id());
-      $result = $query->execute();
-      $subqueues = EntitySubqueue::loadMultiple($result);
-
-      // Check if the entity is referenced in a subqueue.
-      foreach ($subqueues as $subqueue) {
-        $items = $subqueue->get('items')->getValue();
-        if (($item_key = array_search($entity->id(), array_column($items, 'target_id'))) !== FALSE) {
-          unset($items[$item_key]);
-          $subqueue->set('items', $items);
-          $subqueue->save();
-        }
+    // Check if the entity is referenced in a subqueue.
+    foreach ($subqueues as $subqueue) {
+      $items = $subqueue->get('items')->getValue();
+      if (($item_key = array_search($entity->id(), array_column($items, 'target_id'))) !== FALSE) {
+        unset($items[$item_key]);
+        $subqueue->set('items', $items);
+        $subqueue->save();
       }
     }
   }
