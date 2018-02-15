@@ -16,13 +16,10 @@ class EntityQueueUiTest extends BrowserTestBase {
    *
    * @var array
    */
-  public static $modules = [
-    'entityqueue',
-    'entityqueue_test',
-  ];
+  public static $modules = ['entityqueue_test'];
 
   /**
-   * A user with the 'synchronize configuration' permission.
+   * A user with the 'administer entityqueue' permission.
    *
    * @var \Drupal\user\UserInterface
    */

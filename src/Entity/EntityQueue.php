@@ -174,9 +174,16 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
   /**
    * {@inheritdoc}
    */
-  public function setHandler($handler) {
-    $this->handler = $handler;
-    $this->getPluginCollection()->addInstanceID($handler, []);
+  public function getHandlerConfiguration() {
+    return $this->handler_configuration;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setHandler($handler_id) {
+    $this->handler = $handler_id;
+    $this->getPluginCollection()->addInstanceID($handler_id, []);
 
     return $this;
   }
@@ -186,6 +193,15 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
    */
   public function getHandlerPlugin() {
     return $this->getPluginCollection()->get($this->handler);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setHandlerPlugin($handler) {
+    $this->getPluginCollection()->set($handler->getPluginId(), $handler);
+
+    return $this;
   }
 
   /**

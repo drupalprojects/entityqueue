@@ -3,6 +3,7 @@
 namespace Drupal\entityqueue;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -28,7 +29,7 @@ abstract class EntityQueueHandlerBase extends PluginBase implements EntityQueueH
    */
   public function __construct(array $configuration, $plugin_id, array $plugin_definition) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->configuration += $this->defaultConfiguration();
+    $this->setConfiguration($configuration);
   }
 
   /**
@@ -42,7 +43,7 @@ abstract class EntityQueueHandlerBase extends PluginBase implements EntityQueueH
    * {@inheritdoc}
    */
   public function setConfiguration(array $configuration) {
-    $this->configuration = $configuration;
+    $this->configuration = NestedArray::mergeDeep($this->defaultConfiguration(), $configuration);
   }
 
   /**
