@@ -107,26 +107,26 @@ abstract class EntityQueueHandlerBase extends PluginBase implements EntityQueueH
   /**
    * {@inheritdoc}
    */
-  public function onQueuePreSave(EntityQueueInterface $queue, EntityStorageInterface $storage) { }
+  public function onQueuePreSave(EntityQueueInterface $queue, EntityStorageInterface $storage) {}
 
   /**
    * {@inheritdoc}
    */
-  public function onQueuePostSave(EntityQueueInterface $queue, EntityStorageInterface $storage, $update = TRUE) { }
+  public function onQueuePostSave(EntityQueueInterface $queue, EntityStorageInterface $storage, $update = TRUE) {}
 
   /**
    * {@inheritdoc}
    */
-  public function onQueuePreDelete(EntityQueueInterface $queue, EntityStorageInterface $storage) { }
+  public function onQueuePreDelete(EntityQueueInterface $queue, EntityStorageInterface $storage) {}
 
   /**
    * {@inheritdoc}
    */
-  public function onQueuePostDelete(EntityQueueInterface $queue, EntityStorageInterface $storage) { }
+  public function onQueuePostDelete(EntityQueueInterface $queue, EntityStorageInterface $storage) {}
 
   /**
    * {@inheritdoc}
    */
-  public function onQueuePostLoad(EntityQueueInterface $queue, EntityStorageInterface $storage) { }
+  public function onQueuePostLoad(EntityQueueInterface $queue, EntityStorageInterface $storage) {}
 
 }

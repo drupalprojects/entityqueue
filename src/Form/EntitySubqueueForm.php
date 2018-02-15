@@ -2,12 +2,12 @@
 
 namespace Drupal\entityqueue\Form;
 
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\ContentEntityForm;
-use Drupal\Core\Entity\EntityChangedInterface;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\inline_entity_form\Plugin\Field\FieldWidget\InlineEntityFormBase;
 use Psr\Log\LoggerInterface;
@@ -38,6 +38,8 @@ class EntitySubqueueForm extends ContentEntityForm {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity.manager'),
+      $container->get('entity_type.bundle.info'),
+      $container->get('datetime.time'),
       $container->get('logger.factory')->get('entityqueue')
     );
   }
@@ -45,11 +47,17 @@ class EntitySubqueueForm extends ContentEntityForm {
   /**
    * Constructs a EntitySubqueueForm.
    *
+   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   *   The entity manager.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
+   *   The entity type bundle service.
+   * @param \Drupal\Component\Datetime\TimeInterface $time
+   *   The time service.
    * @param \Psr\Log\LoggerInterface $logger
    *   A logger instance.
    */
-  public function __construct(EntityManagerInterface $entity_manager, LoggerInterface $logger) {
-    parent::__construct($entity_manager);
+  public function __construct(EntityManagerInterface $entity_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, TimeInterface $time, LoggerInterface $logger) {
+    parent::__construct($entity_manager, $entity_type_bundle_info, $time);
 
     $this->logger = $logger;
   }
@@ -266,16 +274,6 @@ class EntitySubqueueForm extends ContentEntityForm {
     }
     else {
       $form_state->setRedirectUrl($queue->toUrl('collection'));
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function updateChangedTime(EntityInterface $entity) {
-    // @todo Remove this method when Drupal 8.2.x is no longer supported.
-    if ($entity->getEntityType()->isSubclassOf(EntityChangedInterface::class)) {
-      $entity->setChangedTime(REQUEST_TIME);
     }
   }
 

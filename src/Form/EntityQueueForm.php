@@ -69,9 +69,9 @@ class EntityQueueForm extends BundleEntityFormBase {
   /**
    * Constructs a EntityQueueForm.
    *
-   * @param \Drupal\Core\Entity\EntityTypeRepositoryInterface
+   * @param \Drupal\Core\Entity\EntityTypeRepositoryInterface $entity_type_repository
    *   The entity type repository.
-   * @param \Drupal\Component\Plugin\PluginManagerInterface
+   * @param \Drupal\Component\Plugin\PluginManagerInterface $entity_queue_handler_manager
    *   The entity queue handler plugin manager.
    * @param \Psr\Log\LoggerInterface $logger
    *   A logger instance.
@@ -392,7 +392,7 @@ class EntityQueueForm extends BundleEntityFormBase {
     }
     else {
       drupal_set_message($this->t('The entity queue %label has been added.', ['%label' => $queue->label()]));
-      $this->logger->notice('The entity queue %label has been added.', ['%label' => $queue->label(), 'link' =>  $edit_link]);
+      $this->logger->notice('The entity queue %label has been added.', ['%label' => $queue->label(), 'link' => $edit_link]);
     }
 
     $form_state->setRedirectUrl($queue->toUrl('collection'));
