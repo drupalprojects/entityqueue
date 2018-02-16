@@ -5,6 +5,7 @@ namespace Drupal\entityqueue\Entity;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
@@ -275,6 +276,28 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
    */
   public function setOwner(UserInterface $account) {
     $this->set('uid', $account->id());
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addItem(EntityInterface $entity) {
+    $this->get('items')->appendItem($entity->id());
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function removeItem(EntityInterface $entity) {
+    $subqueue_items = $this->get('items')->getValue();
+    foreach ($subqueue_items as $key => $item) {
+      if ($item['target_id'] == $entity->id()) {
+        unset($subqueue_items[$key]);
+      }
+    }
+    $this->get('items')->setValue($subqueue_items);
     return $this;
   }
 
