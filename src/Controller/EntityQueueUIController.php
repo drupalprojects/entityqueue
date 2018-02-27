@@ -97,6 +97,19 @@ class EntityQueueUIController extends ControllerBase {
           ],
         ];
       }
+
+      // Add an operation for editing the subqueue items.
+      // First, compute the destination to send the user back to the
+      // entityqueue tab they're currently on. We can't rely on <current>
+      // since if any of the AJAX links are used and the page is rebuilt,
+      // <current> will point to the most recent AJAX callback, not the
+      // original entityqueue tab.
+      $destination = Url::fromRoute("entity.$entity_type_id.entityqueue", [$entity_type_id => $entity->id()])->toString();
+      $row['operations']['data']['#links']['edit-subqueue-items'] = [
+        'title' => $this->t('Edit subqueue items'),
+        'url' => $subqueue->toUrl('edit-form', ['query' => ['destination' => $destination]]),
+      ];
+
       $build['table']['#rows'][$subqueue->id()] = $row;
     }
 
