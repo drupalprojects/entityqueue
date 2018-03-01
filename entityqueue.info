@@ -2,6 +2,7 @@ name = Entityqueue
 description = Allows users to collect entities in arbitrarily ordered lists.
 package = Entityqueue
 core = 7.x
+php = 5.3
 ;configure = admin/structure/entityqueue/settings
 
 dependencies[] = system (>7.11)
