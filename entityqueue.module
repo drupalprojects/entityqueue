@@ -1043,6 +1043,9 @@ function entityqueue_field_widget_form(&$form, &$form_state, $field, $instance, 
         '#default_value' => '',
         '#autocomplete_path' => $autocomplete_path,
         '#size' => $instance['widget']['settings']['size'],
+        '#entity_type' => $element['#entity_type'],
+        '#bundle' => $element['#bundle'],
+        '#field_name' => $element['#field_name'],
         '#element_validate' => array('_entityreference_autocomplete_validate'),
         '#attributes' => array(
           'class' => array(
