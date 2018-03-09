@@ -78,7 +78,11 @@ class EntityReference_SelectionHandler_EntityQueue extends EntityReference_Selec
    * Overrides EntityReference_SelectionHandler_Generic::buildEntityFieldQuery().
    */
   public function buildEntityFieldQuery($match = NULL, $match_operator = 'CONTAINS') {
-    $query = parent::buildEntityFieldQuery($match, $match_operator);
+    // Ensure that the 'target_bundles' setting from the field is not used.
+    $this->field['settings']['handler_settings']['target_bundles'] = NULL;
+
+    $handler = EntityReference_SelectionHandler_Generic::getInstance($this->field, $this->instance, $this->entity_type, $this->entity);
+    $query = $handler->buildEntityFieldQuery($match, $match_operator);
 
     if (!empty($this->queue->settings['target_bundles'])) {
       $query->entityCondition('bundle', $this->queue->settings['target_bundles'], 'IN');
