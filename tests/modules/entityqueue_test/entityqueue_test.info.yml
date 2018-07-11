@@ -4,6 +4,6 @@ description: 'Test content for entityqueue module.'
 package: Testing
 core: 8.x
 dependencies:
- - node
- - views
- - entityqueue
+ - drupal:node
+ - drupal:views
+ - entityqueue:entityqueue
