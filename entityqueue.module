@@ -584,6 +584,32 @@ function entityqueue_subqueue_load_by_target_type($target_type) {
 }
 
 /**
+ * Removes an item from a subqueue.
+ *
+ * @param \EntitySubqueue $subqueue
+ *   An entity subqueue.
+ * @param string|int $reference_id
+ *   An entity ID to remove from the subqueue.
+ */
+function entityqueue_subqueue_remove_item(EntitySubqueue $subqueue, $reference_id) {
+  // Get the corresponding queue for this subqueue.
+  $queue = entityqueue_queue_load($subqueue->queue);
+  $field_name = _entityqueue_get_target_field_name($queue->target_type);
+
+  // Filter the field items and remove the referenced ID.
+  $field_items = field_get_items('entityqueue_subqueue', $subqueue, $field_name);
+  $field_items = array_filter($field_items, function($value) use ($reference_id) {
+    return ($value['target_id'] != $reference_id);
+  });
+
+  // Set the filtered item list on the subqueue.
+  $langcode = field_language('entityqueue_subqueue', $subqueue, $field_name, NULL);
+  $subqueue->{$field_name}[$langcode] = $field_items;
+
+  $subqueue->save();
+}
+
+/**
  * Implements hook_contextual_links_view_alter().
  */
 function entityqueue_contextual_links_view_alter(&$element, $items) {
